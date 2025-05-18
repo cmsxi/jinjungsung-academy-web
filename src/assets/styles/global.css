@@ -1,0 +1,92 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@font-face {
+  font-family: 'Cafe24Oneprettynight';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Oneprettynight.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --font-pretendard: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-cafe24: 'Cafe24Oneprettynight', serif;
+
+  --primary-color: #a0792b;
+  --tertiary-color: #EBD24A;
+  --secondary-color: #262627;
+  --background-light: #fafafa;
+  --border-color: #e2e8f0;
+
+  --font-small: 0.875rem;
+  --font-medium: 1.125rem;
+  --font-large: 1.875rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-pretendard);
+}
+
+html, body {
+  width: 100%;
+  /* height: 100%; */
+  margin: 0;
+  background-color: #f9f9f9;
+  color: #333;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-container {
+  padding: 10vh 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #090e50;
+  margin-bottom: 2.5rem;
+  text-align: start;
+}
+
+.form {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  display: block;
+  font-size: var(--font-small);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--secondary-color);
+}
+
+.input {
+  padding: 0.75rem 0 0.75rem 0.75rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  resize: none;
+}
+
+.input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(9, 14, 80, 0.1);
+}
