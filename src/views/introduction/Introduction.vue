@@ -9,15 +9,7 @@
         :modelValue="currentTab"
         @update:modelValue="handleTabChange"
       >
-        <template #tab-0>
-          <router-view v-if="$route.name === 'Greeting'"></router-view>
-        </template>
-        <template #tab-1>
-          <router-view v-if="$route.name === 'Business'"></router-view>
-        </template>
-        <template #tab-2>
-          <router-view v-if="$route.name === 'Partners'"></router-view>
-        </template>
+        <router-view></router-view>
       </TabComponent>
     </div>
   </div>
@@ -49,6 +41,17 @@ export default {
       this.$router.push(`/introduction/${routes[index]}`)
     }
   },
+  watch: {
+    '$route'(to) {
+      const routeMap = {
+        'greeting': 'tab-0',
+        'business': 'tab-1',
+        'partners': 'tab-2'
+      }
+      const currentRoute = to.path.split('/').pop()
+      this.currentTab = routeMap[currentRoute] || 'tab-0'
+    }
+  },
   created() {
     // 현재 라우트에 따라 탭 선택
     const routeMap = {
@@ -65,7 +68,7 @@ export default {
 <style scoped>
 .introduction-layout {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
 }
 
 .page-header {

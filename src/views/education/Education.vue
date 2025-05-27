@@ -9,12 +9,7 @@
         :modelValue="currentTab"
         @update:modelValue="handleTabChange"
       >
-        <template #tab-0>
-          <router-view v-if="$route.name === 'Curriculum'"></router-view>
-        </template>
-        <template #tab-1>
-          <router-view v-if="$route.name === 'Status'"></router-view>
-        </template>
+        <router-view></router-view>
       </TabComponent>
     </div>
   </div>
@@ -43,6 +38,16 @@ export default {
       const index = parseInt(tabId.split('-')[1])
       const routes = ['curriculum', 'status']
       this.$router.push(`/education/${routes[index]}`)
+    }
+  },
+  watch: {
+    '$route'(to) {
+      const routeMap = {
+        'curriculum': 'tab-0',
+        'status': 'tab-1'
+      }
+      const currentRoute = to.path.split('/').pop()
+      this.currentTab = routeMap[currentRoute] || 'tab-0'
     }
   },
   created() {
@@ -77,9 +82,9 @@ export default {
 }
 
 .content-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 20px 20px;
 }
 
 @media (max-width: 768px) {
