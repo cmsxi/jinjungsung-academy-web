@@ -30,6 +30,7 @@ const routes = [
         path: '/introduction',
         name: 'Introduction',
         component: () => import('../views/introduction/Introduction.vue'),
+        redirect: '/introduction/greeting',
         children: [
             { path: 'greeting', name: 'Greeting', component: Greeting },
             { path: 'business', name: 'Business', component: Business },
@@ -41,6 +42,7 @@ const routes = [
         path: '/education',
         name: 'Education',
         component: () => import('../views/education/Education.vue'),
+        redirect: '/education/curriculum',
         children: [
             { path: 'curriculum', name: 'Curriculum', component: Curriculum },
             { path: 'status', name: 'Status', component: Status }

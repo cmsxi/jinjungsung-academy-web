@@ -6,7 +6,7 @@
           <div class="slide-content">
             <h2 class="slide-title">{{ slide.title }}</h2>
             <p class="slide-description">{{ slide.description }}</p>
-            <router-link v-if="slide.link" :to="slide.link" class="slide-button">자세히 보기</router-link>
+            <!-- <router-link v-if="slide.link" :to="slide.link" class="slide-button">자세히 보기</router-link> -->
           </div>
         </div>
       </div>
@@ -27,9 +27,61 @@
   <Block backgroundColor="#fdfdfd">
     <div class="page-container section-container">
       <div class="services-content" ref="servicesContent">
-        <h2 class="section-title">주요 서비스</h2>
-        <div class="services-list">
-         
+        <h2 class="section-title">수강신청문의</h2>
+        <div class="registration-form">
+          <form @submit.prevent="submitRegistration">
+            <div class="form-group">
+              <label for="name">성함</label>
+              <input 
+                type="text" 
+                id="name" 
+                v-model="formData.name" 
+                required
+                placeholder="홍길동"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="phone">연락처</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                v-model="formData.phone" 
+                required
+                placeholder="010-0000-0000"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="location">거주지역</label>
+              <input 
+                type="text" 
+                id="location" 
+                v-model="formData.location" 
+                required
+                placeholder="서울시 강남구"
+              >
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input 
+                  type="checkbox" 
+                  v-model="formData.agreeTerms"
+                  required
+                >
+                개인정보 수집 및 이용에 동의합니다.
+              </label>
+            </div>
+
+            <button 
+              type="submit" 
+              class="submit-btn"
+              :disabled="!isFormValid"
+            >
+              신청하기
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -39,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRouter } from 'vue-router';
 import Block from "@/components/Block.vue";
 import SideBar from "@/components/SideBar.vue";
@@ -55,27 +107,43 @@ const slider = ref(null);
 const currentSlide = ref(0);
 const slideInterval = ref(null);
 
+// 폼 데이터
+const formData = ref({
+  name: '',
+  phone: '',
+  location: '',
+  agreeTerms: false
+});
+
+// 폼 유효성 검사
+const isFormValid = computed(() => {
+  return formData.value.name && 
+         formData.value.phone && 
+         formData.value.location && 
+         formData.value.agreeTerms;
+});
+
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768;
 };
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80',
-    title: '테스트1',
-    description: '테스트2',
+    image: '/src/assets/images/main-first.png',
+    // title: 'main-first',
+    // description: 'main-first',
     link: '/introduction'
   },
   {
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80',
-    title: '테스트3',
-    description: '테스트4',
+    image: '/src/assets/images/main-second.png',
+    // title: 'main-second',
+    // description: 'main-second',
     link: '/education'
   },
   {
-    image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-    title: '테스트5',
-    description: '테스트6',
+    image: '/src/assets/images/main-third.png',
+    // title: 'main-third',
+    // description: 'main-third',
     link: '/registration'
   }
 ];
@@ -102,6 +170,26 @@ const stopSlideInterval = () => {
     clearInterval(slideInterval.value);
     slideInterval.value = null;
   }
+};
+
+// 폼 제출 메서드
+const submitRegistration = () => {
+  if (!isFormValid.value) return;
+
+  // TODO: API 연동
+  console.log('신청 정보:', formData.value);
+
+  alert('수강신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.');
+  resetForm();
+};
+
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    phone: '',
+    location: '',
+    agreeTerms: false
+  };
 };
 
 onMounted(() => {
@@ -142,13 +230,13 @@ onUnmounted(() => {
 .main-banner {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 78vh;
   overflow: hidden;
 }
 
 .banner-slider {
   width: 100%;
-  height: 100%;
+  height: 100%;  
 }
 
 .slide {
@@ -180,7 +268,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  /* background: rgba(0, 0, 0, 0.4); */
 }
 
 .slide-content {
@@ -196,7 +284,7 @@ onUnmounted(() => {
 }
 
 .slide-title {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 20px;
   opacity: 0;
@@ -253,6 +341,16 @@ onUnmounted(() => {
   font-size: 1.5rem;
 }
 
+.services-content{
+  min-width: 600px;
+}
+
+.section-title{
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
 @keyframes slideUp {
   to {
     opacity: 1;
@@ -282,12 +380,50 @@ onUnmounted(() => {
     padding: 12px 30px;
     font-size: 1rem;
   }
+
+  .registration-form {
+    padding: 0 15px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px; /* iOS 줌 방지 */
+    padding: 20px 15px;
+    min-height: 55px;
+  }
+
+  .form-group label {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .checkbox-group label {
+    font-size: 1.1rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    transform: scale(1.3);
+    margin-right: 12px;
+  }
+
+  .submit-btn {
+    font-size: 1.2rem;
+    padding: 20px;
+    max-width: 100%;
+    min-height: 60px;
+  }
 }
 
 .slider-dots {
   display: flex;
   gap: 10px;
 }
+
 .dot {
   width: 12px;
   height: 12px;
@@ -307,7 +443,6 @@ onUnmounted(() => {
   background-color: var(--primary-color, #0056b3);
   color: white;
   text-decoration: none;
-  border-radius: 5px;
   font-size: 1.2rem;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -316,5 +451,93 @@ onUnmounted(() => {
 .slide-button:hover {
   background-color: #003e80;
   transform: translateY(-2px);
+}
+
+.registration-form {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 20px 15px;
+  border: 2px solid #ddd;
+  font-size: 16px; /* iOS 줌 방지 */
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  min-height: 55px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 12px;
+  transform: scale(1.3);
+  min-height: auto;
+}
+
+.submit-btn {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: block;
+  padding: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #003e80;
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>

@@ -1,19 +1,5 @@
 <template>
   <div class="partners-page">
-    <div class="partners-content">
-      <h2>협력업체</h2>
-      <div class="partners-grid">
-        <div class="partner-card" v-for="(partner, index) in partners" :key="index">
-          <div class="partner-logo">
-            <img :src="partner.logo" :alt="partner.name">
-          </div>
-          <div class="partner-info">
-            <h3>{{ partner.name }}</h3>
-            <p>{{ partner.description }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

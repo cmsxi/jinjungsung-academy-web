@@ -1,36 +1,5 @@
 <template>
   <div class="business-page">
-    <div class="business-content">
-      <h2>사업 영역</h2>
-      <div class="business-sections">
-        <div class="business-section">
-          <h3>교육 사업</h3>
-          <ul>
-            <li>전문 교육 프로그램 운영</li>
-            <li>맞춤형 교육 컨설팅</li>
-            <li>온라인/오프라인 교육 서비스</li>
-          </ul>
-        </div>
-        
-        <div class="business-section">
-          <h3>컨설팅 사업</h3>
-          <ul>
-            <li>기업 맞춤형 교육 솔루션</li>
-            <li>교육 프로그램 개발</li>
-            <li>교육 시스템 구축</li>
-          </ul>
-        </div>
-        
-        <div class="business-section">
-          <h3>연구 개발</h3>
-          <ul>
-            <li>교육 방법론 연구</li>
-            <li>교육 콘텐츠 개발</li>
-            <li>교육 플랫폼 개발</li>
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

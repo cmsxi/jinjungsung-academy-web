@@ -214,7 +214,6 @@ export default {
 
 .course-card {
   background: white;
-  border-radius: 8px;
   padding: 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -275,7 +274,6 @@ export default {
 
 .registration-form {
   background: white;
-  border-radius: 8px;
   padding: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -296,7 +294,6 @@ export default {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 1rem;
 }
 
@@ -329,7 +326,6 @@ export default {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;

@@ -34,9 +34,11 @@
           <ul class="main-menu desktop-only">
             <li @mouseenter="showSubmenu('all')"><router-link to="/introduction" @click="handleNavigation">교육원 소개</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/education" @click="handleNavigation">교육안내</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li>
+            <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></li>
+            <!-- <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li> -->
+            <li @mouseenter="showSubmenu('all')"><span @click.prevent>자주묻는질문</span></li>
+            <!-- <li @mouseenter="showSubmenu('all')"><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li> -->
+            <li @mouseenter="showSubmenu('all')"><span @click.prevent>수강후기</span></li>
           </ul>
           
           <!-- 모바일 전용 아코디언 메뉴 -->
@@ -58,35 +60,49 @@
                 </ul>
               </div>
               <div class="accordion-item">
-                <h3><router-link to="/registration" @click="handleNavigation">수강신청</router-link></h3>
+                <h3><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></h3>
               </div>
-              <div class="accordion-item">
+              <!-- <div class="accordion-item">
                 <h3><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></h3>
                 <ul>
                   <li><router-link to="/faq/questions" @click="handleNavigation">FAQ</router-link></li>
                   <li><router-link to="/faq/inquiry" @click="handleNavigation">문의게시판</router-link></li>
                 </ul>
-              </div>
+              </div> -->
               <div class="accordion-item">
+                <h3><span @click.prevent>자주묻는질문</span></h3>
+                <ul>
+                  <li><span>FAQ</span></li>
+                  <li><span>문의게시판</span></li>
+                </ul>
+              </div>
+              <!-- <div class="accordion-item">
                 <h3><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></h3>
+              </div> -->
+              <div class="accordion-item">
+                <h3>수강후기</h3>
+                <ul>
+                  <li><span>수강후기</span></li>
+                </ul>
               </div>
             </div>
           </div>
           
           <div class="mobile-apply-button">
-            <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청</a>
+            <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청문의</a>
           </div>
         </div>
       </nav>
 
       <div class="apply-button">
-        <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청</a>
+        <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청문의</a>
       </div>
     </div>
 
     <!-- 데스크탑 전체 메뉴 -->
     <div class="full-menu" v-if="activeSubmenu === 'all' && !isMobile" @mouseleave="hideSubmenu">
       <div class="full-menu-container">
+        <div class="submenu-spacer"></div>
         <div class="submenu-grid">
           <div class="submenu-section">
             <ul>
@@ -103,21 +119,33 @@
           </div>
           <div class="submenu-section">
             <ul>
-              <li><router-link to="/registration">수강신청하기</router-link></li>
+              <li><router-link to="/registration">수강신청문의</router-link></li>
             </ul>
           </div>
-          <div class="submenu-section">
+          <!-- <div class="submenu-section">
             <ul>
               <li><router-link to="/faq/questions">FAQ</router-link></li>
               <li><router-link to="/faq/inquiry">문의게시판</router-link></li>
             </ul>
-          </div>
+          </div> -->
           <div class="submenu-section">
+            <ul>
+              <li><span>FAQ</span></li>
+              <li><span>문의게시판</span></li>
+            </ul>
+          </div>
+          <!-- <div class="submenu-section">
             <ul>
               <li><router-link to="/reviews">수강후기</router-link></li>
             </ul>
+          </div> -->
+          <div class="submenu-section">
+            <ul>
+              <li><span>수강후기</span></li>
+            </ul>
           </div>
         </div>
+        <div class="submenu-spacer"></div>
       </div>
     </div>
   </header>
@@ -179,7 +207,7 @@ export default {
     },
     checkMobile() {
       try {
-        this.isMobile = window.innerWidth <= 768;
+        this.isMobile = window.innerWidth <= 1000;
         if (!this.isMobile && this.isMobileMenuOpen) {
           this.closeMobileMenu();
         }
@@ -365,6 +393,8 @@ header.scrolled {
   list-style: none;
   margin: 0;
   padding: 0;
+  max-width: 1000px;
+  width: 100%;
 }
 
 .main-menu li {
@@ -374,6 +404,8 @@ header.scrolled {
   font-size: 16px;
   position: relative;
   width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .main-menu li a {
@@ -384,6 +416,8 @@ header.scrolled {
   padding: 5px 0;
   display: block;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .main-menu li a::after {
@@ -405,9 +439,21 @@ header.scrolled {
   font-weight: 700;
 }
 
+.main-menu li span {
+  color: white;
+  text-decoration: none;
+  position: relative;
+  padding: 5px 0;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
 .consultation-btn {
   display: inline-block;
-  padding: 14px 60px;
+  padding: 13px 50px;
   background-color: var(--secondary-color);
   color: #ffffff;
   text-decoration: none;
@@ -494,30 +540,34 @@ header.scrolled {
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 10px 0 30px 0;
+  padding: 10px 20px 30px 20px;
   display: flex;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: space-between;
 }
+
+/* .submenu-spacer {
+  flex: 1;
+} */
 
 .submenu-grid {
   display: flex;
   justify-content: center;
   gap: 30px;
-  width: 100%;
-  max-width: 1000px;
+  width: 620px;
+  margin: 0;
 }
 
 .submenu-section {
-  flex: 1;
-  max-width: 100px;
+  width: 100px;
   text-align: center;
-  padding: 0 5px;
+  padding: 0;
   box-sizing: border-box;
 }
 
 .submenu-section h3 {
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 20px;
   padding-bottom: 10px;
@@ -546,7 +596,34 @@ header.scrolled {
 
 .submenu-section ul li a:hover {
   color: var(--primary-color);
-  transform: translateX(5px);
+  transform: translateX(2px);
+}
+
+.mobile-menu .accordion-item h3 span {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 5px 0;
+  cursor: default;
+}
+
+.mobile-menu .accordion-item ul li span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  padding: 5px 0;
+  display: block;
+  text-decoration: none;
+  border: none;
+  cursor: default;
+}
+
+.submenu-section ul li span {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  display: block;
+  padding: 5px 0;
+  cursor: default;
 }
 
 /* 햄버거 메뉴 열림 상태일 때 아이콘 애니메이션 */
@@ -562,7 +639,7 @@ header.scrolled {
   transform: translateY(-9px) rotate(-45deg);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   header {
     height: 60px;
   }
@@ -700,7 +777,7 @@ header.scrolled {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1023px) {
+@media (min-width: 1001px) and (max-width: 1023px) {
   .consultation-btn {
     padding: 12px 30px;
     font-size: 16px;

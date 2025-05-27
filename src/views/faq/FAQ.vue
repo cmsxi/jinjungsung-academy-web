@@ -6,8 +6,8 @@
     <div class="content-container">
       <TabComponent 
         :tabs="tabs" 
-        :defaultTab="defaultTab"
-        @tab-changed="handleTabChange"
+        :modelValue="currentTab"
+        @update:modelValue="handleTabChange"
       >
         <template #tab-0>
           <router-view v-if="$route.name === 'Questions'"></router-view>
@@ -31,14 +31,16 @@ export default {
   data() {
     return {
       tabs: [
-        { title: '자주묻는질문', name: 'tab-0' },
-        { title: '문의게시판', name: 'tab-1' }
+        { title: '자주묻는질문', id: 'tab-0' },
+        { title: '문의게시판', id: 'tab-1' }
       ],
-      defaultTab: 0
+      currentTab: 'tab-0'
     }
   },
   methods: {
-    handleTabChange(index) {
+    handleTabChange(tabId) {
+      this.currentTab = tabId
+      const index = parseInt(tabId.split('-')[1])
       const routes = ['questions', 'inquiry']
       this.$router.push(`/faq/${routes[index]}`)
     }
@@ -46,11 +48,11 @@ export default {
   created() {
     // 현재 라우트에 따라 탭 선택
     const routeMap = {
-      'questions': 0,
-      'inquiry': 1
+      'questions': 'tab-0',
+      'inquiry': 'tab-1'
     }
     const currentRoute = this.$route.path.split('/').pop()
-    this.defaultTab = routeMap[currentRoute] || 0
+    this.currentTab = routeMap[currentRoute] || 'tab-0'
   }
 }
 </script>
