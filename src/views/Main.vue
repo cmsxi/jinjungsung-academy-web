@@ -98,6 +98,11 @@ import SideBar from "@/components/SideBar.vue";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+// 이미지 import
+import mainFirstImage from '@/assets/images/main-first.png';
+import mainSecondImage from '@/assets/images/main-second.png';
+import mainThirdImage from '@/assets/images/main-third.png';
+
 gsap.registerPlugin(ScrollTrigger);
 
 const router = useRouter();
@@ -129,19 +134,19 @@ const checkMobile = () => {
 
 const slides = [
   {
-    image: '/src/assets/images/main-first.png',
+    image: mainFirstImage,
     // title: 'main-first',
     // description: 'main-first',
     link: '/introduction'
   },
   {
-    image: '/src/assets/images/main-second.png',
+    image: mainSecondImage,
     // title: 'main-second',
     // description: 'main-second',
     link: '/education'
   },
   {
-    image: '/src/assets/images/main-third.png',
+    image: mainThirdImage,
     // title: 'main-third',
     // description: 'main-third',
     link: '/registration'
