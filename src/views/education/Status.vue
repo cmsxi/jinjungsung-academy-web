@@ -21,7 +21,18 @@
           </div>
         </div>
         
-        <div class="frame-content">
+        <!-- 로딩 상태 -->
+        <div v-if="isLoading" class="loading-message">
+          <p>게시글을 불러오는 중...</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div v-if="errorMessage" class="error-message">
+          <p>{{ errorMessage }}</p>
+          <button @click="loadPosts" class="retry-btn">다시 시도</button>
+        </div>
+        
+        <div v-if="!isLoading && !errorMessage" class="frame-content">
           <div class="post-grid">
             <div 
               v-for="post in filteredPosts" 
@@ -30,18 +41,45 @@
               @click="goToDetail(post.id)"
             >
               <div class="post-image">
-                <img :src="post.image" :alt="post.title" />
+                <img 
+                  :src="post.image_filename ? getImageUrl(post.image_filename) : '/src/assets/images/business-1.jpg'" 
+                  :alt="post.title"
+                  @error="handleImageError"
+                />
               </div>
               <div class="post-info">
                 <h4 class="post-title">{{ post.title }}</h4>
-                <p class="post-date">{{ formatDate(post.date) }}</p>
+                <p class="post-date">{{ formatDate(post.created_at) }}</p>
               </div>
             </div>
           </div>
           
           <!-- 게시글이 없을 때 -->
           <div v-if="filteredPosts.length === 0" class="no-posts">
-            <p>검색 결과가 없습니다.</p>
+            <p>{{ searchKeyword ? '검색 결과가 없습니다.' : '등록된 게시글이 없습니다.' }}</p>
+          </div>
+
+          <!-- 페이지네이션 -->
+          <div v-if="totalPages > 1" class="pagination">
+            <button 
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="page-btn"
+            >
+              이전
+            </button>
+            
+            <span class="page-info">
+              {{ currentPage }} / {{ totalPages }}
+            </span>
+            
+            <button 
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="page-btn"
+            >
+              다음
+            </button>
           </div>
         </div>
       </div>
@@ -52,71 +90,23 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
 const router = useRouter();
 
 // 상태 관리
+const isLoading = ref(false);
+const errorMessage = ref('');
 const searchKeyword = ref('');
+const posts = ref([]);
+const currentPage = ref(1);
+const totalPosts = ref(0);
+const itemsPerPage = 10;
 
-// 더미 데이터 (날짜 최신순으로 정렬)
-const posts = ref([
-  {
-    id: 1,
-    title: '1주차 전당포 창업 기초과정',
-    date: '2024-02-15',
-    course: '전당포 창업 기초과정',
-    week: 1,
-    image: '/src/assets/images/business-1.jpg',
-    content: '전당포 사업의 기본 개념과 법적 요건에 대해 학습했습니다. 사업자등록 절차와 필요 서류에 대해 상세히 다뤘으며, 실제 창업 사례를 통해 이해도를 높였습니다. 전당포업 관련 법규와 규제사항, 허가 절차 등을 체계적으로 학습하여 창업 준비에 필요한 기초 지식을 습득했습니다.'
-  },
-  {
-    id: 2,
-    title: '2주차 귀금속 감정 실무',
-    date: '2024-02-10',
-    course: '전당포 창업 기초과정',
-    week: 2,
-    image: '/src/assets/images/business-2.jpg',
-    content: '귀금속 감정 기초와 시세 파악 방법을 학습했습니다. 금, 은, 백금의 특성과 순도 측정법을 실습을 통해 익혔으며, 시장 동향 분석 방법을 배웠습니다. 감정 도구 사용법과 위조품 판별 기술, 시세 변동 요인 분석 등 실무에 직접 활용할 수 있는 전문 지식을 습득했습니다.'
-  },
-  {
-    id: 3,
-    title: '3주차 금거래소 운영 시스템',
-    date: '2024-02-05',
-    course: '금거래소 창업과정',
-    week: 3,
-    image: '/src/assets/images/business-3.jpg',
-    content: '금거래소 운영 시스템과 고객 관리 방법에 대해 학습했습니다. POS 시스템 활용법과 재고 관리, 회계 처리 방법을 실무 중심으로 교육했습니다. 고객 상담 기법과 매장 운영 노하우, 리스크 관리 방법 등을 종합적으로 다뤄 실제 창업 시 필요한 운영 역량을 기를 수 있었습니다.'
-  },
-  {
-    id: 4,
-    title: '4주차 중고명품 진위 감별법',
-    date: '2024-01-30',
-    course: '중고명품사업 고급과정',
-    week: 4,
-    image: '/src/assets/images/business-1.jpg',
-    content: '명품 브랜드별 진위 감별 기법을 심화 학습했습니다. 루이비통, 샤넬, 에르메스 등 주요 브랜드의 특징과 위조품 판별 포인트를 실제 제품을 통해 실습했습니다. 시리얼 넘버 확인법, 소재 품질 검증, 제작 기법 분석 등 전문적인 감정 능력을 향상시켰습니다.'
-  },
-  {
-    id: 5,
-    title: '5주차 온라인 마케팅 전략',
-    date: '2024-01-25',
-    course: '전당포 창업 기초과정',
-    week: 5,
-    image: '/src/assets/images/business-2.jpg',
-    content: '디지털 시대에 맞는 온라인 마케팅 전략을 학습했습니다. SNS 활용법, 네이버 블로그 운영, 구글 광고 등 다양한 온라인 채널을 통한 고객 유치 방법을 배웠습니다. 브랜딩 전략과 콘텐츠 마케팅, 고객 리뷰 관리 등 실무에 바로 적용할 수 있는 마케팅 노하우를 습득했습니다.'
-  },
-  {
-    id: 6,
-    title: '6주차 세무 및 회계 관리',
-    date: '2024-01-20',
-    course: '금거래소 창업과정',
-    week: 6,
-    image: '/src/assets/images/business-3.jpg',
-    content: '사업 운영에 필수적인 세무 및 회계 관리 방법을 학습했습니다. 부가가치세 신고, 종합소득세 처리, 장부 작성법 등 기본적인 세무 업무를 익혔습니다. 회계 프로그램 사용법과 재무제표 작성, 자금 관리 방법 등 체계적인 사업 관리를 위한 실무 지식을 습득했습니다.'
-  }
-]);
+// 계산된 속성
+const totalPages = computed(() => Math.ceil(totalPosts.value / itemsPerPage));
 
-// 필터링된 게시글 (검색 + 날짜 최신순 정렬)
+// 필터링된 게시글 (검색)
 const filteredPosts = computed(() => {
   let filtered = posts.value;
   
@@ -127,9 +117,42 @@ const filteredPosts = computed(() => {
     );
   }
   
-  // 날짜 최신순 정렬
-  return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return filtered;
 });
+
+// 게시글 목록 로드
+const loadPosts = async (page = 1) => {
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const response = await jinjungsungService.getPosts(page, itemsPerPage);
+    posts.value = response.items;
+    totalPosts.value = response.total;
+    currentPage.value = page;
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 페이지 변경
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    loadPosts(page);
+  }
+};
+
+// 이미지 URL 생성
+const getImageUrl = (filename) => {
+  return jinjungsungService.getImageUrl(filename);
+};
+
+// 이미지 에러 처리
+const handleImageError = (event) => {
+  event.target.src = '/src/assets/images/business-1.jpg';
+};
 
 // 메서드
 const filterPosts = () => {
@@ -151,7 +174,7 @@ const formatDate = (dateString) => {
 
 // 컴포넌트 마운트 시 초기화
 onMounted(() => {
-  // 필요한 초기화 작업
+  loadPosts();
 });
 </script>
 
@@ -204,56 +227,84 @@ onMounted(() => {
 .header-right {
   display: flex;
   align-items: center;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  border: 2px solid #666;
-  padding: 0;
-  min-width: 300px;
-  transition: border-color 0.3s ease;
+  gap: 15px;
 }
 
 .search-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 12px 18px;
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 25px;
   font-size: 1rem;
-  background: transparent;
-  color: #333;
+  width: 250px;
+  transition: border-color 0.3s ease;
 }
 
-.search-box input::placeholder {
-  color: #999;
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.retry-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.retry-btn:hover {
+  background-color: #c82333;
 }
 
 .frame-content {
-  padding: 0;
+  background: transparent;
 }
 
 .post-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
 .post-card {
-  background: transparent;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .post-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .post-image {
   width: 100%;
   height: 200px;
   overflow: hidden;
-  margin-bottom: 15px;
 }
 
 .post-image img {
@@ -268,87 +319,99 @@ onMounted(() => {
 }
 
 .post-info {
-  padding: 0;
-  background: transparent;
+  padding: 20px;
 }
 
 .post-title {
-  color: #333;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  color: #333;
+  margin: 0 0 10px 0;
   line-height: 1.4;
-  letter-spacing: 0.5px;
 }
 
 .post-date {
   color: #666;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   margin: 0;
-  font-weight: 400;
 }
 
-/* 검색 결과 없음 */
 .no-posts {
   text-align: center;
-  padding: 80px 20px;
+  padding: 60px 20px;
   color: #666;
+  font-size: 1.1rem;
 }
 
-.no-posts p {
-  font-size: 1.2rem;
-  margin: 0;
-  font-weight: 400;
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
 }
 
-/* 반응형 */
-@media (max-width: 1024px) {
-  .post-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-  }
+.page-btn {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #003e80;
+}
+
+.page-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
 }
 
 @media (max-width: 768px) {
   .status-page {
-    padding: 20px 10px;
+    padding: 20px 15px;
   }
 
   .frame-header {
     flex-direction: column;
     gap: 20px;
-    align-items: flex-start;
-    padding: 15px 0;
+    align-items: stretch;
   }
 
   .header-left {
-    width: 100%;
+    justify-content: center;
   }
 
-  .header-right {
-    width: 100%;
-  }
-
-  .search-box {
-    min-width: 100%;
+  .search-box input {
     width: 100%;
   }
 
   .post-grid {
     grid-template-columns: 1fr;
-    gap: 25px;
+    gap: 20px;
   }
 
-  .post-image {
-    height: 150px;
+  .frame-header h3 {
+    font-size: 1.5rem;
   }
 
-  .post-title {
-    font-size: 1.1rem;
+  .pagination {
+    gap: 15px;
   }
 
-  .post-date {
-    font-size: 0.85rem;
+  .page-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 }
 </style> 

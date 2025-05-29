@@ -8,28 +8,42 @@
         </button>
       </div>
 
+      <!-- 로딩 상태 -->
+      <div v-if="isLoading" class="loading-message">
+        <p>게시글을 불러오는 중...</p>
+      </div>
+
+      <!-- 에러 메시지 -->
+      <div v-if="errorMessage" class="error-message">
+        <p>{{ errorMessage }}</p>
+        <button @click="loadPost" class="retry-btn">다시 시도</button>
+      </div>
+
       <!-- 게시글 상세 내용 -->
-      <div v-if="post" class="post-detail">
+      <div v-if="post && !isLoading && !errorMessage" class="post-detail">
         <div class="detail-header">
           <h1>제목: {{ post.title }}</h1>
           <div class="detail-meta">
-            <span class="date">작성일: {{ formatDate(post.date) }}</span>
+            <span class="date">작성일: {{ formatDate(post.created_at) }}</span>
           </div>
         </div>
 
-        <div class="detail-image">
-          <img :src="post.image" :alt="post.title" />
+        <div v-if="post.image_filename" class="detail-image">
+          <img 
+            :src="getImageUrl(post.image_filename)" 
+            :alt="post.title"
+            @error="handleImageError"
+          />
         </div>
 
         <div class="detail-content">
-          <div class="content-text">
-            {{ post.content }}
+          <div class="content-text" v-html="formatContent(post.content)">
           </div>
         </div>
       </div>
 
       <!-- 게시글을 찾을 수 없는 경우 -->
-      <div v-else class="not-found">
+      <div v-if="!post && !isLoading && !errorMessage" class="not-found">
         <h2>게시글을 찾을 수 없습니다</h2>
         <p>요청하신 게시글이 존재하지 않거나 삭제되었습니다.</p>
         <button @click="goBack" class="back-btn">목록으로 돌아가기</button>
@@ -41,68 +55,52 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
 const route = useRoute();
 const router = useRouter();
+
+// 상태 관리
+const isLoading = ref(false);
+const errorMessage = ref('');
 const post = ref(null);
 
-// 더미 데이터 (실제로는 API에서 가져올 데이터)
-const posts = [
-  {
-    id: 1,
-    title: '1주차 전당포 창업 기초과정',
-    date: '2024-02-15',
-    course: '전당포 창업 기초과정',
-    week: 1,
-    image: '/src/assets/images/business-1.jpg',
-    content: '전당포 사업의 기본 개념과 법적 요건에 대해 학습했습니다. 사업자등록 절차와 필요 서류에 대해 상세히 다뤘으며, 실제 창업 사례를 통해 이해도를 높였습니다. 전당포업 관련 법규와 규제사항, 허가 절차 등을 체계적으로 학습하여 창업 준비에 필요한 기초 지식을 습득했습니다.'
-  },
-  {
-    id: 2,
-    title: '2주차 귀금속 감정 실무',
-    date: '2024-02-10',
-    course: '전당포 창업 기초과정',
-    week: 2,
-    image: '/src/assets/images/business-2.jpg',
-    content: '귀금속 감정 기초와 시세 파악 방법을 학습했습니다. 금, 은, 백금의 특성과 순도 측정법을 실습을 통해 익혔으며, 시장 동향 분석 방법을 배웠습니다. 감정 도구 사용법과 위조품 판별 기술, 시세 변동 요인 분석 등 실무에 직접 활용할 수 있는 전문 지식을 습득했습니다.'
-  },
-  {
-    id: 3,
-    title: '3주차 금거래소 운영 시스템',
-    date: '2024-02-05',
-    course: '금거래소 창업과정',
-    week: 3,
-    image: '/src/assets/images/business-3.jpg',
-    content: '금거래소 운영 시스템과 고객 관리 방법에 대해 학습했습니다. POS 시스템 활용법과 재고 관리, 회계 처리 방법을 실무 중심으로 교육했습니다. 고객 상담 기법과 매장 운영 노하우, 리스크 관리 방법 등을 종합적으로 다뤄 실제 창업 시 필요한 운영 역량을 기를 수 있었습니다.'
-  },
-  {
-    id: 4,
-    title: '4주차 중고명품 진위 감별법',
-    date: '2024-01-30',
-    course: '중고명품사업 고급과정',
-    week: 4,
-    image: '/src/assets/images/business-1.jpg',
-    content: '명품 브랜드별 진위 감별 기법을 심화 학습했습니다. 루이비통, 샤넬, 에르메스 등 주요 브랜드의 특징과 위조품 판별 포인트를 실제 제품을 통해 실습했습니다. 시리얼 넘버 확인법, 소재 품질 검증, 제작 기법 분석 등 전문적인 감정 능력을 향상시켰습니다.'
-  },
-  {
-    id: 5,
-    title: '5주차 온라인 마케팅 전략',
-    date: '2024-01-25',
-    course: '전당포 창업 기초과정',
-    week: 5,
-    image: '/src/assets/images/business-2.jpg',
-    content: '디지털 시대에 맞는 온라인 마케팅 전략을 학습했습니다. SNS 활용법, 네이버 블로그 운영, 구글 광고 등 다양한 온라인 채널을 통한 고객 유치 방법을 배웠습니다. 브랜딩 전략과 콘텐츠 마케팅, 고객 리뷰 관리 등 실무에 바로 적용할 수 있는 마케팅 노하우를 습득했습니다.'
-  },
-  {
-    id: 6,
-    title: '6주차 세무 및 회계 관리',
-    date: '2024-01-20',
-    course: '금거래소 창업과정',
-    week: 6,
-    image: '/src/assets/images/business-3.jpg',
-    content: '사업 운영에 필수적인 세무 및 회계 관리 방법을 학습했습니다. 부가가치세 신고, 종합소득세 처리, 장부 작성법 등 기본적인 세무 업무를 익혔습니다. 회계 프로그램 사용법과 재무제표 작성, 자금 관리 방법 등 체계적인 사업 관리를 위한 실무 지식을 습득했습니다.'
+// 게시글 로드
+const loadPost = async () => {
+  const postId = route.params.id;
+  if (!postId) {
+    errorMessage.value = '잘못된 게시글 ID입니다.';
+    return;
   }
-];
+
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const response = await jinjungsungService.getPost(postId);
+    post.value = response;
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 이미지 URL 생성
+const getImageUrl = (filename) => {
+  return jinjungsungService.getImageUrl(filename);
+};
+
+// 이미지 에러 처리
+const handleImageError = (event) => {
+  event.target.style.display = 'none';
+};
+
+// 내용 포맷팅 (줄바꿈 처리)
+const formatContent = (content) => {
+  if (!content) return '';
+  return content.replace(/\n/g, '<br>');
+};
 
 // 메서드
 const goBack = () => {
@@ -120,8 +118,7 @@ const formatDate = (dateString) => {
 
 // 컴포넌트 마운트 시 게시글 로드
 onMounted(() => {
-  const postId = parseInt(route.params.id);
-  post.value = posts.find(p => p.id === postId);
+  loadPost();
 });
 </script>
 
@@ -157,10 +154,44 @@ onMounted(() => {
   color: white;
 }
 
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.retry-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.retry-btn:hover {
+  background-color: #c82333;
+}
+
 /* 게시글 상세 */
 .post-detail {
   background: white;
   padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .detail-header {
@@ -195,6 +226,8 @@ onMounted(() => {
   height: 400px;
   overflow: hidden;
   margin-bottom: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .detail-image img {
@@ -205,27 +238,31 @@ onMounted(() => {
 
 /* 내용 */
 .detail-content {
-  padding: 0;
+  line-height: 1.8;
 }
 
 .content-text {
-  color: #444;
-  line-height: 1.8;
-  margin: 0;
+  color: #333;
   font-size: 1.1rem;
-  font-weight: 400;
+  line-height: 1.8;
 }
 
-/* 404 페이지 */
+.content-text :deep(br) {
+  margin-bottom: 10px;
+}
+
+/* 게시글 없음 */
 .not-found {
   text-align: center;
   padding: 80px 20px;
   background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .not-found h2 {
   color: #333;
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 15px;
 }
 
@@ -235,10 +272,9 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
-/* 반응형 */
 @media (max-width: 768px) {
   .status-detail-page {
-    padding: 20px 10px;
+    padding: 20px 15px;
   }
 
   .post-detail {
@@ -246,14 +282,32 @@ onMounted(() => {
   }
 
   .detail-header h1 {
-    font-size: 1.8rem;
+    font-size: 1.1rem;
+  }
+
+  .detail-meta .date {
+    font-size: 1rem;
   }
 
   .detail-image {
     height: 250px;
+    margin-bottom: 30px;
   }
 
   .content-text {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .not-found {
+    padding: 60px 15px;
+  }
+
+  .not-found h2 {
+    font-size: 1.3rem;
+  }
+
+  .not-found p {
     font-size: 1rem;
   }
 }
