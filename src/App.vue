@@ -21,5 +21,12 @@ import Footer from "./components/Footer.vue";
 
 .content {
   min-height: 100vh;
+  padding-top: 80px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding-top: 0;
+  }
 }
 </style>

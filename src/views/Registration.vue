@@ -1,177 +1,128 @@
 <template>
   <div class="registration-page">
-    <div class="page-header">
-      <h1>수강신청</h1>
-    </div>
-    
-    <div class="registration-content">
+    <Block backgroundColor="#fdfdfd">
+      <div class="page-container section-container">
+        <div class="services-content" ref="servicesContent">
+          <h2 class="section-title">수강신청문의</h2>
+          <p class="required-notice">*표시는 필수 입력요소입니다</p>
+          <div class="registration-form">
+            <form @submit.prevent="submitRegistration">
+              <div class="form-group">
+                <label for="name">성함 <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  v-model="formData.name" 
+                  required
+                  placeholder="홍길동"
+                >
+              </div>
 
-      <div class="registration-form">
-        <h2>신청 정보</h2>
-        <form @submit.prevent="submitRegistration">
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input 
-              type="text" 
-              id="name" 
-              v-model="formData.name" 
-              required
-              placeholder="홍길동"
-            >
-          </div>
+              <div class="form-group">
+                <label for="phone">연락처 <span class="required">*</span></label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  v-model="formData.phone" 
+                  required
+                  placeholder="010-0000-0000"
+                >
+              </div>
 
-          <div class="form-group">
-            <label for="phone">연락처</label>
-            <input 
-              type="tel" 
-              id="phone" 
-              v-model="formData.phone" 
-              required
-              placeholder="010-0000-0000"
-            >
-          </div>
+              <div class="form-group">
+                <label for="location">거주지역 <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  id="location" 
+                  v-model="formData.location" 
+                  required
+                  placeholder="서울시 강남구"
+                >
+              </div>
 
-          <div class="form-group">
-            <label for="email">이메일</label>
-            <input 
-              type="email" 
-              id="email" 
-              v-model="formData.email" 
-              required
-              placeholder="example@email.com"
-            >
-          </div>
+              <div class="form-group">
+                <label for="message">문의사항</label>
+                <textarea 
+                  id="message" 
+                  v-model="formData.message" 
+                  rows="4"
+                  placeholder="수강 관련 문의사항을 입력해주세요."
+                ></textarea>
+              </div>
 
-          <div class="form-group">
-            <label for="message">문의사항</label>
-            <textarea 
-              id="message" 
-              v-model="formData.message" 
-              rows="4"
-              placeholder="수강 관련 문의사항을 입력해주세요."
-            ></textarea>
-          </div>
+              <div class="form-group checkbox-group">
+                <label>
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.agreeTerms"
+                    required
+                  >
+                  개인정보 수집 및 이용에 동의합니다.
+                </label>
+              </div>
 
-          <div class="form-group checkbox-group">
-            <label>
-              <input 
-                type="checkbox" 
-                v-model="formData.agreeTerms"
-                required
+              <button 
+                type="submit" 
+                class="submit-btn"
+                :disabled="!isFormValid"
               >
-              개인정보 수집 및 이용에 동의합니다.
-            </label>
+                신청하기
+              </button>
+            </form>
           </div>
-
-          <button 
-            type="submit" 
-            class="submit-btn"
-            :disabled="!isFormValid"
-          >
-            신청하기
-          </button>
-        </form>
+        </div>
       </div>
-    </div>
+    </Block>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Registration',
-  data() {
-    return {
-      selectedCourse: null,
-      courses: [
-        {
-          id: 'basic',
-          name: '기초 과정',
-          duration: '4주',
-          price: 800000,
-          features: [
-            '프로그래밍 기초 개념',
-            '실습 중심 교육',
-            '1:1 멘토링',
-            '수료증 발급'
-          ]
-        },
-        {
-          id: 'intermediate',
-          name: '중급 과정',
-          duration: '4주',
-          price: 1000000,
-          features: [
-            '실무 프로젝트 진행',
-            '프레임워크 실습',
-            '1:1 멘토링',
-            '수료증 발급'
-          ]
-        },
-        {
-          id: 'advanced',
-          name: '고급 과정',
-          duration: '4주',
-          price: 1200000,
-          features: [
-            '실무 프로젝트 진행',
-            '포트폴리오 작성',
-            '1:1 멘토링',
-            '수료증 발급'
-          ]
-        }
-      ],
-      formData: {
-        name: '',
-        phone: '',
-        email: '',
-        message: '',
-        agreeTerms: false
-      }
-    }
-  },
-  computed: {
-    isFormValid() {
-      return this.selectedCourse && 
-             this.formData.name && 
-             this.formData.phone && 
-             this.formData.email && 
-             this.formData.agreeTerms
-    }
-  },
-  methods: {
-    selectCourse(courseId) {
-      this.selectedCourse = courseId
-    },
-    submitRegistration() {
-      if (!this.isFormValid) return
+<script setup>
+import { ref, computed } from 'vue';
+import Block from "@/components/Block.vue";
 
-      // TODO: API 연동
-      console.log('신청 정보:', {
-        courseId: this.selectedCourse,
-        ...this.formData
-      })
+// 폼 데이터
+const formData = ref({
+  name: '',
+  phone: '',
+  location: '',
+  message: '',
+  agreeTerms: false
+});
 
-      alert('수강신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.')
-      this.resetForm()
-    },
-    resetForm() {
-      this.selectedCourse = null
-      this.formData = {
-        name: '',
-        phone: '',
-        email: '',
-        message: '',
-        agreeTerms: false
-      }
-    }
-  }
-}
+// 폼 유효성 검사
+const isFormValid = computed(() => {
+  return formData.value.name && 
+         formData.value.phone && 
+         formData.value.location &&
+         formData.value.agreeTerms;
+});
+
+// 폼 제출 메서드
+const submitRegistration = () => {
+  if (!isFormValid.value) return;
+
+  // TODO: API 연동
+  console.log('신청 정보:', formData.value);
+
+  alert('수강신청문의가 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.');
+  resetForm();
+};
+
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    phone: '',
+    email: '',
+    location: '',
+    message: '',
+    agreeTerms: false
+  };
+};
 </script>
 
 <style scoped>
 .registration-page {
   min-height: 100vh;
-  background-color: #f8f9fa;
 }
 
 .page-header {
@@ -187,114 +138,62 @@ export default {
   margin: 0;
 }
 
-.registration-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
+.services-content {
+  min-width: 600px;
 }
 
-.course-selection {
-  margin-bottom: 40px;
+.section-title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 25px;
 }
 
-.course-selection h2,
-.registration-form h2 {
-  color: var(--primary-color);
-  font-size: 1.8rem;
+.required-notice {
+  text-align: right;
+  color: #666;
+  font-size: 0.9rem;
   margin-bottom: 30px;
-  text-align: center;
+  margin-right: 10px;
 }
 
-.course-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.course-card {
-  background: white;
-  padding: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.course-card:hover {
-  transform: translateY(-5px);
-}
-
-.course-card.selected {
-  border: 2px solid var(--primary-color);
-}
-
-.course-card h3 {
-  color: var(--primary-color);
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.course-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.course-info .duration {
-  color: #666;
-}
-
-.course-info .price {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.course-features {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.course-features li {
-  color: #666;
-  margin: 10px 0;
-  padding-left: 20px;
-  position: relative;
-}
-
-.course-features li::before {
-  content: "•";
-  color: var(--primary-color);
-  position: absolute;
-  left: 0;
+.required {
+  color: #e74c3c;
+  font-weight: bold;
 }
 
 .registration-form {
-  background: white;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: #333;
   font-weight: 500;
+  font-size: 1.1rem;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
+  padding: 20px 15px;
+  border: 2px solid #ddd;
+  font-size: 16px; /* iOS 줌 방지 */
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  min-height: 55px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: none;
 }
 
 .form-group input:focus,
@@ -306,6 +205,8 @@ export default {
 .checkbox-group {
   display: flex;
   align-items: center;
+  margin-bottom: 30px;
+  justify-content: center;
 }
 
 .checkbox-group label {
@@ -313,27 +214,35 @@ export default {
   align-items: center;
   margin: 0;
   cursor: pointer;
+  font-size: 1.1rem;
 }
 
 .checkbox-group input[type="checkbox"] {
   width: auto;
-  margin-right: 10px;
+  margin-right: 12px;
+  transform: scale(1.3);
+  min-height: auto;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+  display: block;
+  padding: 20px;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.4rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-height: 60px;
 }
 
 .submit-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  background-color: #003e80;
+  transform: translateY(-2px);
 }
 
 .submit-btn:disabled {
@@ -350,22 +259,36 @@ export default {
     font-size: 2rem;
   }
 
-  .registration-content {
-    padding: 20px;
-  }
-
-  .course-cards {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
   .registration-form {
-    padding: 20px;
+    padding: 0 15px;
   }
 
-  .course-selection h2,
-  .registration-form h2 {
-    font-size: 1.5rem;
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px; /* iOS 줌 방지 */
+    padding: 20px 15px;
+    min-height: 55px;
+  }
+
+  .form-group label {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .checkbox-group label {
+    font-size: 1.1rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    transform: scale(1.3);
+    margin-right: 12px;
+  }
+
+  .submit-btn {
+    font-size: 1.2rem;
+    padding: 20px;
+    max-width: 100%;
+    min-height: 60px;
   }
 }
 </style> 
