@@ -1,9 +1,7 @@
 import axios from 'axios'
 
-// API 기본 URL 설정
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-api-domain.com/api/jinjungsung'  // 실제 배포 URL로 변경 필요
-  : 'http://localhost:8000/api/jinjungsung'
+// API 기본 URL 설정 - vite 프록시 사용
+const API_BASE_URL = '/api/jinjungsung'
 
 // axios 인스턴스 생성
 const api = axios.create({
