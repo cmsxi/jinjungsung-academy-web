@@ -23,7 +23,6 @@ import Inquiry from '../views/faq/Inquiry.vue'
 import Reviews from '../views/Reviews.vue'
 
 // 관리자
-import AdminLogin from '../views/admin/AdminLogin.vue'
 import AdminStatus from '../views/admin/AdminStatus.vue'
 import AdminStatusDetail from '../views/admin/AdminStatusDetail.vue'
 import AdminStatusWrite from '../views/admin/AdminStatusWrite.vue'
@@ -84,11 +83,6 @@ const routes = [
         path: '/admin',
         name: 'AdminMain',
         component: AdminMain
-    },
-    {
-        path: '/admin/login',
-        name: 'AdminLogin',
-        component: AdminLogin
     },
     {
         path: '/admin/status',
