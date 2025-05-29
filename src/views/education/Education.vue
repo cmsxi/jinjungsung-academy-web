@@ -1,8 +1,6 @@
 <template>
   <div class="education-layout">
-    <div class="page-header">
-      <h1>교육안내</h1>
-    </div>
+ 
     <div class="content-container">
       <TabComponent 
         :tabs="tabs" 

@@ -28,10 +28,11 @@
     <div class="page-container section-container">
       <div class="services-content" ref="servicesContent">
         <h2 class="section-title">수강신청문의</h2>
+        <p class="required-notice">*표시는 필수 입력요소입니다</p>
         <div class="registration-form">
           <form @submit.prevent="submitRegistration">
             <div class="form-group">
-              <label for="name">성함</label>
+              <label for="name">성함 <span class="required">*</span></label>
               <input 
                 type="text" 
                 id="name" 
@@ -42,7 +43,7 @@
             </div>
 
             <div class="form-group">
-              <label for="phone">연락처</label>
+              <label for="phone">연락처 <span class="required">*</span></label>
               <input 
                 type="tel" 
                 id="phone" 
@@ -53,7 +54,7 @@
             </div>
 
             <div class="form-group">
-              <label for="location">거주지역</label>
+              <label for="location">거주지역 <span class="required">*</span></label>
               <input 
                 type="text" 
                 id="location" 
@@ -184,7 +185,7 @@ const submitRegistration = () => {
   // TODO: API 연동
   console.log('신청 정보:', formData.value);
 
-  alert('수강신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.');
+  alert('수강신청문의가 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.');
   resetForm();
 };
 
@@ -261,6 +262,7 @@ onUnmounted(() => {
 .slide-image {
   width: 100%;
   height: 100%;
+  margin-top: -20px;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -282,8 +284,7 @@ onUnmounted(() => {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: white;
-  width: 90%;
+  width: 100%;
   max-width: 800px;
   z-index: 1;
 }
@@ -356,6 +357,20 @@ onUnmounted(() => {
   font-weight: 700;
   margin-bottom: 25px;
 }
+
+.required-notice {
+  text-align: right;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+  margin-right: 10px;
+}
+
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
 @keyframes slideUp {
   to {
     opacity: 1;

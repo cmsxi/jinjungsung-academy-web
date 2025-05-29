@@ -1,8 +1,6 @@
 <template>
   <div class="introduction-layout">
-    <div class="page-header">
-      <h1>교육원 소개</h1>
-    </div>
+   
     <div class="content-container">
       <TabComponent 
         :tabs="tabs" 
@@ -87,7 +85,7 @@ export default {
 .content-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 40px 20px 100px 20px;
 }
 
 @media (max-width: 768px) {

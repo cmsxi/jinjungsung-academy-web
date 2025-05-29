@@ -10,6 +10,7 @@ import Partners from '../views/introduction/Partners.vue'
 // 교육안내
 import Curriculum from '../views/education/Curriculum.vue'
 import Status from '../views/education/Status.vue'
+import StatusDetail from '../views/education/StatusDetail.vue'
 
 // 수강신청
 import Registration from '../views/Registration.vue'
@@ -20,6 +21,12 @@ import Inquiry from '../views/faq/Inquiry.vue'
 
 // 수강후기
 import Reviews from '../views/Reviews.vue'
+
+// 관리자
+import AdminLogin from '../views/admin/AdminLogin.vue'
+import AdminStatus from '../views/admin/AdminStatus.vue'
+import AdminStatusDetail from '../views/admin/AdminStatusDetail.vue'
+import AdminStatusWrite from '../views/admin/AdminStatusWrite.vue'
 
 import '../assets/styles/global.css';
 
@@ -45,7 +52,8 @@ const routes = [
         redirect: '/education/curriculum',
         children: [
             { path: 'curriculum', name: 'Curriculum', component: Curriculum },
-            { path: 'status', name: 'Status', component: Status }
+            { path: 'status', name: 'Status', component: Status },
+            { path: 'status/:id', name: 'StatusDetail', component: StatusDetail }
         ]
     },
     // 수강신청
@@ -69,6 +77,27 @@ const routes = [
         path: '/reviews',
         name: 'Reviews',
         component: Reviews
+    },
+    // 관리자
+    {
+        path: '/admin/login',
+        name: 'AdminLogin',
+        component: AdminLogin
+    },
+    {
+        path: '/admin/status',
+        name: 'AdminStatus',
+        component: AdminStatus
+    },
+    {
+        path: '/admin/status/write',
+        name: 'AdminStatusWrite',
+        component: AdminStatusWrite
+    },
+    {
+        path: '/admin/status/:id',
+        name: 'AdminStatusDetail',
+        component: AdminStatusDetail
     }
 ]
 

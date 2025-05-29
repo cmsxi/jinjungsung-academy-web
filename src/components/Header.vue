@@ -641,13 +641,19 @@ header.scrolled {
 
 @media (max-width: 1000px) {
   header {
-    height: 60px;
+    height: 80px;
   }
   
   .mobile-logo {
     display: block;
+    padding: 0;
   }
-  
+
+  .logo-image {
+    width: 100%;
+    height: 100%
+  }
+
   .desktop-logo {
     display: none;
   }
