@@ -1,7 +1,7 @@
 import api from './api.js'
 
 /**
- * 진중성 아카데미 API 서비스
+ * API 서비스
  */
 export const jinjungsungService = {
   
@@ -11,7 +11,6 @@ export const jinjungsungService = {
    * @param {string} registrationData.name - 이름
    * @param {string} registrationData.phone - 전화번호
    * @param {string} registrationData.location - 거주지역
-   * @param {string} registrationData.message - 문의사항
    */
   async submitCourseRegistration(registrationData) {
     try {

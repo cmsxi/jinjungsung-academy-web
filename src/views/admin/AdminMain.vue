@@ -3,7 +3,7 @@
     <Block backgroundColor="#f8f9fa">
       <div class="page-container section-container">
         <div class="admin-content">
-          <h2 class="section-title">진중성 아카데미 관리자</h2>
+          <h2 class="section-title">관리자</h2>
           
           <!-- 관리자 인증 -->
           <div v-if="!isAuthenticated" class="auth-section">
@@ -42,7 +42,7 @@
           <div v-if="isAuthenticated" class="admin-menu">
             <div class="welcome-message">
               <h3>관리자님, 환영합니다! 👋</h3>
-              <p>진중성 아카데미 관리 시스템입니다.</p>
+              <p>관리 시스템입니다.</p>
             </div>
 
             <div class="menu-grid">
