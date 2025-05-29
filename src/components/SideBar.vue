@@ -86,11 +86,11 @@ defineOptions({
   width: 3rem;
   height: 3rem;
   background:var(--primary-color);
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--primary-color);
 }
 
 .side-menu-icon {
@@ -103,12 +103,12 @@ defineOptions({
   background: var(--secondary-color);
   color: white;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
   font-size: 0.9rem;
   opacity: 0;
   transform: translateX(-1rem);
   transition: all 0.3s ease;
   white-space: nowrap;
+  border: 1px solid var(--secondary-color);
 }
 
 .side-menu-item:hover .side-menu-text {

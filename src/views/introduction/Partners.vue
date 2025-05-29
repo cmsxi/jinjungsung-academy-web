@@ -40,6 +40,13 @@
                 </ul>
               </div>
               
+              <div class="profile-section" v-if="expert.profile.약력">
+                <h4>[약력]</h4>
+                <ul>
+                  <li v-for="item in expert.profile.약력" :key="item">{{ item }}</li>
+                </ul>
+              </div>
+              
               <div class="profile-section" v-if="expert.profile.experience">
                 <h4>[주요 경력]</h4>
                 <ul>
@@ -86,15 +93,168 @@ const experts = [
       ]
     }
   },
-  { name: '김상철', title: '세무사', image: 김상철세무사 },
-  { name: '김선우', title: '변리사', image: 김선우변리사 },
-  { name: '김홍범', title: '법무사', image: 김홍범법무사 },
-  { name: '문초록', title: '세무사', image: 문초록세무사 },
-  { name: '손석구', title: '법무사', image: 손석구법무사 },
-  { name: '안소윤', title: '변호사', image: 안소윤변호사 },
-  { name: '윤형석', title: '노무사', image: 윤형석노무사 },
-  { name: '이제민', title: '변호사', image: 이제민변호사 },
-  { name: '조승현', title: '변리사', image: 조승현변리사 }
+  { 
+    name: '김상철', 
+    title: '세무사', 
+    image: 김상철세무사,
+    profile: {
+      education: ['고려대학교 법무대학원 조세법 석사'],
+      certification: ['세무사(CTA)'],
+      career: ['세무법인 글로비 대표세무사'],
+      experience: [
+        '한국세무사회지방세제도 연구위원',
+        '서울지방세무사회 조세제도연구위원',
+        '중소벤처기업부 창업진흥원 평가위원'
+      ]
+    }
+  },
+  { 
+    name: '김선우', 
+    title: '변리사', 
+    image: 김선우변리사,
+    profile: {
+      education: [
+        '경희대학교 기계공학과 졸업',
+        '한국과학기술원(KAIST) 공학석사'
+      ],
+      certification: ['변리사'],
+      career: [
+        '이든특허법률사무소 대표변리사',
+        '한국특허전래개발원 전문위원',
+        '특허법인(유한) KBK 변리사',
+        '두호 특허법인 변리사'
+      ],
+      experience: [
+        'LG전자, SK, 삼성 등 대기업 특허전무',
+        '서울대 등 산학협력단 특허업무',
+        '한국연구재단 미래소재 사업평가 위원',
+        '한국발명진흥회 우선구매 추천사업 평가위원'
+      ]
+    }
+  },
+  { 
+    name: '김홍범', 
+    title: '법무사', 
+    image: 김홍범법무사,
+    profile: {
+      certification: ['법무사'],
+      career: [
+        '선한동법무사 사무소 대표법무사',
+        '서울동부지방법무사회',
+        '창업경영지원단 단장'
+      ],
+      약력: [
+        '경기도 직장공장새마을회 이사',
+        '대한법무사협회 미래등기위원',
+        '한국부동산등기법학회 회원',
+        '한국민사집행법학회 회원'
+      ],
+      experience: [
+        '한국시험법무사회 사무차장',
+        'K-Startup 자문위원'
+      ]
+    }
+  },
+  { 
+    name: '문초록', 
+    title: '세무사', 
+    image: 문초록세무사,
+    profile: {
+      education: [
+        '고려대학교 경영학 학사',
+        '고려대학교 법무대학원 조세법 석사과정'
+      ],
+      certification: ['세무사(CTA)'],
+      career: ['세무법인 글로비 대표세무사'],
+      experience: [
+        '한국세무사회 공로상 수상(2024)',
+        '한국세무사회 조세제도 연구위원회 위원',
+        '한국세무사회 법제위원회 위원'
+      ]
+    }
+  },
+  { 
+    name: '손석구', 
+    title: '법무사', 
+    image: 손석구법무사,
+    profile: {
+      education: ['서울대학교 경영학과'],
+      certification: ['법무사'],
+      career: ['선한동법무사 사무소 대표법무사'],
+      experience: [
+        '기아자동차',
+        '푸르덴셜 생명보험',
+        '주식회사 국민벤처 대표이사',
+        '(주)SCHTECT 대표이사'
+      ]
+    }
+  },
+  { 
+    name: '안소윤', 
+    title: '변호사', 
+    image: 안소윤변호사,
+    profile: {
+      education: ['서울대학교 졸업'],
+      certification: ['변호사'],
+      career: ['법률사무소 수석 대표변호사'],
+      experience: ['<내 돈을 지켜주는 친절한 생활 속 법률 상식>']
+    }
+  },
+  { 
+    name: '윤형석', 
+    title: '노무사', 
+    image: 윤형석노무사,
+    profile: {
+      education: ['연세대학교 경영학과 졸업'],
+      certification: ['공인노무사(CPLA)'],
+      career: [
+        '인사노무컨설팅 율 대표 노무사',
+        '이랜드그룹 패션사업부 인사노무팀'
+      ],
+      experience: [
+        '삼성전자 삼성리서치 출원 대리',
+        '대형법원, 산학협력단 등 출원 대리',
+        '중소기업, 스타트업 IP 출원 및 분석'
+      ]
+    }
+  },
+  { 
+    name: '이제민', 
+    title: '변호사', 
+    image: 이제민변호사,
+    profile: {
+      certification: ['변호사'],
+      약력: [
+        '법률사무소 더올 변호사',
+        '회계법인 더올 회계사'
+      ]
+    }
+  },
+  { 
+    name: '조승현', 
+    title: '변리사', 
+    image: 조승현변리사,
+    profile: {
+      education: [
+        '신목고등학교 졸업',
+        '연세대학교 전기전자공학 전공'
+      ],
+      certification: [
+        '변리사',
+        '엔젤투자자, 한국엔젤투자협회'
+      ],
+      career: [
+        '특허법인 올림 파트너 변리사',
+        '리앤목특허법인 변리사',
+        '나우특허법률사무소 변리사'
+      ],
+      experience: [
+        '삼성전자 삼성리서치 출원대리',
+        '대형법원, 산학협력단 등 출원대리',
+        '중소기업, 스타트업 IP 출원 및 분석'
+      ]
+    }
+  }
 ];
 </script>
 

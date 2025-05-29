@@ -153,9 +153,9 @@ export default {
 .summary-item {
   background: white;
   padding: 30px;
-  border-radius: 8px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .summary-item h3 {
@@ -195,7 +195,6 @@ export default {
   width: 100%;
   padding: 15px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 1rem;
 }
 
@@ -213,7 +212,6 @@ export default {
   flex: 1;
   padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 1rem;
   background-color: white;
 }
@@ -233,8 +231,8 @@ export default {
 .review-card {
   background: white;
   padding: 30px;
-  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .review-header {
@@ -301,15 +299,14 @@ export default {
   background: #f0f0f0;
   color: #666;
   padding: 4px 8px;
-  border-radius: 4px;
   font-size: 0.9rem;
 }
 
 .write-review {
   background: white;
   padding: 40px;
-  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .write-review h2 {
@@ -336,7 +333,6 @@ export default {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 1rem;
 }
 
@@ -392,7 +388,6 @@ export default {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;

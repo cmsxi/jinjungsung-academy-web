@@ -169,7 +169,6 @@ button {
   background-color: #018ccf;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 

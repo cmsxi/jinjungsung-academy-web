@@ -299,10 +299,10 @@ onMounted(() => {
 
 .back-btn, .write-btn {
   padding: 10px 20px;
-  border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
+  border: 1px solid #333;
 }
 
 .back-btn {
@@ -333,20 +333,20 @@ onMounted(() => {
 .error-message, .success-message {
   text-align: center;
   padding: 15px 20px;
-  border-radius: 8px;
   margin-bottom: 20px;
+  border: 1px solid;
 }
 
 .error-message {
   background-color: #f8d7da;
   color: #721c24;
-  border: 1px solid #f5c6cb;
+  border-color: #f5c6cb;
 }
 
 .success-message {
   background-color: #d4edda;
   color: #155724;
-  border: 1px solid #c3e6cb;
+  border-color: #c3e6cb;
 }
 
 .retry-btn {
@@ -355,7 +355,6 @@ onMounted(() => {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -363,8 +362,8 @@ onMounted(() => {
   text-align: center;
   padding: 60px 20px;
   background: white;
-  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .create-link {
@@ -374,8 +373,8 @@ onMounted(() => {
   background-color: var(--primary-color);
   color: white;
   text-decoration: none;
-  border-radius: 6px;
   transition: background-color 0.3s ease;
+  border: 1px solid var(--primary-color);
 }
 
 .create-link:hover {
@@ -384,10 +383,10 @@ onMounted(() => {
 
 .posts-table {
   background: white;
-  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 30px;
+  border: 1px solid #ddd;
 }
 
 table {
@@ -435,7 +434,6 @@ th {
 
 .edit-btn, .delete-btn {
   padding: 6px 12px;
-  border-radius: 4px;
   text-decoration: none;
   font-size: 0.9rem;
   margin-right: 8px;
@@ -475,7 +473,6 @@ th {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -511,10 +508,10 @@ th {
 .modal-content {
   background: white;
   padding: 30px;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 90%;
+  border: 1px solid #ddd;
 }
 
 .modal-content h3 {
@@ -543,7 +540,6 @@ th {
   width: 100%;
   padding: 10px 12px;
   border: 2px solid #ddd;
-  border-radius: 6px;
   box-sizing: border-box;
 }
 
@@ -556,7 +552,6 @@ th {
 .cancel-btn, .confirm-delete-btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
 }

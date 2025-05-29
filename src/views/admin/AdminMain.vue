@@ -52,12 +52,6 @@
                 <p>수강현황 게시글 작성, 수정, 삭제</p>
               </router-link>
 
-              <router-link to="/admin/status/write" class="menu-item">
-                <div class="menu-icon">✏️</div>
-                <h4>새 수강현황 작성</h4>
-                <p>새로운 수강현황 게시글 작성</p>
-              </router-link>
-
               <div class="menu-item" @click="logout">
                 <div class="menu-icon">🚪</div>
                 <h4>로그아웃</h4>
@@ -164,10 +158,10 @@ onMounted(() => {
 .auth-form {
   background: white;
   padding: 40px;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  border: 1px solid #ddd;
 }
 
 .auth-form h3 {
@@ -192,7 +186,6 @@ onMounted(() => {
   width: 100%;
   padding: 12px 15px;
   border: 2px solid #ddd;
-  border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
@@ -214,7 +207,6 @@ onMounted(() => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
-  border-radius: 6px;
   text-align: center;
 }
 
@@ -224,7 +216,6 @@ onMounted(() => {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -246,8 +237,8 @@ onMounted(() => {
   margin-bottom: 40px;
   padding: 30px;
   background: white;
-  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .welcome-message h3 {
@@ -270,13 +261,13 @@ onMounted(() => {
 .menu-item {
   background: white;
   padding: 30px 20px;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 1px solid #ddd;
 }
 
 .menu-item:hover {
