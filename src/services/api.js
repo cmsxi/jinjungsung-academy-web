@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // API 기본 URL 설정 - vite 프록시 사용
-const API_BASE_URL = '/api/jinjungsung'
+const API_BASE_URL = '/api/jinjungsung-academy'
 
 // axios 인스턴스 생성
 const api = axios.create({
