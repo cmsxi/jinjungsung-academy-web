@@ -35,9 +35,7 @@
             <li @mouseenter="showSubmenu('all')"><router-link to="/introduction" @click="handleNavigation">교육원 소개</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/education" @click="handleNavigation">교육안내</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></li>
-            <!-- <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li> -->
             <li @mouseenter="showSubmenu('all')"><span @click.prevent>자주묻는질문</span></li>
-            <!-- <li @mouseenter="showSubmenu('all')"><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li> -->
             <li @mouseenter="showSubmenu('all')"><span @click.prevent>수강후기</span></li>
           </ul>
           
@@ -62,13 +60,6 @@
               <div class="accordion-item">
                 <h3><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></h3>
               </div>
-              <!-- <div class="accordion-item">
-                <h3><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></h3>
-                <ul>
-                  <li><router-link to="/faq/questions" @click="handleNavigation">FAQ</router-link></li>
-                  <li><router-link to="/faq/inquiry" @click="handleNavigation">문의게시판</router-link></li>
-                </ul>
-              </div> -->
               <div class="accordion-item">
                 <h3><span @click.prevent>자주묻는질문</span></h3>
                 <ul>
@@ -76,9 +67,6 @@
                   <li><span>문의게시판</span></li>
                 </ul>
               </div>
-              <!-- <div class="accordion-item">
-                <h3><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></h3>
-              </div> -->
               <div class="accordion-item">
                 <h3>수강후기</h3>
                 <ul>
@@ -122,23 +110,12 @@
               <li><router-link to="/registration">수강신청문의</router-link></li>
             </ul>
           </div>
-          <!-- <div class="submenu-section">
-            <ul>
-              <li><router-link to="/faq/questions">FAQ</router-link></li>
-              <li><router-link to="/faq/inquiry">문의게시판</router-link></li>
-            </ul>
-          </div> -->
           <div class="submenu-section">
             <ul>
               <li><span>FAQ</span></li>
               <li><span>문의게시판</span></li>
             </ul>
           </div>
-          <!-- <div class="submenu-section">
-            <ul>
-              <li><router-link to="/reviews">수강후기</router-link></li>
-            </ul>
-          </div> -->
           <div class="submenu-section">
             <ul>
               <li><span>수강후기</span></li>
@@ -554,7 +531,7 @@ header.scrolled {
   display: flex;
   justify-content: center;
   gap: 30px;
-  width: 620px;
+  width: 720px;
   margin: 0;
 }
 

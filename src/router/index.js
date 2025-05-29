@@ -27,6 +27,7 @@ import AdminLogin from '../views/admin/AdminLogin.vue'
 import AdminStatus from '../views/admin/AdminStatus.vue'
 import AdminStatusDetail from '../views/admin/AdminStatusDetail.vue'
 import AdminStatusWrite from '../views/admin/AdminStatusWrite.vue'
+import AdminMain from '../views/admin/AdminMain.vue'
 
 import '../assets/styles/global.css';
 
@@ -80,6 +81,11 @@ const routes = [
     },
     // 관리자
     {
+        path: '/admin',
+        name: 'AdminMain',
+        component: AdminMain
+    },
+    {
         path: '/admin/login',
         name: 'AdminLogin',
         component: AdminLogin
@@ -96,8 +102,8 @@ const routes = [
     },
     {
         path: '/admin/status/:id',
-        name: 'AdminStatusDetail',
-        component: AdminStatusDetail
+        name: 'AdminStatusEdit',
+        component: AdminStatusWrite
     }
 ]
 

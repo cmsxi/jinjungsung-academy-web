@@ -3,195 +3,302 @@
     <div class="admin-write-content">
       <!-- 헤더 -->
       <div class="write-header">
-        <button @click="goBack" class="back-btn">
-          ← 목록으로 돌아가기
-        </button>
-        <h2>새 글 작성</h2>
+        <router-link to="/admin/status" class="back-btn">← 목록으로 돌아가기</router-link>
+        <h2>{{ isEditMode ? '수강현황 수정' : '새 수강현황 작성' }}</h2>
+      </div>
+
+      <!-- 로딩 상태 -->
+      <div v-if="isLoading" class="loading-message">
+        <p>{{ isEditMode ? '게시글을 불러오는 중...' : '처리 중...' }}</p>
+      </div>
+
+      <!-- 에러 메시지 -->
+      <div v-if="errorMessage" class="error-message">
+        <p>❌ {{ errorMessage }}</p>
+      </div>
+
+      <!-- 성공 메시지 -->
+      <div v-if="successMessage" class="success-message">
+        <p>✅ {{ successMessage }}</p>
       </div>
 
       <!-- 작성 폼 -->
-      <div class="write-form">
-        <div class="form-content">
+      <div v-if="!isLoading" class="write-form">
+        <form @submit.prevent="submitPost" class="form-content">
           <div class="form-row">
             <label for="title">제목 <span class="required">*</span></label>
             <input 
               id="title"
-              v-model="postData.title" 
+              v-model="formData.title" 
               type="text" 
               placeholder="게시글 제목을 입력하세요"
               required
+              :disabled="isSubmitting"
             />
-          </div>
-
-          <div class="form-row">
-            <label for="image">이미지</label>
-            <div class="image-upload-section">
-              <input 
-                id="image"
-                ref="imageInput"
-                type="file" 
-                accept="image/*"
-                @change="handleImageUpload"
-                class="file-input"
-              />
-              <button @click="triggerImageUpload" class="upload-btn" type="button">
-                이미지 선택
-              </button>
-              <span class="file-info">{{ imageFileName || '선택된 파일 없음' }}</span>
-            </div>
-            
-            <!-- 이미지 미리보기 -->
-            <div v-if="imagePreview" class="image-preview">
-              <img :src="imagePreview" alt="미리보기" />
-              <button @click="removeImage" class="remove-image-btn" type="button">
-                ×
-              </button>
-            </div>
           </div>
 
           <div class="form-row">
             <label for="content">내용 <span class="required">*</span></label>
             <textarea 
               id="content"
-              v-model="postData.content" 
+              v-model="formData.content" 
               rows="15" 
               placeholder="게시글 내용을 입력하세요"
               required
+              :disabled="isSubmitting"
             ></textarea>
           </div>
 
-          <div class="form-actions">
-            <button @click="savePost" class="save-btn" :disabled="saving">
-              {{ saving ? '저장 중...' : '저장' }}
-            </button>
-            <button @click="goBack" class="cancel-btn" type="button">
-              취소
-            </button>
+          <div class="form-row">
+            <label for="image">이미지</label>
+            <div class="image-upload-area">
+              <input 
+                type="file" 
+                id="image" 
+                ref="imageInput"
+                @change="handleImageChange"
+                accept="image/*"
+                :disabled="isSubmitting"
+              >
+              
+              <!-- 현재 이미지 미리보기 -->
+              <div v-if="currentImageUrl" class="current-image">
+                <p>현재 이미지:</p>
+                <img :src="currentImageUrl" alt="현재 이미지" class="image-preview">
+                <button 
+                  type="button" 
+                  @click="removeCurrentImage" 
+                  class="remove-image-btn"
+                  :disabled="isSubmitting"
+                >
+                  이미지 제거
+                </button>
+              </div>
+
+              <!-- 새 이미지 미리보기 -->
+              <div v-if="newImagePreview" class="new-image">
+                <p>새 이미지:</p>
+                <img :src="newImagePreview" alt="새 이미지" class="image-preview">
+                <button 
+                  type="button" 
+                  @click="removeNewImage" 
+                  class="remove-image-btn"
+                  :disabled="isSubmitting"
+                >
+                  이미지 제거
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <div class="form-row">
+            <label for="adminPassword">관리자 비밀번호 <span class="required">*</span></label>
+            <input 
+              type="password" 
+              id="adminPassword" 
+              v-model="formData.adminPassword"
+              required
+              placeholder="관리자 비밀번호를 입력하세요"
+              :disabled="isSubmitting"
+            >
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="save-btn"
+              :disabled="!isFormValid || isSubmitting"
+            >
+              <span v-if="isSubmitting">{{ isEditMode ? '수정 중...' : '작성 중...' }}</span>
+              <span v-else>{{ isEditMode ? '수정하기' : '작성하기' }}</span>
+            </button>
+            <router-link to="/admin/status" class="cancel-btn">취소</router-link>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
+const route = useRoute();
 const router = useRouter();
 
 // 상태 관리
-const saving = ref(false);
-const imageInput = ref(null);
-const imageFileName = ref('');
-const imagePreview = ref('');
+const isLoading = ref(false);
+const isSubmitting = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+const isEditMode = ref(false);
+const postId = ref(null);
 
-// 게시글 데이터
-const postData = ref({
+// 폼 데이터
+const formData = ref({
   title: '',
   content: '',
+  adminPassword: '',
   image: null
 });
 
-// 메서드
-const goBack = () => {
-  if (confirm('작성 중인 내용이 있습니다. 정말로 나가시겠습니까?')) {
-    router.push('/admin/status');
+// 이미지 관련 상태
+const imageInput = ref(null);
+const currentImageUrl = ref('');
+const newImagePreview = ref('');
+const removeCurrentImageFlag = ref(false);
+
+// 계산된 속성
+const isFormValid = computed(() => {
+  return formData.value.title && 
+         formData.value.content && 
+         formData.value.adminPassword;
+});
+
+// 관리자 인증 확인
+const checkAuth = () => {
+  const authenticated = sessionStorage.getItem('admin_authenticated');
+  if (authenticated !== 'true') {
+    router.push('/admin');
+    return false;
+  }
+  
+  // 세션에서 비밀번호 자동 입력
+  const savedPassword = sessionStorage.getItem('admin_password');
+  if (savedPassword) {
+    formData.value.adminPassword = savedPassword;
+  }
+  
+  return true;
+};
+
+// 수정 모드 확인 및 게시글 로드
+const initializeForm = async () => {
+  if (!checkAuth()) return;
+
+  const id = route.params.id;
+  if (id) {
+    isEditMode.value = true;
+    postId.value = parseInt(id);
+    await loadPost();
   }
 };
 
-const triggerImageUpload = () => {
-  imageInput.value.click();
+// 게시글 로드 (수정 모드)
+const loadPost = async () => {
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const post = await jinjungsungService.getPost(postId.value);
+    
+    formData.value.title = post.title;
+    formData.value.content = post.content;
+    
+    if (post.image_filename) {
+      currentImageUrl.value = jinjungsungService.getImageUrl(post.image_filename);
+    }
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
 };
 
-const handleImageUpload = (event) => {
+// 이미지 변경 처리
+const handleImageChange = (event) => {
   const file = event.target.files[0];
-  if (file) {
-    // 파일 크기 체크 (5MB 제한)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('파일 크기는 5MB 이하여야 합니다.');
-      return;
-    }
+  if (!file) return;
 
-    // 이미지 파일 타입 체크
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
-      return;
-    }
-
-    postData.value.image = file;
-    imageFileName.value = file.name;
-
-    // 미리보기 생성
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
+  // 파일 크기 체크 (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    errorMessage.value = '이미지 파일 크기는 5MB 이하여야 합니다.';
+    return;
   }
+
+  // 파일 타입 체크
+  if (!file.type.startsWith('image/')) {
+    errorMessage.value = '이미지 파일만 업로드 가능합니다.';
+    return;
+  }
+
+  formData.value.image = file;
+  
+  // 미리보기 생성
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    newImagePreview.value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  
+  errorMessage.value = '';
 };
 
-const removeImage = () => {
-  postData.value.image = null;
-  imageFileName.value = '';
-  imagePreview.value = '';
+// 현재 이미지 제거
+const removeCurrentImage = () => {
+  currentImageUrl.value = '';
+  removeCurrentImageFlag.value = true;
+};
+
+// 새 이미지 제거
+const removeNewImage = () => {
+  formData.value.image = null;
+  newImagePreview.value = '';
   if (imageInput.value) {
     imageInput.value.value = '';
   }
 };
 
-const savePost = async () => {
-  // 유효성 검사
-  if (!postData.value.title.trim()) {
-    alert('제목을 입력해주세요.');
-    return;
-  }
+// 폼 제출
+const submitPost = async () => {
+  if (!isFormValid.value || isSubmitting.value) return;
 
-  if (!postData.value.content.trim()) {
-    alert('내용을 입력해주세요.');
-    return;
-  }
-
-  saving.value = true;
+  isSubmitting.value = true;
+  errorMessage.value = '';
+  successMessage.value = '';
 
   try {
-    // FormData 생성 (백엔드로 전송할 데이터)
-    const formData = new FormData();
-    formData.append('title', postData.value.title);
-    formData.append('content', postData.value.content);
-    
-    if (postData.value.image) {
-      formData.append('image', postData.value.image);
+    const postData = {
+      title: formData.value.title,
+      content: formData.value.content,
+      adminPassword: formData.value.adminPassword
+    };
+
+    // 이미지 처리
+    if (formData.value.image) {
+      postData.image = formData.value.image;
+    } else if (removeCurrentImageFlag.value) {
+      // 현재 이미지를 제거하는 경우, 이미지 없이 전송
     }
 
-    // 실제 환경에서는 여기서 API 호출
-    // const response = await fetch('/api/admin/posts', {
-    //   method: 'POST',
-    //   body: formData,
-    //   headers: {
-    //     'Authorization': `Bearer ${sessionStorage.getItem('adminToken')}`
-    //   }
-    // });
+    let result;
+    if (isEditMode.value) {
+      result = await jinjungsungService.updatePost(postId.value, postData);
+    } else {
+      result = await jinjungsungService.createPost(postData);
+    }
 
-    // 임시 지연 효과
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    successMessage.value = isEditMode.value ? 
+      '게시글이 성공적으로 수정되었습니다.' : 
+      '게시글이 성공적으로 작성되었습니다.';
 
-    alert('게시글이 저장되었습니다.');
-    router.push('/admin/status');
+    // 2초 후 목록 페이지로 이동
+    setTimeout(() => {
+      router.push('/admin/status');
+    }, 2000);
 
   } catch (error) {
-    console.error('저장 실패:', error);
-    alert('저장 중 오류가 발생했습니다.');
+    errorMessage.value = error.message;
   } finally {
-    saving.value = false;
+    isSubmitting.value = false;
   }
 };
 
-// 인증 확인
+// 컴포넌트 마운트 시 초기화
 onMounted(() => {
-  if (!sessionStorage.getItem('adminAuth')) {
-    router.push('/admin/login');
-  }
+  initializeForm();
 });
 </script>
 
@@ -210,25 +317,25 @@ onMounted(() => {
 /* 헤더 */
 .write-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .back-btn {
-  background: none;
-  border: 2px solid #333;
-  color: #333;
-  padding: 12px 20px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .back-btn:hover {
-  background: #333;
-  color: white;
+  background-color: #5a6268;
 }
 
 .write-header h2 {
@@ -238,192 +345,216 @@ onMounted(() => {
   margin: 0;
 }
 
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message, .success-message {
+  text-align: center;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
 /* 폼 */
 .write-form {
   background: white;
-  border: 2px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
 }
 
 .form-content {
-  padding: 40px;
+  width: 100%;
 }
 
 .form-row {
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .form-row label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: #333;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1.1rem;
 }
 
 .required {
-  color: #dc3545;
+  color: #e74c3c;
+  font-weight: bold;
 }
 
-.form-row input[type="text"],
+.form-row input,
 .form-row textarea {
   width: 100%;
-  padding: 15px;
-  border: 2px solid #666;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
   font-size: 1rem;
-  resize: vertical;
+  box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
 
-.form-row input[type="text"]:focus,
+.form-row input:focus,
 .form-row textarea:focus {
   outline: none;
   border-color: var(--primary-color);
 }
 
-/* 이미지 업로드 */
-.image-upload-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 15px;
+.form-row input:disabled,
+.form-row textarea:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
-.file-input {
-  display: none;
+.form-row textarea {
+  resize: vertical;
+  min-height: 300px;
+  font-family: inherit;
+  line-height: 1.6;
 }
 
-.upload-btn {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  font-size: 1rem;
+.image-upload-area {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.image-upload-area:hover {
+  border-color: var(--primary-color);
+}
+
+.current-image,
+.new-image {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.current-image p,
+.new-image p {
+  margin-bottom: 10px;
   font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #333;
 }
 
-.upload-btn:hover {
-  background: #5a6268;
-}
-
-.file-info {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-/* 이미지 미리보기 */
 .image-preview {
-  position: relative;
-  display: inline-block;
-  border: 2px solid #ddd;
-  padding: 10px;
-  background: #f8f9fa;
-}
-
-.image-preview img {
-  max-width: 200px;
-  max-height: 150px;
-  object-fit: cover;
-  display: block;
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
 }
 
 .remove-image-btn {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #dc3545;
+  padding: 6px 12px;
+  background-color: #dc3545;
   color: white;
   border: none;
-  width: 30px;
-  height: 30px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.remove-image-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.remove-image-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.save-btn, .cancel-btn {
+  padding: 15px 40px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #003e80;
+  transform: translateY(-2px);
+}
+
+.save-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.remove-image-btn:hover {
-  background: #c82333;
-}
-
-/* 액션 버튼 */
-.form-actions {
-  display: flex;
-  gap: 15px;
-  justify-content: flex-end;
-  padding-top: 30px;
-  border-top: 2px solid #eee;
-}
-
-.save-btn, .cancel-btn {
-  padding: 15px 30px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.save-btn {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-}
-
-.save-btn:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-.save-btn:disabled {
-  background: #999;
-  cursor: not-allowed;
-}
-
-.cancel-btn {
-  background: white;
-  color: #6c757d;
-  border: 2px solid #6c757d;
-}
-
 .cancel-btn:hover {
-  background: #6c757d;
-  color: white;
+  background-color: #5a6268;
 }
 
-/* 반응형 */
 @media (max-width: 768px) {
   .admin-write-page {
-    padding: 20px 10px;
-  }
-
-  .admin-write-content {
-    max-width: 100%;
+    padding: 20px 15px;
   }
 
   .write-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+    align-items: stretch;
   }
 
   .write-header h2 {
     font-size: 1.5rem;
+    text-align: center;
   }
 
-  .form-content {
+  .write-form {
     padding: 20px;
   }
 
-  .image-upload-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  .form-row input,
+  .form-row textarea {
+    font-size: 16px; /* iOS 줌 방지 */
   }
 
-  .image-preview img {
-    max-width: 100%;
+  .form-row textarea {
+    min-height: 250px;
   }
 
   .form-actions {
@@ -432,6 +563,7 @@ onMounted(() => {
 
   .save-btn, .cancel-btn {
     width: 100%;
+    padding: 15px;
   }
 }
-</style> 
+</style>
