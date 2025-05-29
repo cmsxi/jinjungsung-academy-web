@@ -328,10 +328,10 @@ onMounted(() => {
   padding: 10px 20px;
   background-color: #6c757d;
   color: white;
-  border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
   transition: background-color 0.3s ease;
+  border: 1px solid #6c757d;
 }
 
 .back-btn:hover {
@@ -355,28 +355,28 @@ onMounted(() => {
 .error-message, .success-message {
   text-align: center;
   padding: 15px 20px;
-  border-radius: 8px;
   margin-bottom: 20px;
+  border: 1px solid;
 }
 
 .error-message {
   background-color: #f8d7da;
   color: #721c24;
-  border: 1px solid #f5c6cb;
+  border-color: #f5c6cb;
 }
 
 .success-message {
   background-color: #d4edda;
   color: #155724;
-  border: 1px solid #c3e6cb;
+  border-color: #c3e6cb;
 }
 
 /* 폼 */
 .write-form {
   background: white;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 30px;
+  border: 1px solid #ddd;
 }
 
 .form-content {
@@ -405,7 +405,6 @@ onMounted(() => {
   width: 100%;
   padding: 12px 15px;
   border: 2px solid #ddd;
-  border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
@@ -432,7 +431,6 @@ onMounted(() => {
 
 .image-upload-area {
   border: 2px dashed #ddd;
-  border-radius: 8px;
   padding: 20px;
   text-align: center;
   transition: border-color 0.3s ease;
@@ -458,9 +456,9 @@ onMounted(() => {
 .image-preview {
   max-width: 100%;
   max-height: 300px;
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
+  border: 1px solid #ddd;
 }
 
 .remove-image-btn {
@@ -468,7 +466,6 @@ onMounted(() => {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
   transition: background-color 0.3s ease;
@@ -492,7 +489,6 @@ onMounted(() => {
 
 .save-btn, .cancel-btn {
   padding: 15px 40px;
-  border-radius: 6px;
   font-size: 1.1rem;
   font-weight: 600;
   text-decoration: none;

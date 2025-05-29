@@ -29,6 +29,17 @@
       <div class="services-content" ref="servicesContent">
         <h2 class="section-title">수강신청문의</h2>
         <p class="required-notice">*표시는 필수 입력요소입니다</p>
+        
+        <!-- 성공 메시지 -->
+        <div v-if="showSuccessMessage" class="success-message">
+          <p>수강신청문의가 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div v-if="errorMessage" class="error-message">
+          <p>{{ errorMessage }}</p>
+        </div>
+        
         <div class="registration-form">
           <form @submit.prevent="submitRegistration">
             <div class="form-group">
@@ -39,6 +50,7 @@
                 v-model="formData.name" 
                 required
                 placeholder="홍길동"
+                :disabled="isLoading"
               >
             </div>
 
@@ -50,6 +62,7 @@
                 v-model="formData.phone" 
                 required
                 placeholder="010-0000-0000"
+                :disabled="isLoading"
               >
             </div>
 
@@ -61,6 +74,7 @@
                 v-model="formData.location" 
                 required
                 placeholder="서울시 강남구"
+                :disabled="isLoading"
               >
             </div>
 
@@ -70,6 +84,7 @@
                   type="checkbox" 
                   v-model="formData.agreeTerms"
                   required
+                  :disabled="isLoading"
                 >
                 개인정보 수집 및 이용에 동의합니다.
               </label>
@@ -78,9 +93,10 @@
             <button 
               type="submit" 
               class="submit-btn"
-              :disabled="!isFormValid"
+              :disabled="!isFormValid || isLoading"
             >
-              신청하기
+              <span v-if="isLoading">처리 중...</span>
+              <span v-else>신청하기</span>
             </button>
           </form>
         </div>
@@ -96,6 +112,7 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRouter } from 'vue-router';
 import Block from "@/components/Block.vue";
 import SideBar from "@/components/SideBar.vue";
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -113,11 +130,17 @@ const slider = ref(null);
 const currentSlide = ref(0);
 const slideInterval = ref(null);
 
+// 상태 관리
+const isLoading = ref(false);
+const showSuccessMessage = ref(false);
+const errorMessage = ref('');
+
 // 폼 데이터
 const formData = ref({
   name: '',
   phone: '',
   location: '',
+  message: '',
   agreeTerms: false
 });
 
@@ -178,15 +201,47 @@ const stopSlideInterval = () => {
   }
 };
 
+// 메시지 초기화
+const clearMessages = () => {
+  showSuccessMessage.value = false;
+  errorMessage.value = '';
+};
+
 // 폼 제출 메서드
-const submitRegistration = () => {
-  if (!isFormValid.value) return;
+const submitRegistration = async () => {
+  if (!isFormValid.value || isLoading.value) return;
 
-  // TODO: API 연동
-  console.log('신청 정보:', formData.value);
+  isLoading.value = true;
+  clearMessages();
 
-  alert('수강신청문의가 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.');
-  resetForm();
+  try {
+    const registrationData = {
+      name: formData.value.name,
+      phone: formData.value.phone,
+      location: formData.value.location,
+      message: formData.value.message || ''
+    };
+
+    await jinjungsungService.submitCourseRegistration(registrationData);
+    
+    showSuccessMessage.value = true;
+    resetForm();
+    
+    // 5초 후 성공 메시지 숨기기
+    setTimeout(() => {
+      showSuccessMessage.value = false;
+    }, 5000);
+
+  } catch (error) {
+    errorMessage.value = error.message;
+    
+    // 5초 후 에러 메시지 숨기기
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 5000);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const resetForm = () => {
@@ -330,7 +385,6 @@ onUnmounted(() => {
   border: none;
   width: 50px;
   height: 50px;
-  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -369,6 +423,29 @@ onUnmounted(() => {
 .required {
   color: #e74c3c;
   font-weight: bold;
+}
+
+/* 메시지 스타일 */
+.success-message,
+.error-message {
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  padding: 15px 20px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
 }
 
 @keyframes slideUp {

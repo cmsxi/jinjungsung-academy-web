@@ -233,7 +233,6 @@ onMounted(() => {
 .search-box input {
   padding: 10px 15px;
   border: 2px solid #ddd;
-  border-radius: 25px;
   font-size: 1rem;
   width: 250px;
   transition: border-color 0.3s ease;
@@ -257,7 +256,6 @@ onMounted(() => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
-  border-radius: 8px;
   margin-bottom: 30px;
 }
 
@@ -267,7 +265,6 @@ onMounted(() => {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
 }
@@ -289,11 +286,11 @@ onMounted(() => {
 
 .post-card {
   background: white;
-  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
+  border: 1px solid #ddd;
 }
 
 .post-card:hover {
@@ -356,7 +353,6 @@ onMounted(() => {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s ease;

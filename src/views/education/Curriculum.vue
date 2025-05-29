@@ -41,9 +41,9 @@
 
 .curriculum-section {
   background: #f8f9fa;
-  border-radius: 8px;
   padding: 25px;
   transition: transform 0.3s ease;
+  border: 1px solid #ddd;
 }
 
 .curriculum-section:hover {
@@ -67,8 +67,8 @@
   background: var(--primary-color);
   color: white;
   padding: 5px 15px;
-  border-radius: 20px;
   font-size: 0.9rem;
+  border: 1px solid var(--primary-color);
 }
 
 .section-content {
@@ -115,7 +115,7 @@
   margin-top: 40px;
   padding: 20px;
   background: #fff3cd;
-  border-radius: 8px;
+  border: 1px solid #ffeaa7;
 }
 
 .curriculum-note h4 {

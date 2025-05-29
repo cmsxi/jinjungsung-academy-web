@@ -54,17 +54,6 @@
                 >
               </div>
 
-              <div class="form-group">
-                <label for="message">문의사항</label>
-                <textarea 
-                  id="message" 
-                  v-model="formData.message" 
-                  rows="4"
-                  placeholder="수강 관련 문의사항을 입력해주세요."
-                  :disabled="isLoading"
-                ></textarea>
-              </div>
-
               <div class="form-group checkbox-group">
                 <label>
                   <input 
@@ -222,21 +211,21 @@ const resetForm = () => {
   max-width: 1200px;
   margin: 0 auto 30px auto;
   padding: 15px 20px;
-  border-radius: 8px;
   text-align: center;
   font-weight: 500;
+  border: 1px solid;
 }
 
 .success-message {
   background-color: #d4edda;
   color: #155724;
-  border: 1px solid #c3e6cb;
+  border-color: #c3e6cb;
 }
 
 .error-message {
   background-color: #f8d7da;
   color: #721c24;
-  border: 1px solid #f5c6cb;
+  border-color: #f5c6cb;
 }
 
 .registration-form {

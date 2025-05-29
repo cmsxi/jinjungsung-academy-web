@@ -167,7 +167,6 @@ onMounted(() => {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
-  border-radius: 8px;
   margin-bottom: 30px;
 }
 
@@ -177,7 +176,6 @@ onMounted(() => {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
 }
@@ -190,8 +188,8 @@ onMounted(() => {
 .post-detail {
   background: white;
   padding: 40px;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .detail-header {
@@ -226,8 +224,8 @@ onMounted(() => {
   height: 400px;
   overflow: hidden;
   margin-bottom: 40px;
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .detail-image img {
@@ -256,8 +254,8 @@ onMounted(() => {
   text-align: center;
   padding: 80px 20px;
   background: white;
-  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .not-found h2 {
