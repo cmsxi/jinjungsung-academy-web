@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="side-menu">
     <a href="http://pf.kakao.com/_FxjVuG" target='_blank' class="side-menu-item">
       <span class="side-menu-text">카카오톡</span>
@@ -125,4 +125,4 @@ defineOptions({
     display: none;
   }
 }
-</style>
+</style> -->
