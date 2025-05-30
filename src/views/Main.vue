@@ -104,14 +104,14 @@
     </div>
   </Block>
 
-  <SideBar />
+  <!-- <SideBar /> -->
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRouter } from 'vue-router';
 import Block from "@/components/Block.vue";
-import SideBar from "@/components/SideBar.vue";
+// import SideBar from "@/components/SideBar.vue";
 import { jinjungsungService } from '@/services/jinjungsungService.js';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -546,7 +546,6 @@ onUnmounted(() => {
   margin-top: 20px;
 }
 .slide-button:hover {
-  background-color: #003e80;
   transform: translateY(-2px);
 }
 
@@ -629,7 +628,6 @@ onUnmounted(() => {
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #003e80;
   transform: translateY(-2px);
 }
 

@@ -97,7 +97,6 @@ const formData = ref({
   name: '',
   phone: '',
   location: '',
-  message: '',
   agreeTerms: false
 });
 
@@ -317,7 +316,6 @@ const resetForm = () => {
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #003e80;
   transform: translateY(-2px);
 }
 
