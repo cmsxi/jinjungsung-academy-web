@@ -156,6 +156,6 @@ export const jinjungsungService = {
    */
   getImageUrl(filename) {
     if (!filename) return null
-    return `${api.defaults.baseURL}/uploads/${filename}`
+    return `/uploads/${filename}`
   }
 } 
