@@ -9,11 +9,11 @@
         </div>
         <div class="footer-right">
           <div class="info-row main-info-row">
-            <p><span>대표자 : </span>테스트</p>
-            <p><span>대표전화 : </span>테스트</p>
-            <p><span>팩스 : </span>테스트</p>
-            <p><span>사업자등록번호 : </span>테스트</p>
-            <p><span>이메일 : </span>g테스트</p>
+            <p><span>대표자 : </span>문초록</p>
+            <p><span>대표전화 : </span>010-9255-3721</p>
+            <p><span>팩스 : </span>02-2088-0704</p>
+            <p><span>사업자등록번호 : </span>409-82-90952</p>
+            <p><span>이메일 : </span>eoqn0808@naver.com</p>
           </div>
           <div class="info-row address-row">
             <p><span>본사주소 : </span>서울특별시 강남구 강남대로94길 66 2층 (역삼동, 산돌빌딩)</p>
@@ -22,7 +22,7 @@
       </div>
       <hr class="footer-line" />
       <div class="copyright">
-        <p>© 2025. 테스트. All rights reserved</p>
+        <p>© 2025. 진정성. All rights reserved</p>
       </div>
     </div>
   </footer>

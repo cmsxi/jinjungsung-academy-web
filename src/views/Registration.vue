@@ -248,12 +248,12 @@ const resetForm = () => {
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 20px 15px;
+  padding: 12px 15px;
   border: 2px solid #ddd;
   font-size: 16px; /* iOS 줌 방지 */
   box-sizing: border-box;
   transition: border-color 0.3s ease;
-  min-height: 55px;
+  min-height: 45px;
 }
 
 .form-group input:disabled,
@@ -263,7 +263,7 @@ const resetForm = () => {
 }
 
 .form-group textarea {
-  min-height: 100px;
+  min-height: 80px;
   resize: none;
 }
 
@@ -304,15 +304,15 @@ const resetForm = () => {
   max-width: 500px;
   margin: 0 auto;
   display: block;
-  padding: 20px;
+  padding: 14px;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 60px;
+  min-height: 50px;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -325,6 +325,78 @@ const resetForm = () => {
   transform: none;
 }
 
+@media (max-width: 1024px) {
+  .services-content {
+    min-width: auto;
+    padding: 0 30px;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .required-notice {
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+    margin-right: 5px;
+  }
+
+  .registration-form {
+    padding: 0 40px;
+    max-width: 100%;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px;
+    padding: 12px 15px;
+    min-height: 42px;
+  }
+
+  .checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #f8f9fa;
+    margin-bottom: 25px;
+  }
+
+  .checkbox-group label {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+
+  .submit-btn {
+    font-size: 1.2rem;
+    padding: 12px;
+    min-height: 42px;
+    margin-top: 10px;
+  }
+
+  .success-message,
+  .error-message {
+    margin: 0 auto 25px auto;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 768px) {
   .page-header {
     padding: 40px 0;
@@ -334,42 +406,73 @@ const resetForm = () => {
     font-size: 2rem;
   }
 
+  .services-content {
+    min-width: auto;
+    padding: 0 15px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .required-notice {
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
   .registration-form {
     padding: 0 15px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
   }
 
   .form-group input,
   .form-group textarea {
     font-size: 16px; /* iOS 줌 방지 */
-    padding: 20px 15px;
-    min-height: 55px;
+    padding: 10px 12px;
+    min-height: 38px;
   }
 
-  .form-group label {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+  .checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
   }
 
   .checkbox-group label {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
   }
 
   .checkbox-group input[type="checkbox"] {
-    transform: scale(1.3);
-    margin-right: 12px;
+    transform: scale(1.1);
+    margin-right: 8px;
+    margin-bottom: 3px;
   }
 
   .submit-btn {
-    font-size: 1.2rem;
-    padding: 20px;
+    font-size: 1rem;
+    padding: 10px;
     max-width: 100%;
-    min-height: 60px;
+    min-height: 30px;
   }
 
   .success-message,
   .error-message {
-    margin: 0 15px 30px 15px;
-    padding: 15px;
+    margin: 0 auto 20px auto;
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 </style> 
