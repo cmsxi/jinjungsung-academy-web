@@ -1,7 +1,6 @@
 <template>
   <div class="status-page">
     <div class="status-content">
-
       <!-- 게시판 스타일 -->
       <div class="board-frame">
         <div class="frame-header">
@@ -11,16 +10,16 @@
           </div>
           <div class="header-right">
             <div class="search-box">
-              <input 
-                v-model="searchKeyword" 
-                type="text" 
+              <input
+                v-model="searchKeyword"
+                type="text"
                 placeholder="제목으로 검색하세요..."
                 @input="filterPosts"
               />
             </div>
           </div>
         </div>
-        
+
         <!-- 로딩 상태 -->
         <div v-if="isLoading" class="loading-message">
           <p>게시글을 불러오는 중...</p>
@@ -31,18 +30,22 @@
           <p>{{ errorMessage }}</p>
           <button @click="loadPosts" class="retry-btn">다시 시도</button>
         </div>
-        
+
         <div v-if="!isLoading && !errorMessage" class="frame-content">
           <div class="post-grid">
-            <div 
-              v-for="post in filteredPosts" 
+            <div
+              v-for="post in filteredPosts"
               :key="post.id"
               class="post-card"
               @click="goToDetail(post.id)"
             >
               <div class="post-image">
-                <img 
-                  :src="post.image_filename ? getImageUrl(post.image_filename) : '/src/assets/images/business-1.jpg'" 
+                <img
+                  :src="
+                    post.image_filename
+                      ? getImageUrl(post.image_filename)
+                      : defaultImagePath
+                  "
                   :alt="post.title"
                   @error="handleImageError"
                 />
@@ -53,27 +56,33 @@
               </div>
             </div>
           </div>
-          
+
           <!-- 게시글이 없을 때 -->
           <div v-if="filteredPosts.length === 0" class="no-posts">
-            <p>{{ searchKeyword ? '검색 결과가 없습니다.' : '등록된 게시글이 없습니다.' }}</p>
+            <p>
+              {{
+                searchKeyword
+                  ? "검색 결과가 없습니다."
+                  : "등록된 게시글이 없습니다."
+              }}
+            </p>
           </div>
 
           <!-- 페이지네이션 -->
           <div v-if="totalPages > 1" class="pagination">
-            <button 
+            <button
               @click="changePage(currentPage - 1)"
               :disabled="currentPage === 1"
               class="page-btn"
             >
               이전
             </button>
-            
+
             <span class="page-info">
               {{ currentPage }} / {{ totalPages }}
             </span>
-            
-            <button 
+
+            <button
               @click="changePage(currentPage + 1)"
               :disabled="currentPage === totalPages"
               class="page-btn"
@@ -88,16 +97,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { jinjungsungService } from '@/services/jinjungsungService.js';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { jinjungsungService } from "@/services/jinjungsungService.js";
+import defaultImage from "@/assets/images/business-1.jpg";
+
+const defaultImagePath = defaultImage; // 또는 '/images/business-1.jpg'
+
+const handleImageError = (event) => {
+  if (!event.target.dataset.fallback) {
+    event.target.dataset.fallback = "true";
+    event.target.src = defaultImagePath;
+  }
+};
 
 const router = useRouter();
 
 // 상태 관리
 const isLoading = ref(false);
-const errorMessage = ref('');
-const searchKeyword = ref('');
+const errorMessage = ref("");
+const searchKeyword = ref("");
 const posts = ref([]);
 const currentPage = ref(1);
 const totalPosts = ref(0);
@@ -109,21 +128,21 @@ const totalPages = computed(() => Math.ceil(totalPosts.value / itemsPerPage));
 // 필터링된 게시글 (검색)
 const filteredPosts = computed(() => {
   let filtered = posts.value;
-  
+
   // 검색 필터링
   if (searchKeyword.value.trim()) {
-    filtered = filtered.filter(post => 
+    filtered = filtered.filter((post) =>
       post.title.toLowerCase().includes(searchKeyword.value.toLowerCase())
     );
   }
-  
+
   return filtered;
 });
 
 // 게시글 목록 로드
 const loadPosts = async (page = 1) => {
   isLoading.value = true;
-  errorMessage.value = '';
+  errorMessage.value = "";
 
   try {
     const response = await jinjungsungService.getPosts(page, itemsPerPage);
@@ -149,11 +168,6 @@ const getImageUrl = (filename) => {
   return jinjungsungService.getImageUrl(filename);
 };
 
-// 이미지 에러 처리
-const handleImageError = (event) => {
-  event.target.src = '/src/assets/images/business-1.jpg';
-};
-
 // 메서드
 const filterPosts = () => {
   // computed에서 자동으로 처리되므로 별도 로직 불필요
@@ -165,10 +179,10 @@ const goToDetail = (id) => {
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };
 
