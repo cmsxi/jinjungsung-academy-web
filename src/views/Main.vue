@@ -3,11 +3,7 @@
     <div class="banner-slider" ref="slider">
       <div class="slide" v-for="(slide, index) in slides" :key="index" :class="{ active: currentSlide === index }">
         <div class="slide-image" :style="{ backgroundImage: `url(${slide.image})` }">
-          <div class="slide-content">
-            <h2 class="slide-title">{{ slide.title }}</h2>
-            <p class="slide-description">{{ slide.description }}</p>
-            <!-- <router-link v-if="slide.link" :to="slide.link" class="slide-button">자세히 보기</router-link> -->
-          </div>
+          <!-- 슬라이드 콘텐츠 제거 -->
         </div>
       </div>
     </div>
@@ -120,6 +116,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import mainFirstImage from '@/assets/images/main-first.png';
 import mainSecondImage from '@/assets/images/main-second.png';
 import mainThirdImage from '@/assets/images/main-third.png';
+import mainFirstMobileImage from '@/assets/images/main-first-mobile.png';
+import mainSecondMobileImage from '@/assets/images/main-second-mobile.png';
+import mainThirdMobileImage from '@/assets/images/main-third-mobile.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -153,36 +152,30 @@ const isFormValid = computed(() => {
 });
 
 const checkMobile = () => {
-  isMobile.value = window.innerWidth <= 768;
+  isMobile.value = window.innerWidth <= 1200;
 };
 
-const slides = [
+const slides = computed(() => [
   {
-    image: mainFirstImage,
-    // title: 'main-first',
-    // description: 'main-first',
+    image: isMobile.value ? mainFirstMobileImage : mainFirstImage,
     link: '/introduction'
   },
   {
-    image: mainSecondImage,
-    // title: 'main-second',
-    // description: 'main-second',
+    image: isMobile.value ? mainSecondMobileImage : mainSecondImage,
     link: '/education'
   },
   {
-    image: mainThirdImage,
-    // title: 'main-third',
-    // description: 'main-third',
+    image: isMobile.value ? mainThirdMobileImage : mainThirdImage,
     link: '/registration'
   }
-];
+]);
 
 const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % slides.length;
+  currentSlide.value = (currentSlide.value + 1) % slides.value.length;
 };
 
 const prevSlide = () => {
-  currentSlide.value = (currentSlide.value - 1 + slides.length) % slides.length;
+  currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length;
 };
 
 const goToSlide = (idx) => {
@@ -307,11 +300,13 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
 .slide.active {
   opacity: 1;
+  visibility: visible;
 }
 
 .slide-image {
@@ -455,6 +450,81 @@ onUnmounted(() => {
   }
 }
 
+@media (max-width: 1200px) {
+  .services-content {
+    min-width: auto;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .required-notice {
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+    margin-right: 5px;
+  }
+
+  .registration-form {
+    padding: 0 10px;
+    max-width: 100%;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px;
+    padding: 12px 15px;
+    min-height: 42px;
+    border-radius: 8px;
+  }
+
+  .checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 25px;
+  }
+
+  .checkbox-group label {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+
+  .submit-btn {
+    font-size: 1.2rem;
+    padding: 12px;
+    min-height: 42px;
+    margin-top: 10px;
+  }
+
+  .success-message,
+  .error-message {
+    margin: 0 auto 25px auto;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .slide-title {
     font-size: 2.5rem;
@@ -478,41 +548,75 @@ onUnmounted(() => {
     font-size: 1rem;
   }
 
-  .registration-form {
+  .services-content {
+    min-width: auto;
     padding: 0 15px;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .required-notice {
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .registration-form {
+    padding: 0;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
   }
 
   .form-group input,
   .form-group textarea {
     font-size: 16px; /* iOS 줌 방지 */
-    padding: 20px 15px;
-    min-height: 55px;
+    padding: 10px 12px;
+    min-height: 38px;
+    border-radius: 6px;
   }
 
-  .form-group label {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+  .checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    margin-bottom: 20px;
   }
 
   .checkbox-group label {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
   }
 
   .checkbox-group input[type="checkbox"] {
-    transform: scale(1.3);
-    margin-right: 12px;
+    transform: scale(1.1);
+    margin-right: 8px;
+    margin-bottom: 3px;
   }
 
   .submit-btn {
-    font-size: 1.2rem;
-    padding: 20px;
+    font-size: 1rem;
+    padding: 10px;
     max-width: 100%;
-    min-height: 60px;
+    min-height: 30px;
+    border-radius: 6px;
+  }
+
+  .success-message,
+  .error-message {
+    margin: 0 auto 20px auto;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 6px;
   }
 }
 
@@ -570,16 +674,16 @@ onUnmounted(() => {
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 20px 15px;
+  padding: 12px 15px;
   border: 2px solid #ddd;
   font-size: 16px; /* iOS 줌 방지 */
   box-sizing: border-box;
   transition: border-color 0.3s ease;
-  min-height: 55px;
+  min-height: 45px;
 }
 
 .form-group textarea {
-  min-height: 100px;
+  min-height: 80px;
   resize: vertical;
 }
 
@@ -616,15 +720,15 @@ onUnmounted(() => {
   max-width: 500px;
   margin: 0 auto;
   display: block;
-  padding: 20px;
+  padding: 14px;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 60px;
+  min-height: 50px;
 }
 
 .submit-btn:hover:not(:disabled) {
