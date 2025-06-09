@@ -1,6 +1,11 @@
 <template>
   <div class="questions-page">
     <div class="questions-content">
+      <div class="page-title">
+        <h2>자주묻는 질문</h2>
+        <div class="title-divider"></div>
+      </div>
+      
       <div class="questions-list">
         <div 
           v-for="(question, index) in filteredQuestions" 
@@ -20,7 +25,7 @@
             <div class="question-number">Q{{ index + 1 }}</div>
             <h3>{{ question.title }}</h3>
             <span class="toggle-icon" :class="{ 'rotated': question.isOpen }">
-              {{ question.isOpen ? '−' : '+' }}
+              {{ question.isOpen ? '▲' : '▼' }}
             </span>
           </div>
           <transition name="accordion">
@@ -218,51 +223,49 @@ export default {
 .questions-content {
   max-width: 1000px;
   margin: 0 auto;
-  background: #ffffff;
-  border-radius: 2px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(160, 121, 43, 0.1);
-  overflow: hidden;
 }
 
-.search-box {
-  margin: 0;
-  position: relative;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fafbfc;
+.page-title {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-.search-box input {
-  width: 100%;
-  padding: 24px 60px 24px 24px;
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  color: #2d3748;
-  font-weight: 400;
-  transition: all 0.2s ease;
+.page-title h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 20px 0;
 }
 
-.search-box input::placeholder {
-  color: #718096;
-  font-weight: 400;
-}
-
-.search-box input:focus {
-  outline: none;
-  background: #ffffff;
+.title-divider {
+  width: 60px;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 0 auto;
 }
 
 .questions-list {
   display: flex;
   flex-direction: column;
   padding: 0;
+  border-top: 1px solid var(--secondary-color);
+  border-bottom: 1px solid var(--secondary-color);
 }
 
 .question-item {
-  border-bottom: 1px solid #e2e8f0;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: #f8f9fa;
+  position: relative;
+}
+
+.question-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 32px;
+  right: 32px;
+  height: 1px;
+  background-color: #e2e8f0;
 }
 
 .question-item:last-child {
@@ -274,14 +277,13 @@ export default {
 }
 
 .question-item.is-open {
-  background: #ffffff;
   border-left: 4px solid var(--primary-color);
 }
 
 .question-header {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 20px 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   gap: 15px;
@@ -290,8 +292,7 @@ export default {
 }
 
 .question-header:focus {
-  background: #f1f5f9;
-  box-shadow: inset 0 0 0 2px var(--primary-color);
+  background: #f8fafc;
 }
 
 .question-header:focus-visible {
@@ -304,31 +305,15 @@ export default {
 }
 
 .question-item.is-open .question-header {
-  background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
 }
 
 .question-number {
-  background: #f1f5f9;
-  color: var(--primary-color);
-  width: 36px;
-  height: 36px;
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #718096;
   font-weight: 600;
   font-size: 0.875rem;
   flex-shrink: 0;
-  border: 1px solid rgba(160, 121, 43, 0.2);
-  transition: all 0.3s ease;
-}
-
-.question-item.is-open .question-number {
-  background: var(--primary-color);
-  color: #ffffff;
-  border-color: var(--primary-color);
-  transform: scale(1.05);
+  min-width: 24px;
 }
 
 .question-header h3 {
@@ -336,9 +321,8 @@ export default {
   font-size: 1rem;
   color: #1a202c;
   flex: 1;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.5;
-  font-family: 'Noto Sans KR', sans-serif;
   transition: color 0.2s ease;
 }
 
@@ -348,12 +332,12 @@ export default {
 }
 
 .toggle-icon {
-  font-size: 1.25rem;
+  font-size: 0.75rem;
   color: #718096;
   font-weight: 400;
   transition: all 0.3s ease;
   flex-shrink: 0;
-  width: 24px;
+  width: 16px;
   text-align: center;
 }
 
@@ -387,8 +371,7 @@ export default {
 }
 
 .question-content {
-  padding: 20px 32px 24px 72px;
-  background: #fafbfc;
+  padding: 32px 20px 36px 59px;
   border-top: none;
   overflow: hidden;
 }
@@ -419,7 +402,6 @@ export default {
   border-radius: 2px;
   color: var(--primary-color);
   font-weight: 500;
-  border: 1px solid rgba(160, 121, 43, 0.15);
 }
 
 .notice {
@@ -428,30 +410,23 @@ export default {
 }
 
 .price {
-  background: linear-gradient(135deg, #fffbf0 0%, #fef5e7 100%);
   padding: 20px;
   border-radius: 2px;
   border-left: 4px solid var(--primary-color);
   font-size: 1.1rem;
   text-align: center;
   margin: 20px 0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(160, 121, 43, 0.15);
 }
 
 .certificate {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   padding: 20px;
   border-radius: 2px;
   border-left: 4px solid #0284c7;
   text-align: center;
   margin: 20px 0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(2, 132, 199, 0.15);
 }
 
 .contact-info {
-  background: #f8fafc;
   padding: 24px;
   border-radius: 2px;
   border: 1px solid #e2e8f0;
@@ -477,7 +452,6 @@ export default {
 }
 
 .registration-steps {
-  background: #f8fafc;
   padding: 24px;
   border-radius: 2px;
   border-left: 4px solid var(--primary-color);
@@ -511,8 +485,6 @@ export default {
   text-align: center;
   padding: 80px 40px;
   color: #718096;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
 }
 
 .no-results p {
@@ -523,24 +495,30 @@ export default {
 
 @media (max-width: 768px) {
   .questions-page {
-    padding: 20px 15px;
+    padding: 30px 15px;
   }
 
-  .questions-content {
-    margin: 0;
-    border-radius: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  .page-title h2 {
+    font-size: 1.25rem;
+  }
+
+  .title-divider {
+    width: 50px;
+  }
+
+  .question-item:not(:last-child)::after {
+    left: 16px;
+    right: 16px;
   }
 
   .question-header {
-    padding: 20px 16px;
+    padding: 18px 16px;
     gap: 12px;
   }
 
   .question-number {
-    width: 32px;
-    height: 32px;
     font-size: 0.75rem;
+    min-width: 22px;
   }
 
   .question-header h3 {
@@ -549,23 +527,16 @@ export default {
   }
 
   .toggle-icon {
-    font-size: 1.125rem;
+    font-size: 0.6875rem;
+    width: 14px;
   }
 
   .question-content {
-    padding: 0 16px 24px 60px;
+    padding: 28px 16px 24px 54px;
   }
 
   .answer-content {
     font-size: 0.9rem;
-  }
-
-  .search-box input {
-    padding: 20px 50px 20px 16px;
-  }
-
-  .search-icon {
-    right: 16px;
   }
 
   .registration-steps,
@@ -580,8 +551,9 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .questions-content {
-    margin: 0 -5px;
+  .question-item:not(:last-child)::after {
+    left: 12px;
+    right: 12px;
   }
 
   .question-header {
@@ -595,12 +567,7 @@ export default {
   }
 
   .question-content {
-    padding: 0 12px 20px 54px;
-  }
-
-  .search-box input {
-    padding: 18px 45px 18px 12px;
-    font-size: 0.9rem;
+    padding: 24px 12px 20px 32px;
   }
 
   .answer-content {

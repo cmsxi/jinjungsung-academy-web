@@ -436,7 +436,7 @@ const experts = [
   }
 
   .partners-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 40px;
   }
 
@@ -456,15 +456,29 @@ const experts = [
   .expert-item {
     padding: 15px;
     gap: 15px;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .expert-item.has-profile {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+  }
+
+  .expert-item.has-profile .expert-image {
+    width: 130px;
+    height: 130px;
   }
 
   .expert-image {
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
+    align-self: center;
   }
 
   .expert-info h3 {
     font-size: 1.2rem;
+    text-align: left;
   }
 
   .expert-info p {
@@ -472,11 +486,11 @@ const experts = [
   }
 
   .profile-section h4 {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
   }
 
   .profile-section li {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -501,15 +515,29 @@ const experts = [
   .expert-item {
     padding: 12px;
     gap: 12px;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .expert-item.has-profile {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+  }
+
+  .expert-item.has-profile .expert-image {
+    width: 110px;
+    height: 110px;
   }
 
   .expert-image {
-    width: 60px;
-    height: 60px;
+    width: 90px;
+    height: 90px;
+    align-self: center;
   }
 
   .expert-info h3 {
     font-size: 1.1rem;
+    text-align: left;
   }
 
   .expert-info p {
@@ -519,14 +547,15 @@ const experts = [
   .experts-grid p {
     font-size: 1.2rem;
     margin-bottom: 15px;
+    text-align: left;
   }
 
   .profile-section h4 {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
 
   .profile-section li {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 }
 </style> 

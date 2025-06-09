@@ -1,6 +1,6 @@
 <template>
   <div class="registration-page">
-    <Block backgroundColor="#fdfdfd">
+    <Block backgroundColor="#f9f9f9">
       <div class="page-container section-container">
         <div class="services-content" ref="servicesContent">
           <h2 class="section-title">수강신청문의</h2>
@@ -167,12 +167,6 @@ const resetForm = () => {
   min-height: 100vh;
 }
 
-.page-header {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 60px 0;
-  text-align: center;
-}
 
 .page-header h1 {
   font-size: 2.5rem;
@@ -408,7 +402,7 @@ const resetForm = () => {
 
   .services-content {
     min-width: auto;
-    padding: 0 15px;
+    padding: 40px 15px 0 15px;
   }
 
   .section-title {
