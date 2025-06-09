@@ -89,7 +89,7 @@ onMounted(() => {
 }
 
 .business-content {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -128,14 +128,14 @@ onMounted(() => {
 
 .business-text h3 {
   color: var(--primary-color);
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 20px;
   font-weight: 700;
 }
 
 .business-text p {
   color: #333;
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.8;
   margin: 0;
 }

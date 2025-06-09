@@ -71,7 +71,6 @@ export default {
 
 .page-header {
   background-color: var(--primary-color);
-  color: white;
   padding: 60px 0;
   text-align: center;
 }
@@ -98,7 +97,7 @@ export default {
   }
 
   .content-container {
-    padding: 20px;
+    padding: 40px 20px 20px 20px;
   }
 }
 </style> 

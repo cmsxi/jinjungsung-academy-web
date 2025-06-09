@@ -232,32 +232,12 @@ export default {
         }
         this.closeMobileMenu();
         
-        if (this.$route.path !== '/') {
-          this.$router.push('/').then(() => {
-            this.scrollToForm();
-          }).catch(err => {
-            console.error('Navigation error:', err);
-            this.scrollToForm();
-          });
-        } else {
-          this.scrollToForm();
-        }
+        // 수강신청문의 페이지로 라우팅
+        this.$router.push('/registration').catch(err => {
+          console.error('Navigation error:', err);
+        });
       } catch (error) {
         console.error('Error navigating to consultation:', error);
-      }
-    },
-    scrollToForm() {
-      try {
-        setTimeout(() => {
-          const form = document.querySelector('.consultation-form');
-          if (form) {
-            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-          }
-        }, 100);
-      } catch (error) {
-        console.error('Error scrolling to form:', error);
       }
     },
     showSubmenu(menu) {
@@ -760,12 +740,12 @@ header.scrolled {
   }
   
   .logo-image {
-    height: 36px;
-    margin-left: 15px;
+    height: 44px;
+    margin-left: 10px;
   }
   
   .header-container {
-    padding: 0 15px;
+    padding: 0 10px;
   }
 }
 
