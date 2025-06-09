@@ -1,8 +1,6 @@
 <template>
   <div class="faq-layout">
-    <div class="page-header">
-      <h1>자주묻는질문</h1>
-    </div>
+    
     <div class="content-container">
       <TabComponent 
         :tabs="tabs" 
