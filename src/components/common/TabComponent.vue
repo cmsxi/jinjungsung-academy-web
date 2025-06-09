@@ -5,7 +5,11 @@
         v-for="tab in tabs"
         :key="tab.id"
         class="tab-button"
-        :class="{ active: currentTab === tab.id }"
+        :class="{ 
+          active: currentTab === tab.id,
+          disabled: tab.disabled 
+        }"
+        :disabled="tab.disabled"
         @click="changeTab(tab.id)"
       >
         {{ tab.title }}
@@ -49,6 +53,10 @@ export default {
   },
   methods: {
     changeTab(tabId) {
+      // disabled된 탭은 변경하지 않음
+      const tab = this.tabs.find(t => t.id === tabId)
+      if (tab && tab.disabled) return
+      
       this.currentTab = tabId
     }
   }
@@ -80,13 +88,23 @@ export default {
   transition: all 0.3s ease;
 }
 
-.tab-button:hover {
+.tab-button:hover:not(.disabled) {
   color: var(--primary-color);
 }
 
 .tab-button.active {
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
+}
+
+.tab-button.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tab-button.disabled:hover {
+  color: #ccc;
 }
 
 .tab-content {
