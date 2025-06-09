@@ -35,7 +35,7 @@
             <li @mouseenter="showSubmenu('all')"><router-link to="/introduction" @click="handleNavigation">교육원 소개</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/education" @click="handleNavigation">교육안내</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><span @click.prevent>자주묻는질문</span></li>
+            <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li>
             <li @mouseenter="showSubmenu('all')"><span @click.prevent>수강후기</span></li>
           </ul>
           
@@ -61,16 +61,16 @@
                 <h3><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></h3>
               </div>
               <div class="accordion-item">
-                <h3><span @click.prevent>자주묻는질문</span></h3>
+                <h3><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></h3>
                 <ul>
-                  <li><span>FAQ</span></li>
-                  <li><span>문의게시판</span></li>
+                  <li><router-link to="/faq/questions" @click="handleNavigation">FAQ</router-link></li>
+                  <li><span class="disabled-link">문의게시판</span></li>
                 </ul>
               </div>
               <div class="accordion-item">
-                <h3>수강후기</h3>
+                <h3><span @click.prevent>수강후기</span></h3>
                 <ul>
-                  <li><span>수강후기</span></li>
+                  <li><span class="disabled-link">수강후기</span></li>
                 </ul>
               </div>
             </div>
@@ -112,13 +112,13 @@
           </div>
           <div class="submenu-section">
             <ul>
-              <li><span>FAQ</span></li>
-              <li><span>문의게시판</span></li>
+              <li><router-link to="/faq/questions">FAQ</router-link></li>
+              <li><span class="disabled-link">문의게시판</span></li>
             </ul>
           </div>
           <div class="submenu-section">
             <ul>
-              <li><span>수강후기</span></li>
+              <li><span class="disabled-link">수강후기</span></li>
             </ul>
           </div>
         </div>
@@ -603,6 +603,15 @@ header.scrolled {
   cursor: default;
 }
 
+.disabled-link {
+  color: rgba(255, 255, 255, 0.4) !important;
+  cursor: not-allowed !important;
+}
+
+.mobile-menu .accordion-item ul li .disabled-link {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
 /* 햄버거 메뉴 열림 상태일 때 아이콘 애니메이션 */
 .mobile-menu-open + .hamburger-menu span:nth-child(1) {
   transform: translateY(9px) rotate(45deg);
@@ -793,5 +802,10 @@ header.scrolled {
   .submenu-grid {
     gap: 30px;
   }
+}
+
+.disabled-menu {
+  color: rgba(255, 255, 255, 0.4) !important;
+  cursor: not-allowed !important;
 }
 </style>

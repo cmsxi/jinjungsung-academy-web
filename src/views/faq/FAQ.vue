@@ -9,12 +9,7 @@
         :modelValue="currentTab"
         @update:modelValue="handleTabChange"
       >
-        <template #tab-0>
-          <router-view v-if="$route.name === 'Questions'"></router-view>
-        </template>
-        <template #tab-1>
-          <router-view v-if="$route.name === 'Inquiry'"></router-view>
-        </template>
+        <router-view></router-view>
       </TabComponent>
     </div>
   </div>
@@ -32,17 +27,30 @@ export default {
     return {
       tabs: [
         { title: '자주묻는질문', id: 'tab-0' },
-        { title: '문의게시판', id: 'tab-1' }
+        { title: '문의게시판', id: 'tab-1', disabled: true }
       ],
       currentTab: 'tab-0'
     }
   },
   methods: {
     handleTabChange(tabId) {
+      // 문의게시판 탭이 비활성화되어 있으면 변경하지 않음
+      if (tabId === 'tab-1') return
+      
       this.currentTab = tabId
       const index = parseInt(tabId.split('-')[1])
       const routes = ['questions', 'inquiry']
       this.$router.push(`/faq/${routes[index]}`)
+    }
+  },
+  watch: {
+    '$route'(to) {
+      const routeMap = {
+        'questions': 'tab-0',
+        'inquiry': 'tab-1'
+      }
+      const currentRoute = to.path.split('/').pop()
+      this.currentTab = routeMap[currentRoute] || 'tab-0'
     }
   },
   created() {

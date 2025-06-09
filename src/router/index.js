@@ -67,6 +67,7 @@ const routes = [
         path: '/faq',
         name: 'FAQ',
         component: () => import('../views/faq/FAQ.vue'),
+        redirect: '/faq/questions',
         children: [
             { path: 'questions', name: 'Questions', component: Questions },
             { path: 'inquiry', name: 'Inquiry', component: Inquiry }

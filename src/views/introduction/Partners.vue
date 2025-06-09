@@ -4,8 +4,7 @@
       <div class="partners-header">
         <h2>협력업체</h2>
         <p class="partners-subtitle">
-          - 국제명품감정교육원, 진정성 협력점과 함께
-          사업의 성공을 도와줄 최적의 진정성 전문가 그룹 -
+          국제명품감정교육원, 진정성 협력점과 함께 사업의 성공을 안전하게 도와줄 최적의 진정성 전문가 그룹을 소개합니다.
         </p>
 
       </div>
@@ -13,7 +12,14 @@
       <div class="experts-grid">
         <div class="expert-item" :class="{ 'has-profile': expert.profile }" v-for="expert in experts" :key="expert.name">
           <div class="expert-image">
-            <img :src="expert.image" :alt="expert.name" loading="lazy" />
+            <div 
+              class="expert-photo"
+              :style="{
+                backgroundImage: `url(${expert.image})`,
+                backgroundPosition: `${expert.imagePosition?.x || '50%'} ${expert.imagePosition?.y || '50%'}`,
+                backgroundSize: `${(expert.imageScale || 1) * 100}%`
+              }"
+            ></div>
           </div>
           <div class="expert-info">
             <h3>{{ expert.name }} {{ expert.title }}</h3>
@@ -79,6 +85,8 @@ const experts = [
     name: '공정훈', 
     title: '노무사', 
     image: 공정훈노무사,
+    imagePosition: { x: '57%', y: '10%' },
+    imageScale: 1.1,
     profile: {
       education: ['광운대학교 법학, 경영학과 졸업'],
       certification: ['공인노무사(CPLA)'],
@@ -97,6 +105,8 @@ const experts = [
     name: '김상철', 
     title: '세무사', 
     image: 김상철세무사,
+    imagePosition: { x: '45%', y: '20%' },
+    imageScale: 2,
     profile: {
       education: ['고려대학교 법무대학원 조세법 석사'],
       certification: ['세무사(CTA)'],
@@ -112,6 +122,8 @@ const experts = [
     name: '김선우', 
     title: '변리사', 
     image: 김선우변리사,
+    imagePosition: { x: '45%', y: '20%' },
+    imageScale: 1.1,
     profile: {
       education: [
         '경희대학교 기계공학과 졸업',
@@ -136,6 +148,8 @@ const experts = [
     name: '김홍범', 
     title: '법무사', 
     image: 김홍범법무사,
+    imagePosition: { x: '55%', y: '45%' },
+    imageScale: 1,
     profile: {
       certification: ['법무사'],
       career: [
@@ -159,6 +173,8 @@ const experts = [
     name: '문초록', 
     title: '세무사', 
     image: 문초록세무사,
+    imagePosition: { x: '50%', y: '0%' },
+    imageScale: 1.4,
     profile: {
       education: [
         '고려대학교 경영학 학사',
@@ -177,6 +193,8 @@ const experts = [
     name: '손석구', 
     title: '법무사', 
     image: 손석구법무사,
+    imagePosition: { x: '50%', y: '50%' },
+    imageScale: 0.8,
     profile: {
       education: ['서울대학교 경영학과'],
       certification: ['법무사'],
@@ -193,6 +211,8 @@ const experts = [
     name: '안소윤', 
     title: '변호사', 
     image: 안소윤변호사,
+    imagePosition: { x: '0%', y: '25%' },
+    imageScale: 1,
     profile: {
       education: ['서울대학교 졸업'],
       certification: ['변호사'],
@@ -204,6 +224,8 @@ const experts = [
     name: '윤형석', 
     title: '노무사', 
     image: 윤형석노무사,
+    imagePosition: { x: '70%', y: '15%' },
+    imageScale: 1.3,
     profile: {
       education: ['연세대학교 경영학과 졸업'],
       certification: ['공인노무사(CPLA)'],
@@ -222,6 +244,8 @@ const experts = [
     name: '이제민', 
     title: '변호사', 
     image: 이제민변호사,
+    imagePosition: { x: '50%', y: '0%' },
+    imageScale: 1.0,
     profile: {
       certification: ['변호사'],
       약력: [
@@ -234,6 +258,8 @@ const experts = [
     name: '조승현', 
     title: '변리사', 
     image: 조승현변리사,
+    imagePosition: { x: '50%', y: '10%' },
+    imageScale: 1.2,
     profile: {
       education: [
         '신목고등학교 졸업',
@@ -333,12 +359,22 @@ const experts = [
   overflow: hidden;
   border: 2px solid var(--primary-color);
   flex-shrink: 0;
+  position: relative;
 }
 
 .expert-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+}
+
+.expert-photo {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 50%;
 }
 
 .expert-info {
@@ -369,7 +405,7 @@ const experts = [
 .profile-section h4 {
   color: var(--primary-color);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 5px;
 }
 
