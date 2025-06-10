@@ -36,7 +36,7 @@
             <li @mouseenter="showSubmenu('all')"><router-link to="/education" @click="handleNavigation">교육안내</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></li>
             <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><span @click.prevent>수강후기</span></li>
+            <li @mouseenter="showSubmenu('all')"><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li>
           </ul>
           
           <!-- 모바일 전용 아코디언 메뉴 -->
@@ -68,9 +68,9 @@
                 </ul>
               </div>
               <div class="accordion-item">
-                <h3><span @click.prevent>수강후기</span></h3>
+                <h3><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></h3>
                 <ul>
-                  <li><span class="disabled-link">수강후기</span></li>
+                  <li><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li>
                 </ul>
               </div>
             </div>
@@ -118,7 +118,7 @@
           </div>
           <div class="submenu-section">
             <ul>
-              <li><span class="disabled-link">수강후기</span></li>
+              <li><router-link to="/reviews">수강후기</router-link></li>
             </ul>
           </div>
         </div>

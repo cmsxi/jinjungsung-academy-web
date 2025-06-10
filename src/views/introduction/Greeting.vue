@@ -47,8 +47,33 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .greeting-page {
+    padding: 0;
+  }
+
   .greeting-content {
-    padding: 20px;
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .profile-section {
+    margin: 0;
+    padding: 0;
+  }
+
+  .profile-image {
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .profile-image img {
+    width: 104%;
+    max-width: 104%;
+    transform: scale(1.05) translateX(0%);
+    transform-origin: center;
+    margin: 0 auto;
+    display: block;
   }
 }
 </style> 
