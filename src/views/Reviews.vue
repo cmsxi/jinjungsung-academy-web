@@ -1,201 +1,259 @@
 <template>
   <div class="reviews-page">
-    <div class="page-header">
-      <h1>수강후기</h1>
+    <div class="reviews-content">
+      <!-- 게시판 스타일 -->
+      <div class="board-frame">
+        <div class="frame-header">
+          <div class="header-left">
+            <h3>수강후기</h3>
+            <div class="post-count">총 {{ filteredReviews.length }}개 게시글</div>
+          </div>
+          <div class="header-right">
+            <div class="search-box">
+              <input
+                v-model="searchKeyword"
+                type="text"
+                placeholder="제목으로 검색하세요..."
+                @input="filterReviews"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- 로딩 상태 -->
+        <div v-if="isLoading" class="loading-message">
+          <p>게시글을 불러오는 중...</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div v-if="errorMessage" class="error-message">
+          <p>{{ errorMessage }}</p>
+          <button @click="loadReviews" class="retry-btn">다시 시도</button>
+        </div>
+
+        <div v-if="!isLoading && !errorMessage" class="frame-content">
+          <div class="post-grid">
+            <div
+              v-for="review in filteredReviews"
+              :key="review.id"
+              class="post-card"
+              @click="goToDetail(review.id)"
+            >
+              <div class="post-image">
+                <img
+                  :src="
+                    review.image_filename
+                      ? getImageUrl(review.image_filename)
+                      : defaultImagePath
+                  "
+                  :alt="review.title"
+                  @error="handleImageError"
+                />
+              </div>
+              <div class="post-info">
+                <h4 class="post-title">{{ review.title }}</h4>
+                <p class="post-date">{{ formatDate(review.created_at || review.date) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 게시글이 없을 때 -->
+          <div v-if="filteredReviews.length === 0" class="no-posts">
+            <p>
+              {{
+                searchKeyword
+                  ? "검색 결과가 없습니다."
+                  : "등록된 게시글이 없습니다."
+              }}
+            </p>
+          </div>
+
+          <!-- 페이지네이션 -->
+          <div v-if="totalPages > 1" class="pagination">
+            <button
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="page-btn"
+            >
+              이전
+            </button>
+
+            <span class="page-info">
+              {{ currentPage }} / {{ totalPages }}
+            </span>
+
+            <button
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="page-btn"
+            >
+              다음
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-
-
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Reviews',
-  data() {
-    return {
-      searchQuery: '',
-      selectedCourse: '',
-      selectedRating: '',
-      formData: {
-        name: '',
-        course: '',
-        rating: 0,
-        content: '',
-        tags: [],
-        tagsInput: ''
-      },
-      reviews: [
-        {
-          name: '김철수',
-          course: '기초 과정',
-          rating: 5,
-          content: '프로그래밍을 처음 배우는 제게 정말 좋은 기회였습니다. 실습 위주의 교육으로 실제로 코딩하는 능력이 많이 향상되었습니다. 특히 1:1 멘토링이 큰 도움이 되었습니다.',
-          date: '2024-03-15',
-          tags: ['실습중심', '멘토링', '기초부터']
-        },
-        {
-          name: '이영희',
-          course: '중급 과정',
-          rating: 5,
-          content: '실무 프로젝트를 통해 실제 업무 환경에서 필요한 기술들을 배울 수 있었습니다. 강사님의 실무 경험이 풍부하셔서 많은 도움이 되었습니다.',
-          date: '2024-03-14',
-          tags: ['실무프로젝트', '취업성공', '실무능력']
-        },
-        {
-          name: '박지민',
-          course: '고급 과정',
-          rating: 4,
-          content: '포트폴리오 작성과 취업 준비까지 도와주셔서 취업에 성공했습니다. 특히 실무에서 바로 활용할 수 있는 기술들을 배울 수 있어 좋았습니다.',
-          date: '2024-03-13',
-          tags: ['포트폴리오', '취업성공', '실무기술']
-        }
-      ]
-    }
-  },
-  computed: {
-    isFormValid() {
-      return this.formData.name && 
-             this.formData.course && 
-             this.formData.rating > 0 && 
-             this.formData.content
-    },
-    filteredReviews() {
-      let filtered = this.reviews
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import defaultImage from "@/assets/images/business-1.jpg";
 
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        filtered = filtered.filter(r => 
-          r.content.toLowerCase().includes(query) ||
-          r.tags.some(tag => tag.toLowerCase().includes(query))
-        )
-      }
+const defaultImagePath = defaultImage;
 
-      if (this.selectedCourse) {
-        filtered = filtered.filter(r => r.course === this.selectedCourse)
-      }
-
-      if (this.selectedRating) {
-        filtered = filtered.filter(r => r.rating >= parseInt(this.selectedRating))
-      }
-
-      return filtered
-    }
-  },
-  methods: {
-    filterReviews() {
-      // 검색 및 필터링 로직은 computed 속성에서 처리
-    },
-    submitReview() {
-      if (!this.isFormValid) return
-
-      // TODO: API 연동
-      console.log('후기 정보:', this.formData)
-
-      alert('후기가 등록되었습니다.')
-      this.resetForm()
-    },
-    resetForm() {
-      this.formData = {
-        name: '',
-        course: '',
-        rating: 0,
-        content: '',
-        tags: [],
-        tagsInput: ''
-      }
-    },
-    addTag() {
-      const tag = this.formData.tagsInput.trim()
-      if (tag && !this.formData.tags.includes(tag)) {
-        this.formData.tags.push(tag)
-      }
-      this.formData.tagsInput = ''
-    },
-    removeTag(index) {
-      this.formData.tags.splice(index, 1)
-    }
+const handleImageError = (event) => {
+  if (!event.target.dataset.fallback) {
+    event.target.dataset.fallback = "true";
+    event.target.src = defaultImagePath;
   }
-}
+};
+
+const router = useRouter();
+
+// 상태 관리
+const isLoading = ref(false);
+const errorMessage = ref("");
+const searchKeyword = ref("");
+const reviews = ref([]);
+const currentPage = ref(1);
+const totalReviews = ref(0);
+const itemsPerPage = 10;
+
+// 계산된 속성
+const totalPages = computed(() => Math.ceil(totalReviews.value / itemsPerPage));
+
+// 필터링된 게시글 (검색)
+const filteredReviews = computed(() => {
+  let filtered = reviews.value;
+
+  // 검색 필터링
+  if (searchKeyword.value.trim()) {
+    filtered = filtered.filter((review) =>
+      review.title.toLowerCase().includes(searchKeyword.value.toLowerCase())
+    );
+  }
+
+  return filtered;
+});
+
+// 게시글 목록 로드
+const loadReviews = async (page = 1) => {
+  isLoading.value = true;
+  errorMessage.value = "";
+
+  try {
+    // TODO: API 호출로 수강후기 목록 로드
+    // const response = await api.getReviews(page, itemsPerPage);
+    // reviews.value = response.items;
+    // totalReviews.value = response.total;
+    
+    reviews.value = [];
+    totalReviews.value = 0;
+    currentPage.value = page;
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 페이지 변경
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    loadReviews(page);
+  }
+};
+
+// 이미지 URL 생성
+const getImageUrl = (filename) => {
+  // TODO: 실제 API 서비스로 변경
+  return `/images/${filename}`;
+};
+
+// 메서드
+const filterReviews = () => {
+  // computed에서 자동으로 처리되므로 별도 로직 불필요
+};
+
+const goToDetail = (id) => {
+  router.push(`/reviews/${id}`);
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// 컴포넌트 마운트 시 초기화
+onMounted(() => {
+  loadReviews();
+});
 </script>
 
 <style scoped>
 .reviews-page {
+  padding: 40px 20px;
   min-height: 100vh;
-  background-color: #f8f9fa;
-}
-
-.page-header {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 60px 0;
-  text-align: center;
-}
-
-.page-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0;
 }
 
 .reviews-content {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
 }
 
-.reviews-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+/* 게시판 스타일 */
+.board-frame {
+  background: transparent;
+}
+
+.frame-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 3px solid #333;
   margin-bottom: 40px;
 }
 
-.summary-item {
-  background: white;
-  padding: 30px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #ddd;
-}
-
-.summary-item h3 {
-  color: #666;
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-}
-
-.summary-item .number {
-  color: var(--primary-color);
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.rating {
+.header-left {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 }
 
-.stars {
-  color: #ffd700;
-  font-size: 1.5rem;
+.frame-header h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #333;
 }
 
-.reviews-filter {
-  margin-bottom: 30px;
+.post-count {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
-.search-box {
-  margin-bottom: 15px;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .search-box input {
-  width: 100%;
-  padding: 15px;
-  border: 1px solid #ddd;
+  padding: 10px 15px;
+  border: 2px solid #ddd;
   font-size: 1rem;
+  width: 250px;
+  transition: border-color 0.3s ease;
 }
 
 .search-box input:focus {
@@ -203,245 +261,171 @@ export default {
   border-color: var(--primary-color);
 }
 
-.filter-options {
-  display: flex;
-  gap: 15px;
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
 }
 
-.filter-options select {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 30px;
+}
+
+.retry-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
   font-size: 1rem;
-  background-color: white;
 }
 
-.filter-options select:focus {
-  outline: none;
-  border-color: var(--primary-color);
+.retry-btn:hover {
+  background-color: #c82333;
 }
 
-.reviews-list {
+.frame-content {
+  background: transparent;
+}
+
+.post-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 30px;
   margin-bottom: 40px;
 }
 
-.review-card {
+.post-card {
   background: white;
-  padding: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
   border: 1px solid #ddd;
 }
 
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.reviewer-info h3 {
-  margin: 0 0 5px 0;
-  font-size: 1.2rem;
-  color: #333;
+.post-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
-.course {
-  color: #666;
-  font-size: 0.9rem;
+.post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.review-rating {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.post-card:hover .post-image img {
+  transform: scale(1.05);
 }
 
-.review-rating .stars {
-  font-size: 1.2rem;
+.post-info {
+  padding: 20px;
 }
 
-.rating-number {
-  color: var(--primary-color);
+.post-title {
+  font-size: 1.1rem;
   font-weight: 600;
-}
-
-.review-content {
-  margin-bottom: 20px;
-}
-
-.review-content p {
-  margin: 0;
-  color: #666;
-  line-height: 1.6;
-}
-
-.review-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.date {
-  color: #999;
-  font-size: 0.9rem;
-}
-
-.tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  background: #f0f0f0;
-  color: #666;
-  padding: 4px 8px;
-  font-size: 0.9rem;
-}
-
-.write-review {
-  background: white;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #ddd;
-}
-
-.write-review h2 {
-  color: var(--primary-color);
-  font-size: 1.8rem;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
   color: #333;
-  font-weight: 500;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
+.post-date {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
+.no-posts {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
 }
 
-.rating-input {
+.pagination {
   display: flex;
-  gap: 5px;
-}
-
-.rating-input .star {
-  font-size: 2rem;
-  color: #ddd;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.rating-input .star.active {
-  color: #ffd700;
-}
-
-.tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.tags-list .tag {
-  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 5px;
+  gap: 20px;
+  margin-top: 40px;
 }
 
-.remove-tag {
-  background: none;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  padding: 0;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 15px;
+.page-btn {
+  padding: 10px 20px;
   background-color: var(--primary-color);
   color: white;
   border: none;
-  font-size: 1.1rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.submit-btn:hover:not(:disabled) {
-  opacity: 0.9;
+.page-btn:hover:not(:disabled) {
+  background-color: #003e80;
 }
 
-.submit-btn:disabled {
+.page-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-.no-results {
-  text-align: center;
-  padding: 40px;
-  color: #666;
+.page-info {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    padding: 40px 0;
+  .reviews-page {
+    padding: 20px 15px;
   }
 
-  .page-header h1 {
-    font-size: 2rem;
-  }
-
-  .reviews-content {
-    padding: 20px;
-  }
-
-  .reviews-summary {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .reviews-list {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .filter-options {
+  .frame-header {
     flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
   }
 
-  .write-review {
-    padding: 20px;
+  .header-left {
+    justify-content: center;
   }
 
-  .write-review h2 {
+  .search-box input {
+    width: 100%;
+  }
+
+  .post-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .frame-header h3 {
     font-size: 1.5rem;
+  }
+
+  .pagination {
+    gap: 15px;
+  }
+
+  .page-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 }
 </style> 

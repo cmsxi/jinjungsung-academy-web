@@ -21,12 +21,15 @@ import Inquiry from '../views/faq/Inquiry.vue'
 
 // 수강후기
 import Reviews from '../views/Reviews.vue'
+import ReviewDetail from '../views/ReviewDetail.vue'
 
 // 관리자
 import AdminStatus from '../views/admin/AdminStatus.vue'
 import AdminStatusDetail from '../views/admin/AdminStatusDetail.vue'
 import AdminStatusWrite from '../views/admin/AdminStatusWrite.vue'
 import AdminMain from '../views/admin/AdminMain.vue'
+import AdminReviews from '../views/admin/AdminReviews.vue'
+import AdminReviewWrite from '../views/admin/AdminReviewWrite.vue'
 
 import '../assets/styles/global.css';
 
@@ -79,6 +82,11 @@ const routes = [
         name: 'Reviews',
         component: Reviews
     },
+    {
+        path: '/reviews/:id',
+        name: 'ReviewDetail',
+        component: ReviewDetail
+    },
     // 관리자
     {
         path: '/admin',
@@ -99,6 +107,22 @@ const routes = [
         path: '/admin/status/:id',
         name: 'AdminStatusEdit',
         component: AdminStatusWrite
+    },
+    // 수강후기 관리
+    {
+        path: '/admin/reviews',
+        name: 'AdminReviews',
+        component: AdminReviews
+    },
+    {
+        path: '/admin/reviews/write',
+        name: 'AdminReviewWrite',
+        component: AdminReviewWrite
+    },
+    {
+        path: '/admin/reviews/edit/:id',
+        name: 'AdminReviewEdit',
+        component: AdminReviewWrite
     }
 ]
 

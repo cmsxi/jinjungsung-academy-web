@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /private/
 
-Sitemap: https://globeetax.com/sitemap.xml 
+Sitemap: https://국제명품감정교육원.com/sitemap.xml 

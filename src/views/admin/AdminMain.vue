@@ -52,6 +52,12 @@
                 <p>수강현황 게시글 작성, 수정, 삭제</p>
               </router-link>
 
+              <router-link to="/admin/reviews" class="menu-item">
+                <div class="menu-icon">⭐</div>
+                <h4>수강후기 관리</h4>
+                <p>수강후기 게시글 작성, 수정, 삭제</p>
+              </router-link>
+
               <div class="menu-item" @click="logout">
                 <div class="menu-icon">🚪</div>
                 <h4>로그아웃</h4>

@@ -146,13 +146,35 @@
 }
 
 @media (max-width: 768px) {
+  .curriculum-page {
+    padding: 0;
+  }
+
   .curriculum-content {
-    padding: 20px;
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
   }
 
   .curriculum-content h2 {
     font-size: 1.8rem;
     margin-bottom: 30px;
+  }
+
+  .curriculum-image {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .curriculum-image img {
+    width: 120%;
+    max-width: 120%;
+    transform: scale(1.1);
+    transform-origin: center;
+    margin: 0 auto;
+    display: block;
   }
 
   .section-content {

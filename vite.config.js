@@ -8,13 +8,18 @@ export default defineConfig({
   plugins: [
     vue(),
     viteSitemap({
-      hostname: 'https://globeetax.com',
+      hostname: 'https://국제명품감정교육원.com',
       routes: [
         '/',
-        '/globee',
-        '/service',
-        '/consulting',
-        '/review'
+        '/introduction/greeting',
+        '/introduction/business', 
+        '/introduction/partners',
+        '/education/curriculum',
+        '/education/status',
+        '/registration',
+        '/faq/questions',
+        '/faq/inquiry',
+        '/reviews'
       ],
       outDir: 'dist',
       filename: 'sitemap.xml'
