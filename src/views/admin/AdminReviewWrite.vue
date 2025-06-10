@@ -32,22 +32,6 @@
         </div>
 
         <div class="form-group">
-          <label>평점 *</label>
-          <div class="rating-input">
-            <span
-              v-for="i in 5"
-              :key="i"
-              class="star"
-              :class="{ active: i <= formData.rating }"
-              @click="setRating(i)"
-            >
-              ★
-            </span>
-            <span class="rating-text">{{ formData.rating }}점</span>
-          </div>
-        </div>
-
-        <div class="form-group">
           <label for="content">후기 내용 *</label>
           <textarea
             id="content"
@@ -104,7 +88,6 @@ export default {
       formData: {
         name: '',
         course: '',
-        rating: 0,
         content: '',
         tags: []
       }
@@ -115,7 +98,6 @@ export default {
       return (
         this.formData.name.trim() &&
         this.formData.course &&
-        this.formData.rating > 0 &&
         this.formData.content.trim() &&
         this.formData.content.length <= 500
       )
@@ -170,10 +152,6 @@ export default {
       }
     },
 
-    setRating(rating) {
-      this.formData.rating = rating
-    },
-
     addTag() {
       const tag = this.tagInput.trim()
       if (tag && !this.formData.tags.includes(tag)) {
@@ -191,7 +169,6 @@ export default {
         this.formData = {
           name: '',
           course: '',
-          rating: 0,
           content: '',
           tags: []
         }
@@ -277,33 +254,6 @@ export default {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-}
-
-.rating-input {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.rating-input .star {
-  font-size: 2rem;
-  color: #ddd;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.rating-input .star.active {
-  color: #ffd700;
-}
-
-.rating-input .star:hover {
-  color: #ffd700;
-}
-
-.rating-text {
-  margin-left: 10px;
-  color: #666;
-  font-weight: 500;
 }
 
 .char-count {
