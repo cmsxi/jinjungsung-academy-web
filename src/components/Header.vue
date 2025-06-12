@@ -64,7 +64,7 @@
                 <h3><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></h3>
                 <ul>
                   <li><router-link to="/faq/questions" @click="handleNavigation">FAQ</router-link></li>
-                  <li><span class="disabled-link">문의게시판</span></li>
+                  <li><a href="http://pf.kakao.com/_FXRwn" target="_blank" rel="noopener noreferrer">문의하기</a></li>
                 </ul>
               </div>
               <div class="accordion-item">
@@ -113,7 +113,7 @@
           <div class="submenu-section">
             <ul>
               <li><router-link to="/faq/questions">FAQ</router-link></li>
-              <li><span class="disabled-link">문의게시판</span></li>
+              <li><a href="http://pf.kakao.com/_FXRwn" target="_blank" rel="noopener noreferrer">문의하기</a></li>
             </ul>
           </div>
           <div class="submenu-section">
