@@ -28,7 +28,6 @@
                 <th>번호</th>
                 <th>수강생</th>
                 <th>과정명</th>
-                <th>평점</th>
                 <th>내용 미리보기</th>
                 <th>작성일</th>
                 <th>관리</th>
@@ -39,12 +38,6 @@
                 <td>{{ reviews.length - index }}</td>
                 <td class="name-cell">{{ review.name }}</td>
                 <td class="course-cell">{{ review.course }}</td>
-                <td class="rating-cell">
-                  <div class="stars">
-                    <span v-for="i in 5" :key="i" :class="{ active: i <= review.rating }">★</span>
-                  </div>
-                  <span class="rating-num">{{ review.rating }}</span>
-                </td>
                 <td class="content-preview">
                   {{ getContentPreview(review.content) }}
                 </td>
@@ -72,35 +65,7 @@ export default {
   data() {
     return {
       searchKeyword: '',
-      reviews: [
-        {
-          id: 1,
-          name: '김철수',
-          course: '기초 과정',
-          rating: 5,
-          content: '프로그래밍을 처음 배우는 제게 정말 좋은 기회였습니다. 실습 위주의 교육으로 실제로 코딩하는 능력이 많이 향상되었습니다. 특히 1:1 멘토링이 큰 도움이 되었습니다.',
-          date: '2024-03-15',
-          tags: ['실습중심', '멘토링', '기초부터']
-        },
-        {
-          id: 2,
-          name: '이영희',
-          course: '중급 과정',
-          rating: 5,
-          content: '실무 프로젝트를 통해 실제 업무 환경에서 필요한 기술들을 배울 수 있었습니다. 강사님의 실무 경험이 풍부하셔서 많은 도움이 되었습니다.',
-          date: '2024-03-14',
-          tags: ['실무프로젝트', '취업성공', '실무능력']
-        },
-        {
-          id: 3,
-          name: '박지민',
-          course: '고급 과정',
-          rating: 4,
-          content: '포트폴리오 작성과 취업 준비까지 도와주셔서 취업에 성공했습니다. 특히 실무에서 바로 활용할 수 있는 기술들을 배울 수 있어 좋았습니다.',
-          date: '2024-03-13',
-          tags: ['포트폴리오', '취업성공', '실무기술']
-        }
-      ]
+      reviews: []
     }
   },
   computed: {
@@ -271,29 +236,6 @@ export default {
 .course-cell {
   color: var(--primary-color);
   font-weight: 500;
-}
-
-.rating-cell {
-  text-align: center;
-}
-
-.rating-cell .stars {
-  font-size: 1rem;
-  color: #ffd700;
-  margin-bottom: 2px;
-}
-
-.rating-cell .stars span {
-  color: #ddd;
-}
-
-.rating-cell .stars span.active {
-  color: #ffd700;
-}
-
-.rating-num {
-  font-size: 0.9rem;
-  color: #666;
 }
 
 .content-preview {

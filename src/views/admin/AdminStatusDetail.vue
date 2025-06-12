@@ -110,35 +110,7 @@ const imagePreview = ref('');
 const newImageFile = ref(null);
 
 // 더미 데이터 (실제로는 API에서 가져올 데이터)
-const posts = [
-  {
-    id: 1,
-    title: '1주차 전당포 창업 기초과정',
-    date: '2024-02-15',
-    course: '전당포 창업 기초과정',
-    week: 1,
-    image: '/src/assets/images/business-1.jpg',
-    content: '전당포 사업의 기본 개념과 법적 요건에 대해 학습했습니다. 사업자등록 절차와 필요 서류에 대해 상세히 다뤘으며, 실제 창업 사례를 통해 이해도를 높였습니다. 전당포업 관련 법규와 규제사항, 허가 절차 등을 체계적으로 학습하여 창업 준비에 필요한 기초 지식을 습득했습니다.'
-  },
-  {
-    id: 2,
-    title: '2주차 귀금속 감정 실무',
-    date: '2024-02-10',
-    course: '전당포 창업 기초과정',
-    week: 2,
-    image: '/src/assets/images/business-2.jpg',
-    content: '귀금속 감정 기초와 시세 파악 방법을 학습했습니다. 금, 은, 백금의 특성과 순도 측정법을 실습을 통해 익혔으며, 시장 동향 분석 방법을 배웠습니다. 감정 도구 사용법과 위조품 판별 기술, 시세 변동 요인 분석 등 실무에 직접 활용할 수 있는 전문 지식을 습득했습니다.'
-  },
-  {
-    id: 3,
-    title: '3주차 금거래소 운영 시스템',
-    date: '2024-02-05',
-    course: '금거래소 창업과정',
-    week: 3,
-    image: '/src/assets/images/business-3.jpg',
-    content: '금거래소 운영 시스템과 고객 관리 방법에 대해 학습했습니다. POS 시스템 활용법과 재고 관리, 회계 처리 방법을 실무 중심으로 교육했습니다. 고객 상담 기법과 매장 운영 노하우, 리스크 관리 방법 등을 종합적으로 다뤄 실제 창업 시 필요한 운영 역량을 기를 수 있었습니다.'
-  }
-];
+const posts = [];
 
 // 메서드
 const goBack = () => {
@@ -277,8 +249,11 @@ onMounted(() => {
     return;
   }
 
-  const postId = parseInt(route.params.id);
-  post.value = posts.find(p => p.id === postId);
+  // TODO: API 호출로 게시글 상세 정보 로드
+  // const postId = parseInt(route.params.id);
+  // post.value = await api.getPost(postId);
+  
+  post.value = null;
 });
 </script>
 
