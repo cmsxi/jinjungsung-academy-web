@@ -2,5 +2,22 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /private/
+Disallow: /api/
+Disallow: /.git/
+Disallow: /node_modules/
 
-Sitemap: https://국제명품감정교육원.com/sitemap.xml 
+# 크롤링 속도 제한
+Crawl-delay: 1
+
+# 사이트맵 위치
+Sitemap: https://국제명품감정교육원.com/sitemap.xml
+
+# 검색엔진별 설정
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: NaverBot
+Allow: / 
