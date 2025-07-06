@@ -6,7 +6,7 @@
         <div class="frame-header">
           <div class="header-left">
             <h3>수강현황</h3>
-            <div class="post-count">총 {{ filteredPosts.length }}개 게시글</div>
+            <div class="post-count">총 {{ displayTotalCount }}개 게시글</div>
           </div>
           <div class="header-right">
             <div class="search-box">
@@ -120,7 +120,7 @@ const searchKeyword = ref("");
 const posts = ref([]);
 const currentPage = ref(1);
 const totalPosts = ref(0);
-const itemsPerPage = 10;
+const itemsPerPage = 12;
 
 // 계산된 속성
 const totalPages = computed(() => Math.ceil(totalPosts.value / itemsPerPage));
@@ -137,6 +137,11 @@ const filteredPosts = computed(() => {
   }
 
   return filtered;
+});
+
+// 표시할 총 개수 계산
+const displayTotalCount = computed(() => {
+  return searchKeyword.value.trim() ? filteredPosts.value.length : totalPosts.value;
 });
 
 // 게시글 목록 로드
