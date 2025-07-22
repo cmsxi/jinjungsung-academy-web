@@ -1,8 +1,16 @@
 <template>
   <div class="main-banner">
     <div class="banner-slider" ref="slider">
-      <div class="slide" v-for="(slide, index) in slides" :key="index" :class="{ active: currentSlide === index }">
-        <div class="slide-image" :style="{ backgroundImage: `url(${slide.image})` }">
+      <div
+        class="slide"
+        v-for="(slide, index) in slides"
+        :key="index"
+        :class="{ active: currentSlide === index }"
+      >
+        <div
+          class="slide-image"
+          :style="{ backgroundImage: `url(${slide.image})` }"
+        >
           <!-- 슬라이드 콘텐츠 제거 -->
         </div>
       </div>
@@ -12,7 +20,13 @@
         <span class="arrow">←</span>
       </button>
       <div class="slider-dots">
-        <button v-for="(slide, idx) in slides" :key="idx" class="dot" :class="{ active: currentSlide === idx }" @click="goToSlide(idx)"></button>
+        <button
+          v-for="(slide, idx) in slides"
+          :key="idx"
+          class="dot"
+          :class="{ active: currentSlide === idx }"
+          @click="goToSlide(idx)"
+        ></button>
       </div>
       <button class="control-button next" @click="nextSlide">
         <span class="arrow">→</span>
@@ -25,7 +39,7 @@
       <div class="services-content" ref="servicesContent">
         <h2 class="section-title">수강신청문의</h2>
         <p class="required-notice">*표시는 필수 입력요소입니다</p>
-        
+
         <!-- 성공 메시지 -->
         <div v-if="showSuccessMessage" class="success-message">
           <p>수강신청문의가 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.</p>
@@ -35,59 +49,61 @@
         <div v-if="errorMessage" class="error-message">
           <p>{{ errorMessage }}</p>
         </div>
-        
+
         <div class="registration-form">
           <form @submit.prevent="submitRegistration">
             <div class="form-group">
               <label for="name">성함 <span class="required">*</span></label>
-              <input 
-                type="text" 
-                id="name" 
-                v-model="formData.name" 
+              <input
+                type="text"
+                id="name"
+                v-model="formData.name"
                 required
                 placeholder="홍길동"
                 :disabled="isLoading"
-              >
+              />
             </div>
 
             <div class="form-group">
               <label for="phone">연락처 <span class="required">*</span></label>
-              <input 
-                type="tel" 
-                id="phone" 
-                v-model="formData.phone" 
+              <input
+                type="tel"
+                id="phone"
+                v-model="formData.phone"
                 required
                 placeholder="010-0000-0000"
                 :disabled="isLoading"
-              >
+              />
             </div>
 
             <div class="form-group">
-              <label for="location">거주지역 <span class="required">*</span></label>
-              <input 
-                type="text" 
-                id="location" 
-                v-model="formData.location" 
+              <label for="location"
+                >거주지역 <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="location"
+                v-model="formData.location"
                 required
                 placeholder="서울시 강남구"
                 :disabled="isLoading"
-              >
+              />
             </div>
 
             <div class="form-group checkbox-group">
               <label>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   v-model="formData.agreeTerms"
                   required
                   :disabled="isLoading"
-                >
+                />
                 개인정보 수집 및 이용에 동의합니다.
               </label>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               class="submit-btn"
               :disabled="!isFormValid || isLoading"
             >
@@ -105,22 +121,28 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 import Block from "@/components/Block.vue";
 // import SideBar from "@/components/SideBar.vue";
-import { jinjungsungService } from '@/services/jinjungsungService.js';
+import { jinjungsungService } from "@/services/jinjungsungService.js";
+import { useSEO } from "@/composables/useSEO.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // 이미지 import
-import mainFirstImage from '@/assets/images/main-first.png';
-import mainSecondImage from '@/assets/images/main-second.png';
-import mainThirdImage from '@/assets/images/main-third.png';
-import mainFirstMobileImage from '@/assets/images/main-first-mobile.png';
-import mainSecondMobileImage from '@/assets/images/main-second-mobile.png';
-import mainThirdMobileImage from '@/assets/images/main-third-mobile.png';
+import mainFirstImage from "@/assets/images/main-first.png";
+import mainSecondImage from "@/assets/images/main-second.png";
+import mainThirdImage from "@/assets/images/main-third.png";
+import mainFirstMobileImage from "@/assets/images/main-first-mobile.png";
+import mainSecondMobileImage from "@/assets/images/main-second-mobile.png";
+import mainThirdMobileImage from "@/assets/images/main-third-mobile.png";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// SEO 설정
+useSEO({
+  path: "/",
+});
 
 const router = useRouter();
 const servicesContent = ref(null);
@@ -132,23 +154,25 @@ const slideInterval = ref(null);
 // 상태 관리
 const isLoading = ref(false);
 const showSuccessMessage = ref(false);
-const errorMessage = ref('');
+const errorMessage = ref("");
 
 // 폼 데이터
 const formData = ref({
-  name: '',
-  phone: '',
-  location: '',
-  message: '',
-  agreeTerms: false
+  name: "",
+  phone: "",
+  location: "",
+  message: "",
+  agreeTerms: false,
 });
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
-  return formData.value.name && 
-         formData.value.phone && 
-         formData.value.location && 
-         formData.value.agreeTerms;
+  return (
+    formData.value.name &&
+    formData.value.phone &&
+    formData.value.location &&
+    formData.value.agreeTerms
+  );
 });
 
 const checkMobile = () => {
@@ -158,16 +182,16 @@ const checkMobile = () => {
 const slides = computed(() => [
   {
     image: isMobile.value ? mainFirstMobileImage : mainFirstImage,
-    link: '/introduction'
+    link: "/introduction",
   },
   {
     image: isMobile.value ? mainSecondMobileImage : mainSecondImage,
-    link: '/education'
+    link: "/education",
   },
   {
     image: isMobile.value ? mainThirdMobileImage : mainThirdImage,
-    link: '/registration'
-  }
+    link: "/registration",
+  },
 ]);
 
 const nextSlide = () => {
@@ -175,7 +199,8 @@ const nextSlide = () => {
 };
 
 const prevSlide = () => {
-  currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length;
+  currentSlide.value =
+    (currentSlide.value - 1 + slides.value.length) % slides.value.length;
 };
 
 const goToSlide = (idx) => {
@@ -197,7 +222,7 @@ const stopSlideInterval = () => {
 // 메시지 초기화
 const clearMessages = () => {
   showSuccessMessage.value = false;
-  errorMessage.value = '';
+  errorMessage.value = "";
 };
 
 // 폼 제출 메서드
@@ -212,25 +237,24 @@ const submitRegistration = async () => {
       name: formData.value.name,
       phone: formData.value.phone,
       location: formData.value.location,
-      message: formData.value.message || ''
+      message: formData.value.message || "",
     };
 
     await jinjungsungService.submitCourseRegistration(registrationData);
-    
+
     showSuccessMessage.value = true;
     resetForm();
-    
+
     // 5초 후 성공 메시지 숨기기
     setTimeout(() => {
       showSuccessMessage.value = false;
     }, 5000);
-
   } catch (error) {
     errorMessage.value = error.message;
-    
+
     // 5초 후 에러 메시지 숨기기
     setTimeout(() => {
-      errorMessage.value = '';
+      errorMessage.value = "";
     }, 5000);
   } finally {
     isLoading.value = false;
@@ -239,43 +263,43 @@ const submitRegistration = async () => {
 
 const resetForm = () => {
   formData.value = {
-    name: '',
-    phone: '',
-    location: '',
-    agreeTerms: false
+    name: "",
+    phone: "",
+    location: "",
+    agreeTerms: false,
   };
 };
 
 onMounted(() => {
   try {
     startSlideInterval();
-    
+
     // 호버 이벤트 등록
     if (slider.value) {
-      slider.value.addEventListener('mouseenter', stopSlideInterval);
-      slider.value.addEventListener('mouseleave', startSlideInterval);
+      slider.value.addEventListener("mouseenter", stopSlideInterval);
+      slider.value.addEventListener("mouseleave", startSlideInterval);
     }
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
   } catch (error) {
-    console.error('Mounting error:', error);
+    console.error("Mounting error:", error);
   }
 });
 
 onUnmounted(() => {
   try {
     stopSlideInterval();
-    
+
     // 이벤트 리스너 제거
     if (slider.value) {
-      slider.value.removeEventListener('mouseenter', stopSlideInterval);
-      slider.value.removeEventListener('mouseleave', startSlideInterval);
+      slider.value.removeEventListener("mouseenter", stopSlideInterval);
+      slider.value.removeEventListener("mouseleave", startSlideInterval);
     }
-    
-    window.removeEventListener('resize', checkMobile);
+
+    window.removeEventListener("resize", checkMobile);
   } catch (error) {
-    console.error('Unmounting error:', error);
+    console.error("Unmounting error:", error);
   }
 });
 </script>
@@ -290,7 +314,7 @@ onUnmounted(() => {
 
 .banner-slider {
   width: 100%;
-  height: 100%;  
+  height: 100%;
 }
 
 .slide {
@@ -319,7 +343,7 @@ onUnmounted(() => {
 }
 
 .slide-image::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -396,11 +420,11 @@ onUnmounted(() => {
   font-size: 1.5rem;
 }
 
-.services-content{
+.services-content {
   min-width: 600px;
 }
 
-.section-title{
+.section-title {
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
@@ -542,7 +566,7 @@ onUnmounted(() => {
   .arrow {
     font-size: 1.2rem;
   }
-  
+
   .slide-button {
     padding: 12px 30px;
     font-size: 1rem;
