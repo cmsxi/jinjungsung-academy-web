@@ -183,7 +183,6 @@ export default {
       if (!this.isFormValid) return
 
       // TODO: API 연동
-
       alert('문의가 등록되었습니다. 빠른 시일 내에 답변드리겠습니다.')
       this.resetForm()
     },

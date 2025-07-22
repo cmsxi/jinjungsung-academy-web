@@ -117,7 +117,6 @@ export default {
         // TODO: API 호출로 후기 데이터 로드
         // const response = await api.getReview(id)
         // this.formData = response.data
-        console.log('후기 로드:', id)
       } catch (error) {
         console.error('후기 로드 실패:', error)
         alert('후기를 불러오는데 실패했습니다.')
@@ -136,12 +135,10 @@ export default {
         if (this.isEditMode) {
           // TODO: API 호출로 후기 수정
           // await api.updateReview(this.$route.params.id, reviewData)
-          console.log('후기 수정:', reviewData)
           alert('수강후기가 수정되었습니다.')
         } else {
           // TODO: API 호출로 후기 등록
           // await api.createReview(reviewData)
-          console.log('후기 등록:', reviewData)
           alert('수강후기가 등록되었습니다.')
         }
 

@@ -91,7 +91,6 @@ export default {
         // TODO: API 호출로 후기 목록 로드
         // const response = await api.getReviews()
         // this.reviews = response.data
-        console.log('수강후기 목록 로드')
       } catch (error) {
         console.error('후기 목록 로드 실패:', error)
       }
@@ -119,7 +118,6 @@ export default {
         // await api.deleteReview(id)
         this.reviews = this.reviews.filter(review => review.id !== id)
         alert('수강후기가 삭제되었습니다.')
-        console.log('후기 삭제:', id)
       } catch (error) {
         console.error('후기 삭제 실패:', error)
         alert('후기 삭제에 실패했습니다.')
