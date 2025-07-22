@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@unhead/vue": "^2.0.10",
+    "@unhead/vue": "^2.0.12",
     "@vueuse/head": "^2.0.0",
     "axios": "^1.7.9",
     "emailjs-com": "^3.2.0",
