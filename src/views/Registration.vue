@@ -32,10 +32,11 @@
 
               <div class="form-group">
                 <label for="phone">연락처 <span class="required">*</span></label>
-                <input 
-                  type="tel" 
-                  id="phone" 
-                  v-model="formData.phone" 
+                <input
+                  type="tel"
+                  id="phone"
+                  v-model="formData.phone"
+                  @input="formatPhone"
                   required
                   placeholder="010-0000-0000"
                   :disabled="isLoading"
@@ -97,6 +98,7 @@ const formData = ref({
   name: '',
   phone: '',
   location: '',
+  message: '',
   agreeTerms: false
 });
 
@@ -107,6 +109,30 @@ const isFormValid = computed(() => {
          formData.value.location &&
          formData.value.agreeTerms;
 });
+
+const formatPhone = () => {
+  let digits = formData.value.phone.replace(/[^\d]/g, '');
+  if (digits.startsWith('02')) {
+    digits = digits.slice(0, 10);
+    if (digits.length <= 2) {
+      formData.value.phone = digits;
+    } else if (digits.length <= 6) {
+      formData.value.phone = digits.slice(0, 2) + '-' + digits.slice(2);
+    } else {
+      const mid = digits.length === 10 ? 6 : 5;
+      formData.value.phone = digits.slice(0, 2) + '-' + digits.slice(2, mid) + '-' + digits.slice(mid);
+    }
+  } else {
+    digits = digits.slice(0, 11);
+    if (digits.length <= 3) {
+      formData.value.phone = digits;
+    } else if (digits.length <= 7) {
+      formData.value.phone = digits.slice(0, 3) + '-' + digits.slice(3);
+    } else {
+      formData.value.phone = digits.slice(0, 3) + '-' + digits.slice(3, 7) + '-' + digits.slice(7);
+    }
+  }
+};
 
 // 메시지 초기화
 const clearMessages = () => {
