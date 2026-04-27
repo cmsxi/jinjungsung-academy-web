@@ -10,7 +10,7 @@
 
       <!-- 로딩 상태 -->
       <div v-if="isLoading" class="loading-message">
-        <p>수강후기를 불러오는 중...</p>
+        <p>게시글을 불러오는 중...</p>
       </div>
 
       <!-- 에러 메시지 -->
@@ -20,28 +20,17 @@
       </div>
 
       <!-- 수강후기 상세 내용 -->
-      <div v-if="review && !isLoading && !errorMessage" class="review-detail">
+      <div v-if="review && !isLoading && !errorMessage" class="post-detail">
         <div class="detail-header">
-          <h1>{{ review.title }}</h1>
+          <h1>제목: {{ review.title }}</h1>
           <div class="detail-meta">
-            <div class="meta-row">
-              <span class="label">수강생:</span>
-              <span class="value">{{ review.name }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="label">과정명:</span>
-              <span class="value">{{ review.course }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="label">작성일:</span>
-              <span class="value">{{ formatDate(review.created_at || review.date) }}</span>
-            </div>
+            <span class="date">작성일: {{ formatDate(review.created_at) }}</span>
           </div>
         </div>
 
         <div v-if="review.image_filename" class="detail-image">
-          <img 
-            :src="getImageUrl(review.image_filename)" 
+          <img
+            :src="getImageUrl(review.image_filename)"
             :alt="review.title"
             @error="handleImageError"
           />
@@ -53,10 +42,10 @@
         </div>
       </div>
 
-      <!-- 수강후기를 찾을 수 없는 경우 -->
+      <!-- 게시글을 찾을 수 없는 경우 -->
       <div v-if="!review && !isLoading && !errorMessage" class="not-found">
-        <h2>수강후기를 찾을 수 없습니다</h2>
-        <p>요청하신 수강후기가 존재하지 않거나 삭제되었습니다.</p>
+        <h2>게시글을 찾을 수 없습니다</h2>
+        <p>요청하신 게시글이 존재하지 않거나 삭제되었습니다.</p>
         <button @click="goBack" class="back-btn">목록으로 돌아가기</button>
       </div>
     </div>
@@ -66,53 +55,48 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import defaultImage from "@/assets/images/business-1.jpg";
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
 const route = useRoute();
 const router = useRouter();
 
-// 상태 관리
 const isLoading = ref(false);
 const errorMessage = ref('');
 const review = ref(null);
 
-// 수강후기 로드
 const loadReview = async () => {
+  const reviewId = route.params.id;
+  if (!reviewId) {
+    errorMessage.value = '잘못된 게시글 ID입니다.';
+    return;
+  }
+
   isLoading.value = true;
-  errorMessage.value = "";
+  errorMessage.value = '';
 
   try {
-    // TODO: API 호출로 수강후기 상세 정보 로드
-    // const response = await api.getReview(route.params.id);
-    // review.value = response;
-    
-    review.value = null;
+    const response = await jinjungsungService.getReview(reviewId);
+    review.value = response;
   } catch (error) {
-    console.error('리뷰 로드 실패:', error);
     errorMessage.value = error.message;
   } finally {
     isLoading.value = false;
   }
 };
 
-// 이미지 URL 생성
 const getImageUrl = (filename) => {
-  // TODO: 실제 API 서비스로 변경
-  return `/images/${filename}`;
+  return jinjungsungService.getImageUrl(filename);
 };
 
-// 이미지 에러 처리
 const handleImageError = (event) => {
-  event.target.src = defaultImage;
+  event.target.style.display = 'none';
 };
 
-// 내용 포맷팅 (줄바꿈 처리)
 const formatContent = (content) => {
   if (!content) return '';
   return content.replace(/\n/g, '<br>');
 };
 
-// 메서드
 const goBack = () => {
   router.push('/reviews');
 };
@@ -126,7 +110,6 @@ const formatDate = (dateString) => {
   });
 };
 
-// 컴포넌트 마운트 시 수강후기 로드
 onMounted(() => {
   loadReview();
 });
@@ -143,7 +126,6 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* 뒤로가기 버튼 */
 .back-section {
   margin-bottom: 30px;
 }
@@ -194,8 +176,7 @@ onMounted(() => {
   background-color: #c82333;
 }
 
-/* 수강후기 상세 */
-.review-detail {
+.post-detail {
   background: white;
   padding: 40px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -209,73 +190,72 @@ onMounted(() => {
 }
 
 .detail-header h1 {
-  margin: 0 0 20px 0;
-  font-size: 1.8rem;
-  font-weight: 700;
   color: #333;
-  line-height: 1.4;
+  font-size: 1.25rem;
+  margin: 0 0 10px 0;
+  line-height: 1.3;
 }
 
 .detail-meta {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.meta-row {
-  display: flex;
+  gap: 20px;
   align-items: center;
-  gap: 10px;
 }
 
-.label {
-  font-weight: 600;
-  color: #333;
-  min-width: 80px;
-}
-
-.value {
+.detail-meta .date {
   color: #666;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .detail-image {
-  margin-bottom: 30px;
-  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  overflow: hidden;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .detail-image img {
-  max-width: 100%;
-  height: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .detail-content {
-  margin-bottom: 30px;
+  line-height: 1.8;
 }
 
 .content-text {
+  color: #333;
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #333;
-  text-align: justify;
+}
+
+.content-text :deep(br) {
+  margin-bottom: 10px;
 }
 
 .not-found {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
 }
 
 .not-found h2 {
   color: #333;
-  margin-bottom: 20px;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }
 
 .not-found p {
   color: #666;
-  margin-bottom: 30px;
   font-size: 1.1rem;
+  margin-bottom: 30px;
 }
 
 @media (max-width: 768px) {
@@ -283,26 +263,38 @@ onMounted(() => {
     padding: 20px 15px;
   }
 
-  .review-detail {
+  .post-detail {
     padding: 20px;
   }
 
   .detail-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
   }
 
-  .meta-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+  .detail-meta .date {
+    font-size: 1rem;
   }
 
-  .label {
-    min-width: auto;
+  .detail-image {
+    height: 250px;
+    margin-bottom: 30px;
   }
 
   .content-text {
     font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .not-found {
+    padding: 60px 15px;
+  }
+
+  .not-found h2 {
+    font-size: 1.3rem;
+  }
+
+  .not-found p {
+    font-size: 1rem;
   }
 }
-</style> 
+</style>

@@ -16,7 +16,7 @@
             <p><span>이메일 : </span>eoqn0808@naver.com</p>
           </div>
           <div class="info-row address-row">
-            <p><span>본사주소 : </span>서울특별시 강남구 강남대로94길 66 2층 (역삼동, 산돌빌딩)</p>
+            <p><span>본사주소 : </span>서울특별시 강남구 강남대로44길 28-3, 1-2층</p>
           </div>
         </div>
       </div>
