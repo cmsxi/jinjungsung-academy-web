@@ -22,6 +22,7 @@ import Inquiry from '../views/faq/Inquiry.vue'
 // 수강후기
 import Reviews from '../views/Reviews.vue'
 import ReviewDetail from '../views/ReviewDetail.vue'
+import ReviewWrite from '../views/ReviewWrite.vue'
 
 // 관리자
 import AdminStatus from '../views/admin/AdminStatus.vue'
@@ -81,6 +82,11 @@ const routes = [
         path: '/reviews',
         name: 'Reviews',
         component: Reviews
+    },
+    {
+        path: '/reviews/write',
+        name: 'ReviewWrite',
+        component: ReviewWrite
     },
     {
         path: '/reviews/:id',

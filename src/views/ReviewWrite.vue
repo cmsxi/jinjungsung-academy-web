@@ -1,29 +1,24 @@
 <template>
-  <div class="admin-write-page">
-    <div class="admin-write-content">
-      <!-- 헤더 -->
+  <div class="review-write-page">
+    <div class="review-write-content">
       <div class="write-header">
-        <router-link to="/admin/reviews" class="back-btn">← 목록으로 돌아가기</router-link>
-        <h2>{{ isEditMode ? '수강후기 수정' : '새 수강후기 작성' }}</h2>
+        <button @click="goBack" class="back-btn">← 목록으로 돌아가기</button>
+        <h2>수강후기 작성</h2>
       </div>
 
-      <!-- 로딩 상태 -->
-      <div v-if="isLoading" class="loading-message">
-        <p>{{ isEditMode ? '게시글을 불러오는 중...' : '처리 중...' }}</p>
+      <div class="info-banner">
+        <p>📝 작성하신 후기는 관리자 검토 후 게시됩니다.</p>
       </div>
 
-      <!-- 에러 메시지 -->
       <div v-if="errorMessage" class="error-message">
         <p>❌ {{ errorMessage }}</p>
       </div>
 
-      <!-- 성공 메시지 -->
       <div v-if="successMessage" class="success-message">
         <p>✅ {{ successMessage }}</p>
       </div>
 
-      <!-- 작성 폼 -->
-      <div v-if="!isLoading" class="write-form">
+      <div v-if="!isSubmitted" class="write-form">
         <form @submit.prevent="submitReview" class="form-content">
           <div class="form-row">
             <label for="username">작성자명 <span class="required">*</span></label>
@@ -32,7 +27,7 @@
               v-model="formData.username"
               type="text"
               maxlength="20"
-              placeholder="표시될 이름 (예: 관리자)"
+              placeholder="표시될 이름 (최대 20자)"
               required
               :disabled="isSubmitting"
             />
@@ -44,7 +39,8 @@
               id="title"
               v-model="formData.title"
               type="text"
-              placeholder="게시글 제목을 입력하세요"
+              maxlength="100"
+              placeholder="후기 제목"
               required
               :disabled="isSubmitting"
             />
@@ -55,15 +51,17 @@
             <textarea
               id="content"
               v-model="formData.content"
-              rows="15"
-              placeholder="게시글 내용을 입력하세요"
+              rows="12"
+              maxlength="5000"
+              placeholder="강의를 들으면서 느낀 점을 자유롭게 작성해 주세요."
               required
               :disabled="isSubmitting"
             ></textarea>
+            <div class="char-count">{{ formData.content.length }}/5000자</div>
           </div>
 
           <div class="form-row">
-            <label for="image">이미지</label>
+            <label for="image">이미지 (선택)</label>
             <div class="image-upload-area">
               <input
                 type="file"
@@ -72,29 +70,12 @@
                 @change="handleImageChange"
                 accept="image/*"
                 :disabled="isSubmitting"
-              >
-
-              <!-- 현재 이미지 미리보기 -->
-              <div v-if="currentImageUrl" class="current-image">
-                <p>현재 이미지:</p>
-                <img :src="currentImageUrl" alt="현재 이미지" class="image-preview">
+              />
+              <div v-if="imagePreview" class="image-preview-wrap">
+                <img :src="imagePreview" alt="미리보기" class="image-preview" />
                 <button
                   type="button"
-                  @click="removeCurrentImage"
-                  class="remove-image-btn"
-                  :disabled="isSubmitting"
-                >
-                  이미지 제거
-                </button>
-              </div>
-
-              <!-- 새 이미지 미리보기 -->
-              <div v-if="newImagePreview" class="new-image">
-                <p>새 이미지:</p>
-                <img :src="newImagePreview" alt="새 이미지" class="image-preview">
-                <button
-                  type="button"
-                  @click="removeNewImage"
+                  @click="removeImage"
                   class="remove-image-btn"
                   :disabled="isSubmitting"
                 >
@@ -104,116 +85,71 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <label for="adminPassword">관리자 비밀번호 <span class="required">*</span></label>
+          <!-- Honeypot: 봇 차단용. 사용자 눈에는 절대 보이면 안 됨 -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="_botcheck">이 필드는 비워두세요</label>
             <input
-              type="password"
-              id="adminPassword"
-              v-model="formData.adminPassword"
-              required
-              placeholder="관리자 비밀번호를 입력하세요"
-              :disabled="isSubmitting"
-            >
+              id="_botcheck"
+              v-model="formData.botcheck"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            />
           </div>
 
           <div class="form-actions">
             <button
               type="submit"
-              class="save-btn"
+              class="submit-btn"
               :disabled="!isFormValid || isSubmitting"
             >
-              <span v-if="isSubmitting">{{ isEditMode ? '수정 중...' : '작성 중...' }}</span>
-              <span v-else>{{ isEditMode ? '수정하기' : '작성하기' }}</span>
+              <span v-if="isSubmitting">접수 중...</span>
+              <span v-else>후기 등록</span>
             </button>
-            <router-link to="/admin/reviews" class="cancel-btn">취소</router-link>
+            <button type="button" @click="goBack" class="cancel-btn" :disabled="isSubmitting">취소</button>
           </div>
         </form>
+      </div>
+
+      <div v-else class="post-submit">
+        <h3>후기가 정상적으로 접수되었습니다.</h3>
+        <p>관리자 검토 후 게시되며, 보통 1~2 영업일 내에 처리됩니다.</p>
+        <button @click="goBack" class="back-btn">목록으로 돌아가기</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { jinjungsungService } from '@/services/jinjungsungService.js';
 
-const route = useRoute();
 const router = useRouter();
 
-const isLoading = ref(false);
 const isSubmitting = ref(false);
+const isSubmitted = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
-const isEditMode = ref(false);
-const reviewId = ref(null);
 
 const formData = ref({
-  username: '관리자',
+  username: '',
   title: '',
   content: '',
-  adminPassword: '',
-  image: null
+  image: null,
+  botcheck: ''
 });
 
 const imageInput = ref(null);
-const currentImageUrl = ref('');
-const newImagePreview = ref('');
-const removeCurrentImageFlag = ref(false);
+const imagePreview = ref('');
 
 const isFormValid = computed(() => {
-  return formData.value.username &&
-         formData.value.title &&
-         formData.value.content &&
-         formData.value.adminPassword;
+  return (
+    formData.value.username.trim() &&
+    formData.value.title.trim() &&
+    formData.value.content.trim()
+  );
 });
-
-const checkAuth = () => {
-  const authenticated = sessionStorage.getItem('admin_authenticated');
-  if (authenticated !== 'true') {
-    router.push('/admin');
-    return false;
-  }
-
-  const savedPassword = sessionStorage.getItem('admin_password');
-  if (savedPassword) {
-    formData.value.adminPassword = savedPassword;
-  }
-
-  return true;
-};
-
-const initializeForm = async () => {
-  if (!checkAuth()) return;
-
-  const id = route.params.id;
-  if (id) {
-    isEditMode.value = true;
-    reviewId.value = parseInt(id);
-    await loadReview();
-  }
-};
-
-const loadReview = async () => {
-  isLoading.value = true;
-  errorMessage.value = '';
-
-  try {
-    const review = await jinjungsungService.getReview(reviewId.value);
-
-    formData.value.username = review.username || '관리자';
-    formData.value.title = review.title;
-    formData.value.content = review.content;
-
-    if (review.image_filename) {
-      currentImageUrl.value = jinjungsungService.getImageUrl(review.image_filename);
-    }
-  } catch (error) {
-    errorMessage.value = error.message;
-  } finally {
-    isLoading.value = false;
-  }
-};
 
 const handleImageChange = (event) => {
   const file = event.target.files[0];
@@ -233,21 +169,16 @@ const handleImageChange = (event) => {
 
   const reader = new FileReader();
   reader.onload = (e) => {
-    newImagePreview.value = e.target.result;
+    imagePreview.value = e.target.result;
   };
   reader.readAsDataURL(file);
 
   errorMessage.value = '';
 };
 
-const removeCurrentImage = () => {
-  currentImageUrl.value = '';
-  removeCurrentImageFlag.value = true;
-};
-
-const removeNewImage = () => {
+const removeImage = () => {
   formData.value.image = null;
-  newImagePreview.value = '';
+  imagePreview.value = '';
   if (imageInput.value) {
     imageInput.value.value = '';
   }
@@ -261,31 +192,16 @@ const submitReview = async () => {
   successMessage.value = '';
 
   try {
-    const reviewData = {
-      username: formData.value.username,
-      title: formData.value.title,
-      content: formData.value.content,
-      adminPassword: formData.value.adminPassword
-    };
+    await jinjungsungService.submitReview({
+      username: formData.value.username.trim(),
+      title: formData.value.title.trim(),
+      content: formData.value.content.trim(),
+      image: formData.value.image,
+      botcheck: formData.value.botcheck
+    });
 
-    if (formData.value.image) {
-      reviewData.image = formData.value.image;
-    }
-
-    if (isEditMode.value) {
-      await jinjungsungService.updateReview(reviewId.value, reviewData);
-    } else {
-      await jinjungsungService.createReview(reviewData);
-    }
-
-    successMessage.value = isEditMode.value ?
-      '게시글이 성공적으로 수정되었습니다.' :
-      '게시글이 성공적으로 작성되었습니다.';
-
-    setTimeout(() => {
-      router.push('/admin/reviews');
-    }, 2000);
-
+    successMessage.value = '후기가 접수되었습니다. 검토 후 게시됩니다.';
+    isSubmitted.value = true;
   } catch (error) {
     errorMessage.value = error.message;
   } finally {
@@ -293,19 +209,18 @@ const submitReview = async () => {
   }
 };
 
-onMounted(() => {
-  initializeForm();
-});
+const goBack = () => {
+  router.push('/reviews');
+};
 </script>
 
 <style scoped>
-.admin-write-page {
+.review-write-page {
   padding: 40px 20px;
   min-height: 100vh;
-  background: #f8f9fa;
 }
 
-.admin-write-content {
+.review-write-content {
   max-width: 800px;
   margin: 0 auto;
 }
@@ -321,16 +236,18 @@ onMounted(() => {
 
 .back-btn {
   padding: 10px 20px;
-  background-color: #6c757d;
-  color: white;
-  text-decoration: none;
+  background: none;
+  border: 2px solid #333;
+  color: #333;
   font-weight: 500;
-  transition: background-color 0.3s ease;
-  border: 1px solid #6c757d;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .back-btn:hover {
-  background-color: #5a6268;
+  background: #333;
+  color: white;
 }
 
 .write-header h2 {
@@ -340,14 +257,16 @@ onMounted(() => {
   margin: 0;
 }
 
-.loading-message {
-  text-align: center;
-  padding: 60px 0;
-  font-size: 1.1rem;
-  color: #666;
+.info-banner {
+  background: #fff8e6;
+  border: 1px solid #f5d680;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  color: #6b5300;
 }
 
-.error-message, .success-message {
+.error-message,
+.success-message {
   text-align: center;
   padding: 15px 20px;
   margin-bottom: 20px;
@@ -371,10 +290,6 @@ onMounted(() => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 30px;
   border: 1px solid #ddd;
-}
-
-.form-content {
-  width: 100%;
 }
 
 .form-row {
@@ -418,33 +333,26 @@ onMounted(() => {
 
 .form-row textarea {
   resize: vertical;
-  min-height: 300px;
+  min-height: 250px;
   font-family: inherit;
   line-height: 1.6;
+}
+
+.char-count {
+  text-align: right;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
 .image-upload-area {
   border: 2px dashed #ddd;
   padding: 20px;
   text-align: center;
-  transition: border-color 0.3s ease;
 }
 
-.image-upload-area:hover {
-  border-color: var(--primary-color);
-}
-
-.current-image,
-.new-image {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.current-image p,
-.new-image p {
-  margin-bottom: 10px;
-  font-weight: 500;
-  color: #333;
+.image-preview-wrap {
+  margin-top: 15px;
 }
 
 .image-preview {
@@ -462,16 +370,21 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.3s ease;
-}
-
-.remove-image-btn:hover:not(:disabled) {
-  background-color: #c82333;
 }
 
 .remove-image-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+/* Honeypot — 절대 보이지 않게 + 스크린리더에도 안내 */
+.hp-field {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .form-actions {
@@ -481,27 +394,27 @@ onMounted(() => {
   margin-top: 30px;
 }
 
-.save-btn, .cancel-btn {
+.submit-btn,
+.cancel-btn {
   padding: 15px 40px;
   font-size: 1.1rem;
   font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
   border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.save-btn {
+.submit-btn {
   background-color: var(--primary-color);
   color: white;
 }
 
-.save-btn:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) {
   background-color: #003e80;
   transform: translateY(-2px);
 }
 
-.save-btn:disabled {
+.submit-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
   transform: none;
@@ -510,17 +423,32 @@ onMounted(() => {
 .cancel-btn {
   background-color: #6c757d;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.cancel-btn:hover {
+.cancel-btn:hover:not(:disabled) {
   background-color: #5a6268;
 }
 
+.post-submit {
+  background: white;
+  padding: 60px 30px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.post-submit h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.post-submit p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
 @media (max-width: 768px) {
-  .admin-write-page {
+  .review-write-page {
     padding: 20px 15px;
   }
 
@@ -543,17 +471,13 @@ onMounted(() => {
     font-size: 16px;
   }
 
-  .form-row textarea {
-    min-height: 250px;
-  }
-
   .form-actions {
     flex-direction: column;
   }
 
-  .save-btn, .cancel-btn {
+  .submit-btn,
+  .cancel-btn {
     width: 100%;
-    padding: 15px;
   }
 }
 </style>

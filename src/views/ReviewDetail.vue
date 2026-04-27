@@ -22,8 +22,9 @@
       <!-- 수강후기 상세 내용 -->
       <div v-if="review && !isLoading && !errorMessage" class="post-detail">
         <div class="detail-header">
-          <h1>제목: {{ review.title }}</h1>
+          <h1>{{ review.title }}</h1>
           <div class="detail-meta">
+            <span class="author">작성자: {{ review.username }}</span>
             <span class="date">작성일: {{ formatDate(review.created_at) }}</span>
           </div>
         </div>

@@ -32,3 +32,6 @@ coverage
 
 .env
 .env.local
+
+# Local tooling
+.claude/

@@ -17,6 +17,7 @@
                 @input="filterReviews"
               />
             </div>
+            <router-link to="/reviews/write" class="write-btn">후기 작성하기</router-link>
           </div>
         </div>
 
@@ -247,6 +248,21 @@ onMounted(() => {
 .search-box input:focus {
   outline: none;
   border-color: var(--primary-color);
+}
+
+.write-btn {
+  padding: 10px 18px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px solid var(--primary-color);
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.write-btn:hover {
+  background-color: #003e80;
 }
 
 .loading-message {

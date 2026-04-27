@@ -1,11 +1,12 @@
 <template>
   <div class="admin-reviews-page">
     <div class="admin-reviews-content">
-      <!-- 헤더 -->
       <div class="admin-header">
         <div class="header-left">
           <h3>수강후기 게시판 관리</h3>
-          <div class="post-count">총 {{ reviews.length }}개 게시글</div>
+          <div class="post-count">
+            총 {{ totalReviews }}개 (미게시 {{ unpublishedCount }}개)
+          </div>
         </div>
         <div class="header-right">
           <router-link to="/admin" class="back-btn">← 관리자 메인</router-link>
@@ -13,27 +14,37 @@
         </div>
       </div>
 
-      <!-- 로딩 상태 -->
+      <div class="filter-bar">
+        <button
+          :class="['filter-btn', { active: filter === 'all' }]"
+          @click="setFilter('all')"
+        >전체</button>
+        <button
+          :class="['filter-btn', { active: filter === 'unpublished' }]"
+          @click="setFilter('unpublished')"
+        >미게시 ({{ unpublishedCount }})</button>
+        <button
+          :class="['filter-btn', { active: filter === 'published' }]"
+          @click="setFilter('published')"
+        >게시됨</button>
+      </div>
+
       <div v-if="isLoading" class="loading-message">
         <p>게시글을 불러오는 중...</p>
       </div>
 
-      <!-- 에러 메시지 -->
       <div v-if="errorMessage" class="error-message">
         <p>❌ {{ errorMessage }}</p>
         <button @click="loadReviews" class="retry-btn">다시 시도</button>
       </div>
 
-      <!-- 성공 메시지 -->
       <div v-if="successMessage" class="success-message">
         <p>✅ {{ successMessage }}</p>
       </div>
 
-      <!-- 게시글 목록 -->
       <div v-if="!isLoading && !errorMessage" class="posts-container">
-        <div v-if="reviews.length === 0" class="no-posts">
-          <p>등록된 게시글이 없습니다.</p>
-          <router-link to="/admin/reviews/write" class="create-link">첫 번째 게시글을 작성해보세요</router-link>
+        <div v-if="filteredReviews.length === 0" class="no-posts">
+          <p>{{ filter === 'unpublished' ? '미게시 후기가 없습니다.' : filter === 'published' ? '게시된 후기가 없습니다.' : '등록된 후기가 없습니다.' }}</p>
         </div>
 
         <div v-else class="posts-table">
@@ -41,24 +52,47 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>작성자</th>
                 <th>제목</th>
-                <th>작성일</th>
+                <th>접수일</th>
+                <th>IP</th>
                 <th>이미지</th>
+                <th>공개</th>
                 <th>관리</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="review in reviews" :key="review.id">
+              <tr
+                v-for="review in filteredReviews"
+                :key="review.id"
+                :class="{ unpublished: !review.is_published }"
+              >
                 <td>{{ review.id }}</td>
+                <td>{{ review.username }}</td>
                 <td class="title-cell">
-                  <router-link :to="`/reviews/${review.id}`" target="_blank" class="post-title-link">
-                    {{ review.title }}
-                  </router-link>
+                  <router-link
+                    v-if="review.is_published"
+                    :to="`/reviews/${review.id}`"
+                    target="_blank"
+                    class="post-title-link"
+                  >{{ review.title }}</router-link>
+                  <span v-else class="post-title-pending">{{ review.title }}</span>
                 </td>
                 <td>{{ formatDate(review.created_at) }}</td>
+                <td class="ip-cell">{{ review.submitter_ip || '—' }}</td>
                 <td>
                   <span v-if="review.image_filename" class="has-image">✅</span>
                   <span v-else class="no-image">❌</span>
+                </td>
+                <td>
+                  <button
+                    class="toggle-btn"
+                    :class="review.is_published ? 'published' : 'unpublished-btn'"
+                    @click="togglePublish(review)"
+                    :disabled="togglingId === review.id"
+                  >
+                    {{ review.is_published ? '🟢 게시됨' : '⚪ 미게시' }}
+                  </button>
                 </td>
                 <td class="actions-cell">
                   <router-link :to="`/admin/reviews/edit/${review.id}`" class="edit-btn">수정</router-link>
@@ -69,27 +103,18 @@
           </table>
         </div>
 
-        <!-- 페이지네이션 -->
         <div v-if="totalPages > 1" class="pagination">
           <button
             @click="changePage(currentPage - 1)"
             :disabled="currentPage === 1"
             class="page-btn"
-          >
-            이전
-          </button>
-
-          <span class="page-info">
-            {{ currentPage }} / {{ totalPages }}
-          </span>
-
+          >이전</button>
+          <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages"
             class="page-btn"
-          >
-            다음
-          </button>
+          >다음</button>
         </div>
       </div>
     </div>
@@ -97,8 +122,8 @@
     <!-- 삭제 확인 모달 -->
     <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
       <div class="modal-content" @click.stop>
-        <h3>게시글 삭제</h3>
-        <p>정말로 이 게시글을 삭제하시겠습니까?</p>
+        <h3>후기 삭제</h3>
+        <p>정말로 이 후기를 삭제하시겠습니까?</p>
         <p class="post-title-preview">"{{ reviewToDelete?.title }}"</p>
 
         <div class="form-group">
@@ -109,7 +134,7 @@
             v-model="deletePassword"
             placeholder="비밀번호를 입력하세요"
             :disabled="isDeleting"
-          >
+          />
         </div>
 
         <div class="modal-actions">
@@ -138,6 +163,8 @@ const reviews = ref([]);
 const currentPage = ref(1);
 const totalReviews = ref(0);
 const itemsPerPage = 10;
+const filter = ref('all');
+const togglingId = ref(null);
 
 const showDeleteModal = ref(false);
 const reviewToDelete = ref(null);
@@ -145,6 +172,30 @@ const deletePassword = ref('');
 const isDeleting = ref(false);
 
 const totalPages = computed(() => Math.ceil(totalReviews.value / itemsPerPage));
+
+const filteredReviews = computed(() => {
+  if (filter.value === 'unpublished') {
+    return reviews.value.filter(r => !r.is_published);
+  }
+  if (filter.value === 'published') {
+    return reviews.value.filter(r => r.is_published);
+  }
+  return reviews.value;
+});
+
+const unpublishedCount = computed(() => reviews.value.filter(r => !r.is_published).length);
+
+const setFilter = (f) => { filter.value = f; };
+
+const flashMessage = (type, msg, ms = 3000) => {
+  if (type === 'success') {
+    successMessage.value = msg;
+    setTimeout(() => { successMessage.value = ''; }, ms);
+  } else {
+    errorMessage.value = msg;
+    setTimeout(() => { errorMessage.value = ''; }, ms);
+  }
+};
 
 const checkAuth = () => {
   const authenticated = sessionStorage.getItem('admin_authenticated');
@@ -155,6 +206,8 @@ const checkAuth = () => {
   return true;
 };
 
+const getAdminPassword = () => sessionStorage.getItem('admin_password') || '';
+
 const loadReviews = async (page = 1) => {
   if (!checkAuth()) return;
 
@@ -162,7 +215,8 @@ const loadReviews = async (page = 1) => {
   errorMessage.value = '';
 
   try {
-    const response = await jinjungsungService.getReviews(page, itemsPerPage);
+    const adminPassword = getAdminPassword();
+    const response = await jinjungsungService.getReviewsAdmin(page, itemsPerPage, adminPassword);
     reviews.value = response.items;
     totalReviews.value = response.total;
     currentPage.value = page;
@@ -176,6 +230,26 @@ const loadReviews = async (page = 1) => {
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     loadReviews(page);
+  }
+};
+
+const togglePublish = async (review) => {
+  if (togglingId.value) return;
+  togglingId.value = review.id;
+
+  try {
+    const adminPassword = getAdminPassword();
+    const result = await jinjungsungService.setReviewPublished(
+      review.id,
+      !review.is_published,
+      adminPassword
+    );
+    review.is_published = result.is_published;
+    flashMessage('success', result.is_published ? '게시되었습니다.' : '미게시 처리되었습니다.');
+  } catch (error) {
+    flashMessage('error', error.message, 5000);
+  } finally {
+    togglingId.value = null;
   }
 };
 
@@ -198,21 +272,11 @@ const deleteReview = async () => {
 
   try {
     await jinjungsungService.deleteReview(reviewToDelete.value.id, deletePassword.value);
-
-    successMessage.value = '게시글이 성공적으로 삭제되었습니다.';
+    flashMessage('success', '후기가 삭제되었습니다.');
     closeDeleteModal();
     loadReviews(currentPage.value);
-
-    setTimeout(() => {
-      successMessage.value = '';
-    }, 3000);
-
   } catch (error) {
-    errorMessage.value = error.message;
-
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 5000);
+    flashMessage('error', error.message, 5000);
   } finally {
     isDeleting.value = false;
   }
@@ -221,16 +285,12 @@ const deleteReview = async () => {
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
+    year: 'numeric', month: '2-digit', day: '2-digit'
   });
 };
 
 onMounted(() => {
-  if (checkAuth()) {
-    loadReviews();
-  }
+  if (checkAuth()) loadReviews();
 });
 </script>
 
@@ -242,7 +302,7 @@ onMounted(() => {
 }
 
 .admin-reviews-content {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
@@ -252,7 +312,7 @@ onMounted(() => {
   align-items: center;
   padding: 20px 0;
   border-bottom: 3px solid #333;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
 }
@@ -287,7 +347,6 @@ onMounted(() => {
   padding: 10px 20px;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
   border: 1px solid #333;
 }
 
@@ -296,23 +355,35 @@ onMounted(() => {
   color: white;
 }
 
-.back-btn:hover {
-  background-color: #5a6268;
-}
-
 .write-btn {
   background-color: var(--primary-color);
   color: white;
 }
 
-.write-btn:hover {
-  background-color: #003e80;
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.filter-btn {
+  padding: 8px 18px;
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.filter-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
 }
 
 .loading-message {
   text-align: center;
   padding: 60px 0;
-  font-size: 1.1rem;
   color: #666;
 }
 
@@ -348,29 +419,13 @@ onMounted(() => {
   text-align: center;
   padding: 60px 20px;
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
-}
-
-.create-link {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: white;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-  border: 1px solid var(--primary-color);
-}
-
-.create-link:hover {
-  background-color: #003e80;
 }
 
 .posts-table {
   background: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: auto;
   margin-bottom: 30px;
   border: 1px solid #ddd;
 }
@@ -378,12 +433,14 @@ onMounted(() => {
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 900px;
 }
 
 th, td {
-  padding: 15px;
+  padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  vertical-align: middle;
 }
 
 th {
@@ -392,8 +449,12 @@ th {
   color: #333;
 }
 
+tr.unpublished {
+  background-color: #fff8e6;
+}
+
 .title-cell {
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .post-title-link {
@@ -406,12 +467,53 @@ th {
   text-decoration: underline;
 }
 
+.post-title-pending {
+  color: #999;
+  font-style: italic;
+}
+
+.ip-cell {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #666;
+}
+
 .has-image {
   color: #28a745;
 }
 
 .no-image {
   color: #dc3545;
+}
+
+.toggle-btn {
+  padding: 6px 14px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.published {
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.toggle-btn.unpublished-btn {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.toggle-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .actions-cell {
@@ -422,10 +524,9 @@ th {
   padding: 6px 12px;
   text-decoration: none;
   font-size: 0.9rem;
-  margin-right: 8px;
+  margin-right: 5px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .edit-btn {
@@ -433,17 +534,9 @@ th {
   color: white;
 }
 
-.edit-btn:hover {
-  background-color: #218838;
-}
-
 .delete-btn {
   background-color: #dc3545;
   color: white;
-}
-
-.delete-btn:hover {
-  background-color: #c82333;
 }
 
 .pagination {
@@ -460,11 +553,6 @@ th {
   color: white;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.page-btn:hover:not(:disabled) {
-  background-color: #003e80;
 }
 
 .page-btn:disabled {
@@ -479,10 +567,7 @@ th {
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -493,15 +578,9 @@ th {
 .modal-content {
   background: white;
   padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 90%;
   border: 1px solid #ddd;
-}
-
-.modal-content h3 {
-  margin-bottom: 15px;
-  color: #333;
 }
 
 .post-title-preview {
@@ -562,26 +641,13 @@ th {
     align-items: stretch;
   }
 
-  .admin-header h3 {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-
   .header-right {
     justify-content: center;
   }
 
-  .posts-table {
-    overflow-x: auto;
-  }
-
-  table {
-    min-width: 600px;
-  }
-
   th, td {
-    padding: 10px 8px;
-    font-size: 0.9rem;
+    padding: 8px;
+    font-size: 0.85rem;
   }
 
   .modal-content {
