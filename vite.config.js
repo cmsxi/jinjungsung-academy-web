@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     viteSitemap({
-      hostname: 'https://국제명품감정교육원.com',
+      hostname: 'https://luxacademy.kr',
       routes: [
         '/',
         '/introduction/greeting',
