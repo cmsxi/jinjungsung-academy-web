@@ -1,324 +1,592 @@
 <template>
-  <div class="admin-reviews">
-    <div class="admin-container">
+  <div class="admin-reviews-page">
+    <div class="admin-reviews-content">
+      <!-- 헤더 -->
       <div class="admin-header">
         <div class="header-left">
           <h3>수강후기 게시판 관리</h3>
-          <div class="post-count">총 {{ reviews.length }}개 후기</div>
+          <div class="post-count">총 {{ reviews.length }}개 게시글</div>
         </div>
         <div class="header-right">
-          <button @click="goToWrite" class="write-btn">새 후기 작성</button>
+          <router-link to="/admin" class="back-btn">← 관리자 메인</router-link>
+          <router-link to="/admin/reviews/write" class="write-btn">새 글 작성</router-link>
         </div>
       </div>
 
-      <div class="admin-content">
-        <div class="search-bar">
-          <input
-            v-model="searchKeyword"
-            type="text"
-            placeholder="수강생 이름, 과정명, 내용으로 검색..."
-            @input="filterReviews"
-          />
+      <!-- 로딩 상태 -->
+      <div v-if="isLoading" class="loading-message">
+        <p>게시글을 불러오는 중...</p>
+      </div>
+
+      <!-- 에러 메시지 -->
+      <div v-if="errorMessage" class="error-message">
+        <p>❌ {{ errorMessage }}</p>
+        <button @click="loadReviews" class="retry-btn">다시 시도</button>
+      </div>
+
+      <!-- 성공 메시지 -->
+      <div v-if="successMessage" class="success-message">
+        <p>✅ {{ successMessage }}</p>
+      </div>
+
+      <!-- 게시글 목록 -->
+      <div v-if="!isLoading && !errorMessage" class="posts-container">
+        <div v-if="reviews.length === 0" class="no-posts">
+          <p>등록된 게시글이 없습니다.</p>
+          <router-link to="/admin/reviews/write" class="create-link">첫 번째 게시글을 작성해보세요</router-link>
         </div>
 
-        <div class="reviews-table">
+        <div v-else class="posts-table">
           <table>
             <thead>
               <tr>
-                <th>번호</th>
-                <th>수강생</th>
-                <th>과정명</th>
-                <th>내용 미리보기</th>
+                <th>ID</th>
+                <th>제목</th>
                 <th>작성일</th>
+                <th>이미지</th>
                 <th>관리</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(review, index) in filteredReviews" :key="review.id">
-                <td>{{ reviews.length - index }}</td>
-                <td class="name-cell">{{ review.name }}</td>
-                <td class="course-cell">{{ review.course }}</td>
-                <td class="content-preview">
-                  {{ getContentPreview(review.content) }}
+              <tr v-for="review in reviews" :key="review.id">
+                <td>{{ review.id }}</td>
+                <td class="title-cell">
+                  <router-link :to="`/reviews/${review.id}`" target="_blank" class="post-title-link">
+                    {{ review.title }}
+                  </router-link>
                 </td>
-                <td class="date-cell">{{ formatDate(review.date) }}</td>
+                <td>{{ formatDate(review.created_at) }}</td>
+                <td>
+                  <span v-if="review.image_filename" class="has-image">✅</span>
+                  <span v-else class="no-image">❌</span>
+                </td>
                 <td class="actions-cell">
-                  <button @click="editReview(review.id)" class="edit-btn">수정</button>
-                  <button @click="deleteReview(review.id)" class="delete-btn">삭제</button>
+                  <router-link :to="`/admin/reviews/edit/${review.id}`" class="edit-btn">수정</router-link>
+                  <button @click="confirmDelete(review)" class="delete-btn">삭제</button>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
 
-          <div v-if="filteredReviews.length === 0" class="no-data">
-            <p>{{ searchKeyword ? '검색 결과가 없습니다.' : '등록된 수강후기가 없습니다.' }}</p>
-          </div>
+        <!-- 페이지네이션 -->
+        <div v-if="totalPages > 1" class="pagination">
+          <button
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-btn"
+          >
+            이전
+          </button>
+
+          <span class="page-info">
+            {{ currentPage }} / {{ totalPages }}
+          </span>
+
+          <button
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-btn"
+          >
+            다음
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 삭제 확인 모달 -->
+    <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+      <div class="modal-content" @click.stop>
+        <h3>게시글 삭제</h3>
+        <p>정말로 이 게시글을 삭제하시겠습니까?</p>
+        <p class="post-title-preview">"{{ reviewToDelete?.title }}"</p>
+
+        <div class="form-group">
+          <label for="deletePassword">관리자 비밀번호</label>
+          <input
+            type="password"
+            id="deletePassword"
+            v-model="deletePassword"
+            placeholder="비밀번호를 입력하세요"
+            :disabled="isDeleting"
+          >
+        </div>
+
+        <div class="modal-actions">
+          <button @click="closeDeleteModal" class="cancel-btn" :disabled="isDeleting">취소</button>
+          <button @click="deleteReview" class="confirm-delete-btn" :disabled="!deletePassword || isDeleting">
+            <span v-if="isDeleting">삭제 중...</span>
+            <span v-else>삭제</span>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AdminReviews',
-  data() {
-    return {
-      searchKeyword: '',
-      reviews: []
-    }
-  },
-  computed: {
-    filteredReviews() {
-      if (!this.searchKeyword.trim()) {
-        return this.reviews
-      }
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
-      const keyword = this.searchKeyword.toLowerCase()
-      return this.reviews.filter(review =>
-        review.name.toLowerCase().includes(keyword) ||
-        review.course.toLowerCase().includes(keyword) ||
-        review.content.toLowerCase().includes(keyword)
-      )
-    }
-  },
-  mounted() {
-    this.loadReviews()
-  },
-  methods: {
-    async loadReviews() {
-      try {
-        // TODO: API 호출로 후기 목록 로드
-        // const response = await api.getReviews()
-        // this.reviews = response.data
-      } catch (error) {
-        console.error('후기 목록 로드 실패:', error)
-      }
-    },
+const router = useRouter();
 
-    filterReviews() {
-      // computed에서 자동으로 처리됨
-    },
+const isLoading = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+const reviews = ref([]);
+const currentPage = ref(1);
+const totalReviews = ref(0);
+const itemsPerPage = 10;
 
-    goToWrite() {
-      this.$router.push('/admin/reviews/write')
-    },
+const showDeleteModal = ref(false);
+const reviewToDelete = ref(null);
+const deletePassword = ref('');
+const isDeleting = ref(false);
 
-    editReview(id) {
-      this.$router.push(`/admin/reviews/edit/${id}`)
-    },
+const totalPages = computed(() => Math.ceil(totalReviews.value / itemsPerPage));
 
-    async deleteReview(id) {
-      if (!confirm('정말로 이 수강후기를 삭제하시겠습니까?')) {
-        return
-      }
-
-      try {
-        // TODO: API 호출로 후기 삭제
-        // await api.deleteReview(id)
-        this.reviews = this.reviews.filter(review => review.id !== id)
-        alert('수강후기가 삭제되었습니다.')
-      } catch (error) {
-        console.error('후기 삭제 실패:', error)
-        alert('후기 삭제에 실패했습니다.')
-      }
-    },
-
-    getContentPreview(content) {
-      return content.length > 50 ? content.substring(0, 50) + '...' : content
-    },
-
-    formatDate(dateString) {
-      const date = new Date(dateString)
-      return date.toLocaleDateString('ko-KR')
-    }
+const checkAuth = () => {
+  const authenticated = sessionStorage.getItem('admin_authenticated');
+  if (authenticated !== 'true') {
+    router.push('/admin');
+    return false;
   }
-}
+  return true;
+};
+
+const loadReviews = async (page = 1) => {
+  if (!checkAuth()) return;
+
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const response = await jinjungsungService.getReviews(page, itemsPerPage);
+    reviews.value = response.items;
+    totalReviews.value = response.total;
+    currentPage.value = page;
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    loadReviews(page);
+  }
+};
+
+const confirmDelete = (review) => {
+  reviewToDelete.value = review;
+  showDeleteModal.value = true;
+  deletePassword.value = '';
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  reviewToDelete.value = null;
+  deletePassword.value = '';
+};
+
+const deleteReview = async () => {
+  if (!deletePassword.value || isDeleting.value || !reviewToDelete.value) return;
+
+  isDeleting.value = true;
+
+  try {
+    await jinjungsungService.deleteReview(reviewToDelete.value.id, deletePassword.value);
+
+    successMessage.value = '게시글이 성공적으로 삭제되었습니다.';
+    closeDeleteModal();
+    loadReviews(currentPage.value);
+
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
+
+  } catch (error) {
+    errorMessage.value = error.message;
+
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 5000);
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+
+onMounted(() => {
+  if (checkAuth()) {
+    loadReviews();
+  }
+});
 </script>
 
 <style scoped>
-.admin-reviews {
-  padding: 20px;
+.admin-reviews-page {
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: #f8f9fa;
 }
 
-.admin-container {
+.admin-reviews-content {
   max-width: 1200px;
   margin: 0 auto;
-  background: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 30px;
-  border-bottom: 1px solid #ddd;
-  background: #f8f9fa;
+  padding: 20px 0;
+  border-bottom: 3px solid #333;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-.header-left h3 {
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  margin: 0 0 5px 0;
+.header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-header h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #333;
 }
 
 .post-count {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+}
+
+.back-btn, .write-btn {
+  padding: 10px 20px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid #333;
+}
+
+.back-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
 }
 
 .write-btn {
-  padding: 10px 20px;
-  background: var(--primary-color);
+  background-color: var(--primary-color);
   color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .write-btn:hover {
-  opacity: 0.9;
+  background-color: #003e80;
 }
 
-.admin-content {
-  padding: 30px;
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
 }
 
-.search-bar {
+.error-message, .success-message {
+  text-align: center;
+  padding: 15px 20px;
   margin-bottom: 20px;
+  border: 1px solid;
 }
 
-.search-bar input {
-  width: 100%;
-  max-width: 400px;
-  padding: 10px 15px;
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.retry-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
-  font-size: 1rem;
 }
 
-.search-bar input:focus {
-  outline: none;
-  border-color: var(--primary-color);
+.create-link {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  border: 1px solid var(--primary-color);
 }
 
-.reviews-table {
-  overflow-x: auto;
+.create-link:hover {
+  background-color: #003e80;
 }
 
-.reviews-table table {
+.posts-table {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+  border: 1px solid #ddd;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
 }
 
-.reviews-table th,
-.reviews-table td {
-  padding: 12px;
+th, td {
+  padding: 15px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
 }
 
-.reviews-table th {
-  background: #f8f9fa;
+th {
+  background-color: #f8f9fa;
   font-weight: 600;
   color: #333;
 }
 
-.name-cell {
-  font-weight: 500;
-  color: #333;
-}
-
-.course-cell {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-.content-preview {
+.title-cell {
   max-width: 300px;
-  color: #666;
-  line-height: 1.4;
 }
 
-.date-cell {
-  color: #666;
-  font-size: 0.9rem;
-  white-space: nowrap;
+.post-title-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.post-title-link:hover {
+  text-decoration: underline;
+}
+
+.has-image {
+  color: #28a745;
+}
+
+.no-image {
+  color: #dc3545;
 }
 
 .actions-cell {
   white-space: nowrap;
 }
 
-.edit-btn,
-.delete-btn {
+.edit-btn, .delete-btn {
   padding: 6px 12px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-right: 8px;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  margin-right: 5px;
+  transition: all 0.3s ease;
 }
 
 .edit-btn {
-  background: #17a2b8;
+  background-color: #28a745;
   color: white;
 }
 
 .edit-btn:hover {
-  background: #138496;
+  background-color: #218838;
 }
 
 .delete-btn {
-  background: #dc3545;
+  background-color: #dc3545;
   color: white;
 }
 
 .delete-btn:hover {
-  background: #c82333;
+  background-color: #c82333;
 }
 
-.no-data {
-  text-align: center;
-  padding: 40px;
-  color: #666;
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.page-btn {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #003e80;
+}
+
+.page-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  border: 1px solid #ddd;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.post-title-preview {
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancel-btn, .confirm-delete-btn {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.confirm-delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.confirm-delete-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-  .admin-reviews {
-    padding: 10px;
-  }
-
   .admin-header {
     flex-direction: column;
-    gap: 15px;
     align-items: stretch;
   }
 
-  .admin-content {
-    padding: 20px;
-  }
-
-  .reviews-table th,
-  .reviews-table td {
-    padding: 8px;
-    font-size: 0.9rem;
-  }
-
-  .content-preview {
-    max-width: 200px;
-  }
-
-  .actions-cell {
+  .admin-header h3 {
+    font-size: 1.5rem;
     text-align: center;
   }
 
-  .edit-btn,
-  .delete-btn {
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    margin: 2px;
+  .header-right {
+    justify-content: center;
+  }
+
+  .posts-table {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  th, td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    padding: 20px;
+    margin: 15px;
   }
 }
-</style> 
+</style>

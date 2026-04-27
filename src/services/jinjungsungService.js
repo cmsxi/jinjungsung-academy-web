@@ -157,5 +157,103 @@ export const jinjungsungService = {
   getImageUrl(filename) {
     if (!filename) return null
     return `/uploads/${filename}`
+  },
+
+  /**
+   * 수강후기 목록 조회
+   */
+  async getReviews(page = 1, itemsPerPage = 10) {
+    try {
+      const response = await api.get('/reviews', {
+        params: {
+          page,
+          items_per_page: itemsPerPage
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('수강후기 목록 조회 오류:', error)
+      throw new Error(error.response?.data?.detail || '수강후기 목록을 불러오는 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 수강후기 상세 조회
+   */
+  async getReview(reviewId) {
+    try {
+      const response = await api.get(`/reviews/${reviewId}`)
+      return response.data
+    } catch (error) {
+      console.error('수강후기 상세 조회 오류:', error)
+      throw new Error(error.response?.data?.detail || '수강후기를 불러오는 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 수강후기 생성
+   */
+  async createReview(reviewData) {
+    try {
+      const formData = new FormData()
+      formData.append('title', reviewData.title)
+      formData.append('content', reviewData.content)
+      formData.append('admin_password', reviewData.adminPassword)
+
+      if (reviewData.image) {
+        formData.append('image', reviewData.image)
+      }
+
+      const response = await api.post('/reviews', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('수강후기 생성 오류:', error)
+      throw new Error(error.response?.data?.detail || '수강후기 생성 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 수강후기 수정
+   */
+  async updateReview(reviewId, reviewData) {
+    try {
+      const formData = new FormData()
+      formData.append('title', reviewData.title)
+      formData.append('content', reviewData.content)
+      formData.append('admin_password', reviewData.adminPassword)
+
+      if (reviewData.image) {
+        formData.append('image', reviewData.image)
+      }
+
+      const response = await api.put(`/reviews/${reviewId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('수강후기 수정 오류:', error)
+      throw new Error(error.response?.data?.detail || '수강후기 수정 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 수강후기 삭제
+   */
+  async deleteReview(reviewId, adminPassword) {
+    try {
+      const response = await api.delete(`/reviews/${reviewId}`, {
+        data: { password: adminPassword }
+      })
+      return response.data
+    } catch (error) {
+      console.error('수강후기 삭제 오류:', error)
+      throw new Error(error.response?.data?.detail || '수강후기 삭제 중 오류가 발생했습니다.')
+    }
   }
-} 
+}

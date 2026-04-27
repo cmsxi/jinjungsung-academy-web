@@ -6,7 +6,7 @@
         <div class="frame-header">
           <div class="header-left">
             <h3>수강후기</h3>
-            <div class="post-count">총 {{ filteredReviews.length }}개 게시글</div>
+            <div class="post-count">총 {{ displayTotalCount }}개 게시글</div>
           </div>
           <div class="header-right">
             <div class="search-box">
@@ -52,7 +52,7 @@
               </div>
               <div class="post-info">
                 <h4 class="post-title">{{ review.title }}</h4>
-                <p class="post-date">{{ formatDate(review.created_at || review.date) }}</p>
+                <p class="post-date">{{ formatDate(review.created_at) }}</p>
               </div>
             </div>
           </div>
@@ -99,6 +99,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { jinjungsungService } from "@/services/jinjungsungService.js";
 import defaultImage from "@/assets/images/business-1.jpg";
 
 const defaultImagePath = defaultImage;
@@ -112,23 +113,19 @@ const handleImageError = (event) => {
 
 const router = useRouter();
 
-// 상태 관리
 const isLoading = ref(false);
 const errorMessage = ref("");
 const searchKeyword = ref("");
 const reviews = ref([]);
 const currentPage = ref(1);
 const totalReviews = ref(0);
-const itemsPerPage = 10;
+const itemsPerPage = 12;
 
-// 계산된 속성
 const totalPages = computed(() => Math.ceil(totalReviews.value / itemsPerPage));
 
-// 필터링된 게시글 (검색)
 const filteredReviews = computed(() => {
   let filtered = reviews.value;
 
-  // 검색 필터링
   if (searchKeyword.value.trim()) {
     filtered = filtered.filter((review) =>
       review.title.toLowerCase().includes(searchKeyword.value.toLowerCase())
@@ -138,19 +135,18 @@ const filteredReviews = computed(() => {
   return filtered;
 });
 
-// 게시글 목록 로드
+const displayTotalCount = computed(() => {
+  return searchKeyword.value.trim() ? filteredReviews.value.length : totalReviews.value;
+});
+
 const loadReviews = async (page = 1) => {
   isLoading.value = true;
   errorMessage.value = "";
 
   try {
-    // TODO: API 호출로 수강후기 목록 로드
-    // const response = await api.getReviews(page, itemsPerPage);
-    // reviews.value = response.items;
-    // totalReviews.value = response.total;
-    
-    reviews.value = [];
-    totalReviews.value = 0;
+    const response = await jinjungsungService.getReviews(page, itemsPerPage);
+    reviews.value = response.items;
+    totalReviews.value = response.total;
     currentPage.value = page;
   } catch (error) {
     errorMessage.value = error.message;
@@ -159,23 +155,17 @@ const loadReviews = async (page = 1) => {
   }
 };
 
-// 페이지 변경
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     loadReviews(page);
   }
 };
 
-// 이미지 URL 생성
 const getImageUrl = (filename) => {
-  // TODO: 실제 API 서비스로 변경
-  return `/images/${filename}`;
+  return jinjungsungService.getImageUrl(filename);
 };
 
-// 메서드
-const filterReviews = () => {
-  // computed에서 자동으로 처리되므로 별도 로직 불필요
-};
+const filterReviews = () => {};
 
 const goToDetail = (id) => {
   router.push(`/reviews/${id}`);
@@ -190,7 +180,6 @@ const formatDate = (dateString) => {
   });
 };
 
-// 컴포넌트 마운트 시 초기화
 onMounted(() => {
   loadReviews();
 });
@@ -207,7 +196,6 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* 게시판 스타일 */
 .board-frame {
   background: transparent;
 }
@@ -428,4 +416,4 @@ onMounted(() => {
     font-size: 0.9rem;
   }
 }
-</style> 
+</style>

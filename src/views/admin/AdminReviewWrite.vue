@@ -1,376 +1,542 @@
 <template>
-  <div class="admin-review-write">
-    <div class="write-container">
+  <div class="admin-write-page">
+    <div class="admin-write-content">
+      <!-- 헤더 -->
       <div class="write-header">
+        <router-link to="/admin/reviews" class="back-btn">← 목록으로 돌아가기</router-link>
         <h2>{{ isEditMode ? '수강후기 수정' : '새 수강후기 작성' }}</h2>
-        <div class="header-actions">
-          <button @click="goBack" class="back-btn">목록으로</button>
-        </div>
       </div>
 
-      <form @submit.prevent="submitReview" class="write-form">
-        <div class="form-group">
-          <label for="name">수강생 이름 *</label>
-          <input
-            id="name"
-            v-model="formData.name"
-            type="text"
-            placeholder="수강생 이름을 입력하세요"
-            required
-          />
-        </div>
+      <!-- 로딩 상태 -->
+      <div v-if="isLoading" class="loading-message">
+        <p>{{ isEditMode ? '게시글을 불러오는 중...' : '처리 중...' }}</p>
+      </div>
 
-        <div class="form-group">
-          <label for="course">수강 과정 *</label>
-          <select id="course" v-model="formData.course" required>
-            <option value="">과정을 선택하세요</option>
-            <option value="기초 과정">기초 과정</option>
-            <option value="중급 과정">중급 과정</option>
-            <option value="고급 과정">고급 과정</option>
-            <option value="실무 과정">실무 과정</option>
-          </select>
-        </div>
+      <!-- 에러 메시지 -->
+      <div v-if="errorMessage" class="error-message">
+        <p>❌ {{ errorMessage }}</p>
+      </div>
 
-        <div class="form-group">
-          <label for="content">후기 내용 *</label>
-          <textarea
-            id="content"
-            v-model="formData.content"
-            placeholder="수강후기를 상세히 작성해주세요"
-            rows="8"
-            required
-          ></textarea>
-          <div class="char-count">{{ formData.content.length }}/500자</div>
-        </div>
+      <!-- 성공 메시지 -->
+      <div v-if="successMessage" class="success-message">
+        <p>✅ {{ successMessage }}</p>
+      </div>
 
-        <div class="form-group">
-          <label for="tags">태그</label>
-          <div class="tags-input-container">
+      <!-- 작성 폼 -->
+      <div v-if="!isLoading" class="write-form">
+        <form @submit.prevent="submitReview" class="form-content">
+          <div class="form-row">
+            <label for="title">제목 <span class="required">*</span></label>
             <input
-              id="tags"
-              v-model="tagInput"
+              id="title"
+              v-model="formData.title"
               type="text"
-              placeholder="태그를 입력하고 Enter를 누르세요"
-              @keyup.enter="addTag"
+              placeholder="게시글 제목을 입력하세요"
+              required
+              :disabled="isSubmitting"
             />
-            <button type="button" @click="addTag" class="add-tag-btn">추가</button>
           </div>
-          <div v-if="formData.tags.length > 0" class="tags-list">
-            <span
-              v-for="(tag, index) in formData.tags"
-              :key="index"
-              class="tag"
-            >
-              #{{ tag }}
-              <button type="button" @click="removeTag(index)" class="remove-tag">×</button>
-            </span>
-          </div>
-        </div>
 
-        <div class="form-actions">
-          <button type="button" @click="resetForm" class="reset-btn">초기화</button>
-          <button type="submit" :disabled="!isFormValid" class="submit-btn">
-            {{ isEditMode ? '수정하기' : '등록하기' }}
-          </button>
-        </div>
-      </form>
+          <div class="form-row">
+            <label for="content">내용 <span class="required">*</span></label>
+            <textarea
+              id="content"
+              v-model="formData.content"
+              rows="15"
+              placeholder="게시글 내용을 입력하세요"
+              required
+              :disabled="isSubmitting"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="image">이미지</label>
+            <div class="image-upload-area">
+              <input
+                type="file"
+                id="image"
+                ref="imageInput"
+                @change="handleImageChange"
+                accept="image/*"
+                :disabled="isSubmitting"
+              >
+
+              <!-- 현재 이미지 미리보기 -->
+              <div v-if="currentImageUrl" class="current-image">
+                <p>현재 이미지:</p>
+                <img :src="currentImageUrl" alt="현재 이미지" class="image-preview">
+                <button
+                  type="button"
+                  @click="removeCurrentImage"
+                  class="remove-image-btn"
+                  :disabled="isSubmitting"
+                >
+                  이미지 제거
+                </button>
+              </div>
+
+              <!-- 새 이미지 미리보기 -->
+              <div v-if="newImagePreview" class="new-image">
+                <p>새 이미지:</p>
+                <img :src="newImagePreview" alt="새 이미지" class="image-preview">
+                <button
+                  type="button"
+                  @click="removeNewImage"
+                  class="remove-image-btn"
+                  :disabled="isSubmitting"
+                >
+                  이미지 제거
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="adminPassword">관리자 비밀번호 <span class="required">*</span></label>
+            <input
+              type="password"
+              id="adminPassword"
+              v-model="formData.adminPassword"
+              required
+              placeholder="관리자 비밀번호를 입력하세요"
+              :disabled="isSubmitting"
+            >
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="save-btn"
+              :disabled="!isFormValid || isSubmitting"
+            >
+              <span v-if="isSubmitting">{{ isEditMode ? '수정 중...' : '작성 중...' }}</span>
+              <span v-else>{{ isEditMode ? '수정하기' : '작성하기' }}</span>
+            </button>
+            <router-link to="/admin/reviews" class="cancel-btn">취소</router-link>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AdminReviewWrite',
-  data() {
-    return {
-      isEditMode: false,
-      tagInput: '',
-      formData: {
-        name: '',
-        course: '',
-        content: '',
-        tags: []
-      }
-    }
-  },
-  computed: {
-    isFormValid() {
-      return (
-        this.formData.name.trim() &&
-        this.formData.course &&
-        this.formData.content.trim() &&
-        this.formData.content.length <= 500
-      )
-    }
-  },
-  mounted() {
-    // 수정 모드인지 확인
-    const reviewId = this.$route.params.id
-    if (reviewId) {
-      this.isEditMode = true
-      this.loadReview(reviewId)
-    }
-  },
-  methods: {
-    async loadReview(id) {
-      try {
-        // TODO: API 호출로 후기 데이터 로드
-        // const response = await api.getReview(id)
-        // this.formData = response.data
-      } catch (error) {
-        console.error('후기 로드 실패:', error)
-        alert('후기를 불러오는데 실패했습니다.')
-      }
-    },
-    
-    async submitReview() {
-      if (!this.isFormValid) return
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { jinjungsungService } from '@/services/jinjungsungService.js';
 
-      try {
-        const reviewData = {
-          ...this.formData,
-          date: new Date().toISOString().split('T')[0]
-        }
+const route = useRoute();
+const router = useRouter();
 
-        if (this.isEditMode) {
-          // TODO: API 호출로 후기 수정
-          // await api.updateReview(this.$route.params.id, reviewData)
-          alert('수강후기가 수정되었습니다.')
-        } else {
-          // TODO: API 호출로 후기 등록
-          // await api.createReview(reviewData)
-          alert('수강후기가 등록되었습니다.')
-        }
+const isLoading = ref(false);
+const isSubmitting = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+const isEditMode = ref(false);
+const reviewId = ref(null);
 
-        this.$router.push('/admin/reviews')
-      } catch (error) {
-        console.error('후기 저장 실패:', error)
-        alert('후기 저장에 실패했습니다.')
-      }
-    },
+const formData = ref({
+  title: '',
+  content: '',
+  adminPassword: '',
+  image: null
+});
 
-    addTag() {
-      const tag = this.tagInput.trim()
-      if (tag && !this.formData.tags.includes(tag)) {
-        this.formData.tags.push(tag)
-        this.tagInput = ''
-      }
-    },
+const imageInput = ref(null);
+const currentImageUrl = ref('');
+const newImagePreview = ref('');
+const removeCurrentImageFlag = ref(false);
 
-    removeTag(index) {
-      this.formData.tags.splice(index, 1)
-    },
+const isFormValid = computed(() => {
+  return formData.value.title &&
+         formData.value.content &&
+         formData.value.adminPassword;
+});
 
-    resetForm() {
-      if (confirm('작성 중인 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
-        this.formData = {
-          name: '',
-          course: '',
-          content: '',
-          tags: []
-        }
-        this.tagInput = ''
-      }
-    },
-
-    goBack() {
-      this.$router.push('/admin/reviews')
-    }
+const checkAuth = () => {
+  const authenticated = sessionStorage.getItem('admin_authenticated');
+  if (authenticated !== 'true') {
+    router.push('/admin');
+    return false;
   }
-}
+
+  const savedPassword = sessionStorage.getItem('admin_password');
+  if (savedPassword) {
+    formData.value.adminPassword = savedPassword;
+  }
+
+  return true;
+};
+
+const initializeForm = async () => {
+  if (!checkAuth()) return;
+
+  const id = route.params.id;
+  if (id) {
+    isEditMode.value = true;
+    reviewId.value = parseInt(id);
+    await loadReview();
+  }
+};
+
+const loadReview = async () => {
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const review = await jinjungsungService.getReview(reviewId.value);
+
+    formData.value.title = review.title;
+    formData.value.content = review.content;
+
+    if (review.image_filename) {
+      currentImageUrl.value = jinjungsungService.getImageUrl(review.image_filename);
+    }
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleImageChange = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    errorMessage.value = '이미지 파일 크기는 10MB 이하여야 합니다.';
+    return;
+  }
+
+  if (!file.type.startsWith('image/')) {
+    errorMessage.value = '이미지 파일만 업로드 가능합니다.';
+    return;
+  }
+
+  formData.value.image = file;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    newImagePreview.value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  errorMessage.value = '';
+};
+
+const removeCurrentImage = () => {
+  currentImageUrl.value = '';
+  removeCurrentImageFlag.value = true;
+};
+
+const removeNewImage = () => {
+  formData.value.image = null;
+  newImagePreview.value = '';
+  if (imageInput.value) {
+    imageInput.value.value = '';
+  }
+};
+
+const submitReview = async () => {
+  if (!isFormValid.value || isSubmitting.value) return;
+
+  isSubmitting.value = true;
+  errorMessage.value = '';
+  successMessage.value = '';
+
+  try {
+    const reviewData = {
+      title: formData.value.title,
+      content: formData.value.content,
+      adminPassword: formData.value.adminPassword
+    };
+
+    if (formData.value.image) {
+      reviewData.image = formData.value.image;
+    }
+
+    if (isEditMode.value) {
+      await jinjungsungService.updateReview(reviewId.value, reviewData);
+    } else {
+      await jinjungsungService.createReview(reviewData);
+    }
+
+    successMessage.value = isEditMode.value ?
+      '게시글이 성공적으로 수정되었습니다.' :
+      '게시글이 성공적으로 작성되었습니다.';
+
+    setTimeout(() => {
+      router.push('/admin/reviews');
+    }, 2000);
+
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+onMounted(() => {
+  initializeForm();
+});
 </script>
 
 <style scoped>
-.admin-review-write {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+.admin-write-page {
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: #f8f9fa;
 }
 
-.write-container {
-  background: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.admin-write-content {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .write-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 30px;
-  border-bottom: 1px solid #ddd;
-  background: #f8f9fa;
-}
-
-.write-header h2 {
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  margin: 0;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .back-btn {
-  padding: 8px 16px;
-  background: #6c757d;
+  padding: 10px 20px;
+  background-color: #6c757d;
   color: white;
-  border: none;
-  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
   transition: background-color 0.3s ease;
+  border: 1px solid #6c757d;
 }
 
 .back-btn:hover {
-  background: #5a6268;
+  background-color: #5a6268;
+}
+
+.write-header h2 {
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message, .success-message {
+  text-align: center;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
 }
 
 .write-form {
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 30px;
+  border: 1px solid #ddd;
 }
 
-.form-group {
+.form-content {
+  width: 100%;
+}
+
+.form-row {
   margin-bottom: 25px;
 }
 
-.form-group label {
+.form-row label {
   display: block;
   margin-bottom: 8px;
   color: #333;
   font-weight: 500;
+  font-size: 1.1rem;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.form-row input,
+.form-row textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
   font-size: 1rem;
   box-sizing: border-box;
+  transition: border-color 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-row input:focus,
+.form-row textarea:focus {
   outline: none;
   border-color: var(--primary-color);
 }
 
-.char-count {
-  text-align: right;
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 5px;
+.form-row input:disabled,
+.form-row textarea:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
-.tags-input-container {
-  display: flex;
-  gap: 10px;
+.form-row textarea {
+  resize: vertical;
+  min-height: 300px;
+  font-family: inherit;
+  line-height: 1.6;
 }
 
-.tags-input-container input {
-  flex: 1;
+.image-upload-area {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s ease;
 }
 
-.add-tag-btn {
-  padding: 12px 20px;
-  background: var(--primary-color);
+.image-upload-area:hover {
+  border-color: var(--primary-color);
+}
+
+.current-image,
+.new-image {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.current-image p,
+.new-image p {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+
+.remove-image-btn {
+  padding: 6px 12px;
+  background-color: #dc3545;
   color: white;
   border: none;
   cursor: pointer;
+  font-size: 0.9rem;
   transition: background-color 0.3s ease;
 }
 
-.add-tag-btn:hover {
-  opacity: 0.9;
+.remove-image-btn:hover:not(:disabled) {
+  background-color: #c82333;
 }
 
-.tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.tag {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--primary-color);
-  color: white;
-  padding: 4px 8px;
-  font-size: 0.9rem;
-  border: 1px solid var(--primary-color);
-}
-
-.remove-tag {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0;
-  font-size: 1.2rem;
-  line-height: 1;
+.remove-image-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 15px;
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
+  justify-content: center;
+  margin-top: 30px;
 }
 
-.reset-btn {
-  padding: 12px 24px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.reset-btn:hover {
-  background: #5a6268;
-}
-
-.submit-btn {
-  padding: 12px 24px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  cursor: pointer;
+.save-btn, .cancel-btn {
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
   transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
-.submit-btn:hover:not(:disabled) {
-  opacity: 0.9;
+.save-btn {
+  background-color: var(--primary-color);
+  color: white;
 }
 
-.submit-btn:disabled {
-  background: #ccc;
+.save-btn:hover:not(:disabled) {
+  background-color: #003e80;
+  transform: translateY(-2px);
+}
+
+.save-btn:disabled {
+  background-color: #ccc;
   cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
 }
 
 @media (max-width: 768px) {
-  .admin-review-write {
-    padding: 10px;
+  .admin-write-page {
+    padding: 20px 15px;
   }
 
   .write-header {
     flex-direction: column;
-    gap: 15px;
     align-items: stretch;
+  }
+
+  .write-header h2 {
+    font-size: 1.5rem;
+    text-align: center;
   }
 
   .write-form {
     padding: 20px;
   }
 
-  .tags-input-container {
-    flex-direction: column;
+  .form-row input,
+  .form-row textarea {
+    font-size: 16px;
+  }
+
+  .form-row textarea {
+    min-height: 250px;
   }
 
   .form-actions {
     flex-direction: column;
   }
+
+  .save-btn, .cancel-btn {
+    width: 100%;
+    padding: 15px;
+  }
 }
-</style> 
+</style>
