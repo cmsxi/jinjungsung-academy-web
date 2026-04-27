@@ -191,11 +191,79 @@ export const jinjungsungService = {
   },
 
   /**
-   * 수강후기 생성
+   * 수강후기 사용자 작성 (공개 엔드포인트, 미게시 상태로 저장)
+   */
+  async submitReview(reviewData) {
+    try {
+      const formData = new FormData()
+      formData.append('username', reviewData.username)
+      formData.append('title', reviewData.title)
+      formData.append('content', reviewData.content)
+      // honeypot
+      formData.append('_botcheck', reviewData.botcheck || '')
+
+      if (reviewData.image) {
+        formData.append('image', reviewData.image)
+      }
+
+      const response = await api.post('/reviews/submit', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('수강후기 접수 오류:', error)
+      if (error.response?.status === 429) {
+        throw new Error('짧은 시간 내에 너무 많이 작성하셨습니다. 잠시 후 다시 시도해 주세요.')
+      }
+      throw new Error(error.response?.data?.detail || '후기 접수 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 관리자: 전체 후기 목록 (미게시 포함)
+   */
+  async getReviewsAdmin(page = 1, itemsPerPage = 10, adminPassword) {
+    try {
+      const formData = new FormData()
+      formData.append('page', page)
+      formData.append('items_per_page', itemsPerPage)
+      formData.append('admin_password', adminPassword)
+
+      const response = await api.post('/reviews/admin/list', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return response.data
+    } catch (error) {
+      console.error('관리자 후기 목록 조회 오류:', error)
+      throw new Error(error.response?.data?.detail || '후기 목록을 불러오는 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 관리자: 공개 여부 토글
+   */
+  async setReviewPublished(reviewId, isPublished, adminPassword) {
+    try {
+      const response = await api.patch(`/reviews/${reviewId}/publish`, {
+        admin_password: adminPassword,
+        is_published: isPublished
+      })
+      return response.data
+    } catch (error) {
+      console.error('공개 여부 변경 오류:', error)
+      throw new Error(error.response?.data?.detail || '공개 여부 변경 중 오류가 발생했습니다.')
+    }
+  },
+
+  /**
+   * 관리자: 후기 생성 (즉시 공개)
    */
   async createReview(reviewData) {
     try {
       const formData = new FormData()
+      formData.append('username', reviewData.username || '관리자')
       formData.append('title', reviewData.title)
       formData.append('content', reviewData.content)
       formData.append('admin_password', reviewData.adminPassword)
@@ -217,11 +285,12 @@ export const jinjungsungService = {
   },
 
   /**
-   * 수강후기 수정
+   * 관리자: 후기 수정
    */
   async updateReview(reviewId, reviewData) {
     try {
       const formData = new FormData()
+      formData.append('username', reviewData.username || '관리자')
       formData.append('title', reviewData.title)
       formData.append('content', reviewData.content)
       formData.append('admin_password', reviewData.adminPassword)
@@ -243,7 +312,7 @@ export const jinjungsungService = {
   },
 
   /**
-   * 수강후기 삭제
+   * 관리자: 후기 삭제
    */
   async deleteReview(reviewId, adminPassword) {
     try {

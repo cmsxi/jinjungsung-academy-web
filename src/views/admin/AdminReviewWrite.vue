@@ -26,6 +26,19 @@
       <div v-if="!isLoading" class="write-form">
         <form @submit.prevent="submitReview" class="form-content">
           <div class="form-row">
+            <label for="username">작성자명 <span class="required">*</span></label>
+            <input
+              id="username"
+              v-model="formData.username"
+              type="text"
+              maxlength="20"
+              placeholder="표시될 이름 (예: 관리자)"
+              required
+              :disabled="isSubmitting"
+            />
+          </div>
+
+          <div class="form-row">
             <label for="title">제목 <span class="required">*</span></label>
             <input
               id="title"
@@ -136,6 +149,7 @@ const isEditMode = ref(false);
 const reviewId = ref(null);
 
 const formData = ref({
+  username: '관리자',
   title: '',
   content: '',
   adminPassword: '',
@@ -148,7 +162,8 @@ const newImagePreview = ref('');
 const removeCurrentImageFlag = ref(false);
 
 const isFormValid = computed(() => {
-  return formData.value.title &&
+  return formData.value.username &&
+         formData.value.title &&
          formData.value.content &&
          formData.value.adminPassword;
 });
@@ -186,6 +201,7 @@ const loadReview = async () => {
   try {
     const review = await jinjungsungService.getReview(reviewId.value);
 
+    formData.value.username = review.username || '관리자';
     formData.value.title = review.title;
     formData.value.content = review.content;
 
@@ -246,6 +262,7 @@ const submitReview = async () => {
 
   try {
     const reviewData = {
+      username: formData.value.username,
       title: formData.value.title,
       content: formData.value.content,
       adminPassword: formData.value.adminPassword
