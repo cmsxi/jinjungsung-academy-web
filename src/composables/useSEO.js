@@ -6,7 +6,7 @@ export function useSEO(options = {}) {
     description: '보다 전문적인 명품감정 강의를 제공하는 국제명품감정교육원입니다. 체계적인 교육과정으로 명품감정 전문가를 양성합니다.',
     keywords: '명품감정, 명품감정교육, 명품감정사, 명품감정강의, 명품감정교육원, 명품감정사자격증',
     image: '/logo.ico',
-    url: 'https://국제명품감정교육원.com'
+    url: 'https://luxacademy.kr'
   }
 
   const seoOptions = { ...defaultOptions, ...options }
