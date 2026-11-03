@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { PHONE_DISPLAY, PHONE_TEL, KAKAO_CHANNEL_URL } from '@/constants/contact.js'
+
 export default {
   name: 'Questions',
   data() {
@@ -126,8 +128,8 @@ export default {
           title: '교육원 연락처 및 상담 시간은 어떻게 되나요?',
           answer: `
             <div class="contact-info">
-              <p><strong>전화:</strong> <a href="tel:010-9255-3721" class="contact-link">010-9255-3721</a></p>
-              <p><strong>카카오톡채널:</strong> <a href="http://pf.kakao.com/_FXRwn" target="_blank" class="contact-link">http://pf.kakao.com/_FXRwn</a></p>
+              <p><strong>전화:</strong> <a href="${PHONE_TEL}" class="contact-link">${PHONE_DISPLAY}</a></p>
+              <p><strong>카카오톡채널:</strong> <a href="${KAKAO_CHANNEL_URL}" target="_blank" rel="noopener noreferrer" class="contact-link">${KAKAO_CHANNEL_URL}</a></p>
               <p><strong>1:1 문의:</strong> 홈페이지 내 수강신청문의를 이용해 주세요.</p>
             </div>
           `,

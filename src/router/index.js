@@ -136,6 +136,8 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
     scrollBehavior(to, from, savedPosition) {
+        // 같은 페이지에서 쿼리만 바뀌는 경우(커리큘럼 과정 탭 전환 등)는 스크롤 위치 유지
+        if (to.path === from.path) return false;
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
         return { top: 0 }

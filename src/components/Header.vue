@@ -1,791 +1,521 @@
 <template>
-  <header 
-    :class="{
-      'header-hidden': isHidden,
-      'header-visible': !isHidden,
-      'scrolled': currentSection > 0
-    }"
+  <header
+    ref="headerEl"
+    class="site-header"
+    :class="{ 'is-scrolled': isScrolled, 'is-gnb-open': isGnbOpen }"
+    @mouseleave="closeGnb"
+    @focusout="handleFocusOut"
+    @keydown.esc="closeAll"
   >
-    <div class="header-container">
-      <div class="center-logo">
-        <router-link to="/">
-          <img
-            src="@/assets/images/logo.png"
-            alt="center Logo"
-            class="logo-image desktop-logo"
-          />
-          <img
-            src="@/assets/images/logo.png"
-            alt="center Logo"
-            class="logo-image mobile-logo"
-          />
+    <div class="header-inner">
+      <router-link to="/" class="brand" aria-label="국제명품감정교육원 홈">
+        <img src="@/assets/images/logo.png" alt="국제명품감정교육원" class="brand-logo" />
+      </router-link>
+
+      <!-- 데스크톱 GNB -->
+      <nav class="gnb" aria-label="주 메뉴" @mouseenter="openGnb" @focusin="openGnb">
+        <ul class="gnb-list">
+          <li v-for="menu in MAIN_MENUS" :key="menu.label" class="gnb-item">
+            <router-link :to="menu.to" class="gnb-link">{{ menu.label }}</router-link>
+            <ul class="gnb-sub">
+              <li v-for="child in menu.children" :key="child.label">
+                <a
+                  v-if="child.href"
+                  :href="child.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >{{ child.label }}</a>
+                <router-link v-else :to="child.to" @click="closeGnb">{{ child.label }}</router-link>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a :href="PHONE_TEL" class="header-phone" :aria-label="`상담전화 ${PHONE_DISPLAY}`">
+          <AppIcon name="phone" :size="17" />
+          <span class="header-phone-label">상담전화</span>
+          <strong>{{ PHONE_DISPLAY }}</strong>
+        </a>
+        <router-link to="/registration" class="ui-btn ui-btn--primary header-cta">
+          수강신청문의
         </router-link>
       </div>
 
-      <div class="hamburger-menu" @click="toggleMobileMenu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <nav class="header-menu" :class="{ 'mobile-menu-open': isMobileMenuOpen }">
-        <div class="mobile-menu-container">
-          <!-- 데스크탑 메뉴 -->
-          <ul class="main-menu desktop-only">
-            <li @mouseenter="showSubmenu('all')"><router-link to="/introduction" @click="handleNavigation">교육원 소개</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/education" @click="handleNavigation">교육안내</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></li>
-            <li @mouseenter="showSubmenu('all')"><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li>
-          </ul>
-          
-          <!-- 모바일 전용 아코디언 메뉴 -->
-          <div class="mobile-menu">
-            <div class="accordion-menu">
-              <div class="accordion-item">
-                <h3><router-link to="/introduction" @click="handleNavigation">교육원 소개</router-link></h3>
-                <ul>
-                  <li><router-link to="/introduction/greeting" @click="handleNavigation">인사말</router-link></li>
-                  <li><router-link to="/introduction/business" @click="handleNavigation">사업영역</router-link></li>
-                  <li><router-link to="/introduction/partners" @click="handleNavigation">협력업체</router-link></li>
-                </ul>
-              </div>
-              <div class="accordion-item">
-                <h3><router-link to="/education" @click="handleNavigation">교육안내</router-link></h3>
-                <ul>
-                  <li><router-link to="/education/curriculum" @click="handleNavigation">커리큘럼</router-link></li>
-                  <li><router-link to="/education/status" @click="handleNavigation">수강현황</router-link></li>
-                </ul>
-              </div>
-              <div class="accordion-item">
-                <h3><router-link to="/registration" @click="handleNavigation">수강신청문의</router-link></h3>
-              </div>
-              <div class="accordion-item">
-                <h3><router-link to="/faq" @click="handleNavigation">자주묻는질문</router-link></h3>
-                <ul>
-                  <li><router-link to="/faq/questions" @click="handleNavigation">FAQ</router-link></li>
-                  <li><a href="http://pf.kakao.com/_FXRwn" target="_blank" rel="noopener noreferrer">문의하기</a></li>
-                </ul>
-              </div>
-              <div class="accordion-item">
-                <h3><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></h3>
-                <ul>
-                  <li><router-link to="/reviews" @click="handleNavigation">수강후기</router-link></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div class="mobile-apply-button">
-            <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청문의</a>
-          </div>
-        </div>
-      </nav>
-
-      <div class="apply-button">
-        <a href="#" class="consultation-btn" @click.prevent="goToConsultation">수강신청문의</a>
+      <!-- 모바일 액션 -->
+      <div class="mobile-actions">
+        <a :href="PHONE_TEL" class="icon-btn" :aria-label="`전화 상담 ${PHONE_DISPLAY}`">
+          <AppIcon name="phone" :size="21" />
+        </a>
+        <button
+          type="button"
+          class="icon-btn"
+          :aria-expanded="isMenuOpen"
+          aria-controls="mobile-drawer"
+          :aria-label="isMenuOpen ? '메뉴 닫기' : '메뉴 열기'"
+          @click="toggleMenu"
+        >
+          <AppIcon :name="isMenuOpen ? 'close' : 'menu'" :size="24" />
+        </button>
       </div>
     </div>
 
-    <!-- 데스크탑 전체 메뉴 -->
-    <div class="full-menu" v-if="activeSubmenu === 'all' && !isMobile" @mouseleave="hideSubmenu">
-      <div class="full-menu-container">
-        <div class="submenu-spacer"></div>
-        <div class="submenu-grid">
-          <div class="submenu-section">
-            <ul>
-              <li><router-link to="/introduction/greeting">인사말</router-link></li>
-              <li><router-link to="/introduction/business">사업영역</router-link></li>
-              <li><router-link to="/introduction/partners">협력업체</router-link></li>
-            </ul>
-          </div>
-          <div class="submenu-section">
-            <ul>
-              <li><router-link to="/education/curriculum">커리큘럼</router-link></li>
-              <li><router-link to="/education/status">수강현황</router-link></li>
-            </ul>
-          </div>
-          <div class="submenu-section">
-            <ul>
-              <li><router-link to="/registration">수강신청문의</router-link></li>
-            </ul>
-          </div>
-          <div class="submenu-section">
-            <ul>
-              <li><router-link to="/faq/questions">FAQ</router-link></li>
-              <li><a href="http://pf.kakao.com/_FXRwn" target="_blank" rel="noopener noreferrer">문의하기</a></li>
-            </ul>
-          </div>
-          <div class="submenu-section">
-            <ul>
-              <li><router-link to="/reviews">수강후기</router-link></li>
-            </ul>
-          </div>
-        </div>
-        <div class="submenu-spacer"></div>
+    <!-- 메가메뉴 배경 -->
+    <div class="gnb-panel" aria-hidden="true"></div>
+
+    <!-- 모바일 드로어 -->
+    <div class="drawer-dim" :class="{ 'is-open': isMenuOpen }" @click="closeMenu"></div>
+    <aside
+      id="mobile-drawer"
+      class="drawer"
+      :class="{ 'is-open': isMenuOpen }"
+      :aria-hidden="!isMenuOpen"
+      :inert="!isMenuOpen || undefined"
+    >
+      <a :href="PHONE_TEL" class="drawer-call">
+        <span class="drawer-call-label">전화 상담</span>
+        <strong class="drawer-call-number">{{ PHONE_DISPLAY }}</strong>
+        <span class="drawer-call-hint">누르면 바로 연결됩니다</span>
+      </a>
+
+      <div v-for="menu in MAIN_MENUS" :key="menu.label" class="drawer-group">
+        <router-link :to="menu.to" class="drawer-title">{{ menu.label }}</router-link>
+        <ul class="drawer-sub">
+          <li v-for="child in menu.children" :key="child.label">
+            <a
+              v-if="child.href"
+              :href="child.href"
+              target="_blank"
+              rel="noopener noreferrer"
+            >{{ child.label }}</a>
+            <router-link v-else :to="child.to">{{ child.label }}</router-link>
+          </li>
+        </ul>
       </div>
-    </div>
+
+      <router-link to="/registration" class="ui-btn ui-btn--primary ui-btn--block drawer-cta">
+        수강신청문의
+      </router-link>
+    </aside>
   </header>
 </template>
 
-<script>
-export default {
-  name: "Header",
-  props: {
-    currentSection: {
-      type: Number,
-      default: 0
-    }
-  },
-  data() {
-    return {
-      isHidden: false,
-      isMobileMenuOpen: false,
-      activeSubmenu: null,
-      isMobile: false
-    };
-  },
-  created() {
-    this.checkMobile();
-    window.addEventListener('resize', this.debounce(this.checkMobile, 200));
-  },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.debounce(this.checkMobile, 200));
-    document.body.style.overflow = '';
-  },
-  watch: {
-    currentSection: {
-      handler(newSection, oldSection) {
-        if (newSection === 0) {
-          this.isHidden = false;
-        } else {
-          this.isHidden = newSection > oldSection;
-        }
-      },
-      immediate: true
-    },
-    $route() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'auto'
-      });
-      this.closeMobileMenu();
-    }
-  },
-  methods: {
-    debounce(func, wait) {
-      let timeout;
-      return function() {
-        const context = this;
-        const args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(context, args), wait);
-      };
-    },
-    checkMobile() {
-      try {
-        this.isMobile = window.innerWidth <= 1000;
-        if (!this.isMobile && this.isMobileMenuOpen) {
-          this.closeMobileMenu();
-        }
-      } catch (error) {
-        console.error('Error checking mobile status:', error);
-      }
-    },
-    toggleMobileMenu() {
-      try {
-        this.isMobileMenuOpen = !this.isMobileMenuOpen;
-        if (this.isMobileMenuOpen) {
-          document.body.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = '';
-        }
-      } catch (error) {
-        console.error('Error toggling mobile menu:', error);
-      }
-    },
-    closeMobileMenu() {
-      try {
-        if (this.isMobileMenuOpen) {
-          this.isMobileMenuOpen = false;
-          document.body.style.overflow = '';
-        }
-      } catch (error) {
-        console.error('Error closing mobile menu:', error);
-      }
-    },
-    handleNavigation() {
-      try {
-        if (this.isMobileMenuOpen) {
-          document.body.style.overflow = '';
-        }
-        this.closeMobileMenu();
-        window.scrollTo(0, 0);
-      } catch (error) {
-        console.error('Error handling navigation:', error);
-      }
-    },
-    goToConsultation() {
-      try {
-        if (this.isMobileMenuOpen) {
-          document.body.style.overflow = '';
-        }
-        this.closeMobileMenu();
-        
-        // 수강신청문의 페이지로 라우팅
-        this.$router.push('/registration').catch(err => {
-          console.error('Navigation error:', err);
-        });
-      } catch (error) {
-        console.error('Error navigating to consultation:', error);
-      }
-    },
-    showSubmenu(menu) {
-      try {
-        this.activeSubmenu = menu;
-      } catch (error) {
-        console.error('Error showing submenu:', error);
-      }
-    },
-    hideSubmenu() {
-      try {
-        this.activeSubmenu = null;
-      } catch (error) {
-        console.error('Error hiding submenu:', error);
-      }
-    }
-  },
-  mounted() {
-    try {
-      this.$router.afterEach(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'auto'
-        });
-      });
-    } catch (error) {
-      console.error('Router hook error:', error);
-    }
-  }
-};
+<script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
+import AppIcon from '@/components/ui/AppIcon.js'
+import { MAIN_MENUS } from '@/constants/navigation.js'
+import { PHONE_DISPLAY, PHONE_TEL } from '@/constants/contact.js'
+
+const MOBILE_QUERY = '(max-width: 1000px)'
+const SCROLL_SHADOW_OFFSET = 4
+
+const route = useRoute()
+const headerEl = ref(null)
+const isMenuOpen = ref(false)
+const isGnbOpen = ref(false)
+const isScrolled = ref(false)
+
+let mobileMedia = null
+
+// html/body 모두 overflow-x: hidden 이라 실제 스크롤 컨테이너는 html → 둘 다 잠가야 배경 스크롤이 멈춤
+const setBodyLock = (locked) => {
+  const value = locked ? 'hidden' : ''
+  document.documentElement.style.overflow = value
+  document.body.style.overflow = value
+}
+
+const openGnb = () => {
+  if (mobileMedia?.matches) return
+  isGnbOpen.value = true
+}
+
+const closeGnb = () => {
+  isGnbOpen.value = false
+}
+
+const closeMenu = () => {
+  isMenuOpen.value = false
+}
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
+}
+
+const closeAll = () => {
+  closeGnb()
+  closeMenu()
+}
+
+const handleFocusOut = (event) => {
+  if (!headerEl.value?.contains(event.relatedTarget)) closeGnb()
+}
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > SCROLL_SHADOW_OFFSET
+}
+
+const handleBreakpoint = (event) => {
+  if (!event.matches) closeMenu()
+  closeGnb()
+}
+
+watch(isMenuOpen, setBodyLock)
+watch(() => route.fullPath, closeAll)
+
+onMounted(() => {
+  mobileMedia = window.matchMedia(MOBILE_QUERY)
+  mobileMedia.addEventListener('change', handleBreakpoint)
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
+onBeforeUnmount(() => {
+  mobileMedia?.removeEventListener('change', handleBreakpoint)
+  window.removeEventListener('scroll', handleScroll)
+  setBodyLock(false)
+})
 </script>
 
 <style scoped>
-:root {
-  --menu-width: 160px;
-  --menu-total-width: 800px;
-  --menu-gap: 20px;
-}
-
-header {
+.site-header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background-color: var(--secondary-color);
+  height: var(--header-height);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--line);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease-in-out;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  height: 80px;
+  transition: box-shadow 0.2s ease;
 }
 
-.header-container {
-  width: 100%;
-  max-width: 1300px;
+.site-header.is-scrolled,
+.site-header.is-gnb-open {
+  box-shadow: 0 4px 18px rgba(28, 30, 34, 0.06);
+}
+
+.header-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  gap: 24px;
 }
 
-.header-hidden {
-  transform: translateY(-100%);
-  pointer-events: none;
-}
-
-.header-visible {
-  transform: translateY(0);
-}
-
-header.scrolled {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.center-logo {
+.brand {
   display: flex;
   align-items: center;
-  padding: 10px 0;
+  flex-shrink: 0;
 }
 
-.logo-image {
-  height: 50px;
-  object-fit: contain;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
-}
-
-.mobile-logo {
-  display: none;
-}
-
-.desktop-logo {
+.brand-logo {
+  height: 42px;
+  width: auto;
   display: block;
 }
 
-.header-menu {
+/* ── GNB ── */
+.gnb {
+  height: 100%;
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
-.main-menu {
+.gnb-list {
   display: flex;
+  height: 100%;
+}
+
+.gnb-item {
+  position: relative;
+  width: 128px;
+  height: 100%;
+}
+
+.gnb-link {
+  height: 100%;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 30px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-width: 1000px;
-  width: 100%;
-}
-
-.main-menu li {
-  text-align: center;
-  color: white;
-  font-weight: 500;
-  font-size: 16px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.02em;
   position: relative;
-  width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
-.main-menu li a {
-  color: white;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  position: relative;
-  padding: 5px 0;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.main-menu li a::after {
-  content: '';
+.gnb-link::after {
+  content: "";
   position: absolute;
-  bottom: -2px;
-  left: 0;
+  left: 50%;
+  bottom: -1px;
   width: 0;
   height: 2px;
-  background-color: var(--secondary-color);
-  transition: width 0.3s ease;
+  background-color: var(--gold-600);
+  transform: translateX(-50%);
+  transition: width 0.2s ease;
 }
 
-.main-menu li:hover a::after {
-  width: 100%;
+.gnb-item:hover .gnb-link::after,
+.gnb-link.router-link-active::after {
+  width: 56px;
 }
 
-.main-menu li a:hover {
-  font-weight: 700;
+.gnb-link.router-link-active {
+  color: var(--gold-700);
 }
 
-.main-menu li span {
-  color: white;
-  text-decoration: none;
-  position: relative;
-  padding: 5px 0;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: default;
-}
-
-.consultation-btn {
-  display: inline-block;
-  padding: 13px 50px;
-  background-color: var(--secondary-color);
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.consultation-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.hamburger-menu {
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 30px;
-  height: 21px;
-  cursor: pointer;
-  padding: 0;
-  z-index: 1001;
-  margin-right: 30px;
-}
-
-.hamburger-menu span {
-  width: 100%;
-  height: 2px;
-  background-color: white;
-  transition: all 0.3s ease;
-}
-
-.mobile-menu-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-}
-
-.mobile-apply-button {
-  display: none;
-}
-
-.menu-divider {
-  display: none;
-}
-
-.desktop-only {
-  display: flex;
-}
-
-.mobile-menu {
-  display: none;
-}
-
-.full-menu {
+.gnb-sub {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  background-color: var(--secondary-color);
-  opacity: 0.9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  z-index: 999;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.3s ease;
-  color: white;
+  padding: 22px 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.full-menu-container {
-  width: 100%;
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 10px 20px 30px 20px;
+.is-gnb-open .gnb-sub {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
 }
 
-/* .submenu-spacer {
-  flex: 1;
-} */
-
-.submenu-grid {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  width: 720px;
-  margin: 0;
-}
-
-.submenu-section {
-  width: 100px;
-  text-align: center;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.submenu-section h3 {
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--secondary-color);
+.gnb-sub a {
+  display: block;
+  padding: 6px 4px;
+  font-size: 0.9375rem;
+  color: var(--ink-500);
   white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
-.submenu-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.gnb-sub a:hover,
+.gnb-sub a:focus-visible {
+  color: var(--gold-700);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-.submenu-section ul li {
-  margin: 12px 0;
+.gnb-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 152px;
+  background-color: var(--surface);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 12px 24px rgba(28, 30, 34, 0.06);
+  display: none;
+  z-index: 1;
 }
 
-.submenu-section ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-  transition: all 0.3s ease;
+.is-gnb-open .gnb-panel {
   display: block;
-  padding: 5px 0;
 }
 
-.submenu-section ul li a:hover {
-  color: var(--primary-color);
-  transform: translateX(2px);
+/* ── 우측 액션 ── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
 }
 
-.mobile-menu .accordion-item h3 span {
-  color: white;
-  text-decoration: none;
-  display: block;
-  padding: 5px 0;
-  cursor: default;
+.header-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-900);
+  font-size: 0.9375rem;
 }
 
-.mobile-menu .accordion-item ul li span {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  padding: 5px 0;
-  display: block;
-  text-decoration: none;
+.header-phone .app-icon {
+  color: var(--gold-700);
+}
+
+.header-phone-label {
+  color: var(--ink-500);
+  font-weight: 500;
+}
+
+.header-phone strong {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.header-phone:hover strong {
+  color: var(--gold-700);
+}
+
+.header-cta {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 0.9375rem;
+}
+
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
-  cursor: default;
+  background: none;
+  color: var(--ink-900);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
 }
 
-.submenu-section ul li span {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-  display: block;
-  padding: 5px 0;
-  cursor: default;
+.icon-btn:first-child {
+  color: var(--gold-700);
 }
 
-.disabled-link {
-  color: rgba(255, 255, 255, 0.4) !important;
-  cursor: not-allowed !important;
+/* ── 모바일 드로어 ── */
+.drawer,
+.drawer-dim {
+  display: none;
 }
 
-.mobile-menu .accordion-item ul li .disabled-link {
-  color: rgba(255, 255, 255, 0.3) !important;
+@media (max-width: 1360px) {
+  .header-phone-label {
+    display: none;
+  }
 }
 
-/* 햄버거 메뉴 열림 상태일 때 아이콘 애니메이션 */
-.mobile-menu-open + .hamburger-menu span:nth-child(1) {
-  transform: translateY(9px) rotate(45deg);
-}
+@media (max-width: 1160px) {
+  .header-phone {
+    display: none;
+  }
 
-.mobile-menu-open + .hamburger-menu span:nth-child(2) {
-  opacity: 0;
-}
-
-.mobile-menu-open + .hamburger-menu span:nth-child(3) {
-  transform: translateY(-9px) rotate(-45deg);
+  .gnb-item {
+    width: 116px;
+  }
 }
 
 @media (max-width: 1000px) {
-  header {
-    height: 80px;
-  }
-  
-  .mobile-logo {
-    display: block;
-    padding: 0;
+  .gnb,
+  .gnb-panel,
+  .header-actions {
+    display: none !important;
   }
 
-  .logo-image {
-    width: 100%;
-    height: 100%
-  }
-
-  .desktop-logo {
-    display: none;
-  }
-  
-  .hamburger-menu {
+  .mobile-actions {
     display: flex;
   }
-  
-  .header-menu {
+
+  .header-inner {
+    padding: 0 8px 0 16px;
+  }
+
+  .brand-logo {
+    height: 36px;
+  }
+
+  .drawer-dim {
+    display: block;
     position: fixed;
-    top: 0;
-    right: -100%;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.95);
-    padding: 80px 20px 30px;
-    transition: right 0.3s ease;
-    margin: 0;
-    z-index: 1000;
-    overflow-y: auto;
-    display: block;
+    inset: var(--header-height) 0 0 0;
+    background-color: rgba(28, 30, 34, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
   }
-  
-  .header-menu.mobile-menu-open {
+
+  .drawer-dim.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .drawer {
+    display: block;
+    position: fixed;
+    top: var(--header-height);
     right: 0;
+    width: min(100%, 420px);
+    height: calc(100dvh - var(--header-height));
+    padding: 20px 20px 32px;
+    background-color: var(--surface);
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.28s ease;
   }
-  
-  .desktop-only {
-    display: none;
-  }
-  
-  .mobile-menu {
-    display: block;
-    width: 100%;
-    margin-top: 20px;
-  }
-  
-  .mobile-menu .accordion-menu {
-    width: 100%;
-  }
-  
-  .mobile-menu .accordion-item {
-    margin-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 10px;
-  }
-  
-  .mobile-menu .accordion-item h3 {
-    color: white;
-    font-size: 17px;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-  }
-  
-  .mobile-menu .accordion-item h3 a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 5px 0;
-  }
-  
-  .mobile-menu .accordion-item ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 0 15px;
-  }
-  
-  .mobile-menu .accordion-item ul li {
-    margin: 8px 0;
-    border: none;
-  }
-  
-  .mobile-menu .accordion-item ul li a {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 14px;
-    padding: 5px 0;
-    display: block;
-    text-decoration: none;
-    border: none;
-  }
-  
-  .mobile-menu .accordion-item ul li a:hover {
-    color: white;
-  }
-  
-  .main-menu li {
-    width: 100%;
-    text-align: left;
-    padding: 0;
-    margin: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .main-menu li a {
-    padding: 12px 0;
-    font-size: 17px;
-  }
-  
-  .main-menu li a::after {
-    display: none;
-  }
-  
-  .apply-button {
-    display: none;
-  }
-  
-  .mobile-apply-button {
-    display: block;
-    padding: 20px 0;
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  .mobile-apply-button .consultation-btn {
-    width: 100%;
-    max-width: 300px;
-    padding: 10px 0;
-  }
-  
-  .logo-image {
-    height: 44px;
-    margin-left: 10px;
-  }
-  
-  .header-container {
-    padding: 0 10px;
-  }
-}
 
-@media (min-width: 1001px) and (max-width: 1023px) {
-  .consultation-btn {
-    padding: 12px 30px;
-    font-size: 16px;
+  .drawer.is-open {
+    transform: translateX(0);
   }
-  
-  .main-menu {
-    gap: 20px;
-  }
-  
-  .submenu-grid {
-    gap: 20px;
-  }
-}
 
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .main-menu {
-    gap: 25px;
+  .drawer-call {
+    display: grid;
+    gap: 2px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-md);
+    background-color: var(--surface-warm);
+    border: 1px solid var(--line);
   }
-  
-  .submenu-grid {
-    gap: 25px;
-  }
-}
 
-@media (min-width: 1280px) {
-  .main-menu {
-    gap: 30px;
+  .drawer-call-label {
+    font-size: 0.875rem;
+    color: var(--ink-500);
   }
-  
-  .submenu-grid {
-    gap: 30px;
-  }
-}
 
-.disabled-menu {
-  color: rgba(255, 255, 255, 0.4) !important;
-  cursor: not-allowed !important;
+  .drawer-call-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink-900);
+    letter-spacing: 0;
+  }
+
+  .drawer-call-hint {
+    font-size: 0.8125rem;
+    color: var(--gold-700);
+  }
+
+  .drawer-group {
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .drawer-title {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--ink-900);
+    margin-bottom: 8px;
+  }
+
+  .drawer-sub {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .drawer-sub a {
+    display: block;
+    padding: 6px 0;
+    font-size: 0.9375rem;
+    color: var(--ink-500);
+  }
+
+  .drawer-cta {
+    margin-top: 24px;
+  }
 }
 </style>

@@ -19,6 +19,37 @@
   --font-small: 0.875rem;
   --font-medium: 1.125rem;
   --font-large: 1.875rem;
+
+  /* ── 리뉴얼 디자인 토큰 (금융기관 톤: 차분한 잉크 + 절제된 골드) ── */
+  --ink-900: #1c1e22;
+  --ink-800: #2b2e34;
+  --ink-700: #41454c;
+  --ink-500: #6b7079;
+  --ink-400: #8d929a;
+  --line: #e6e2da;
+  --line-strong: #d3cdc2;
+  --surface: #ffffff;
+  --surface-warm: #f8f6f2;
+  --surface-sub: #f1ede6;
+  --gold-700: #82601f;
+  --gold-600: #a0792b;
+  --gold-400: #c9a45c;
+  --gold-100: #f5eee1;
+  --charcoal: #23262b;
+  --charcoal-deep: #1a1c20;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-card: 0 1px 2px rgba(28, 30, 34, 0.04), 0 6px 20px rgba(28, 30, 34, 0.06);
+  --header-height: 80px;
+  --callbar-height: 64px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 64px;
+  }
 }
 
 * {
@@ -89,4 +120,186 @@ ul {
 .input:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(9, 14, 80, 0.1);
+}
+
+/* ── 공용 UI 유틸리티 (ui- 접두사: 기존 페이지 클래스와 충돌 방지) ── */
+.ui-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.ui-section {
+  padding: 104px 0;
+}
+
+.ui-section--warm {
+  background-color: var(--surface-warm);
+}
+
+.ui-section--white {
+  background-color: var(--surface);
+}
+
+.ui-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--gold-700);
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+
+.ui-eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 2px;
+  background-color: var(--gold-600);
+}
+
+.ui-title {
+  font-size: 2.25rem;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+}
+
+.ui-desc {
+  margin-top: 16px;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--ink-500);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+.ui-section-head {
+  margin-bottom: 56px;
+}
+
+.ui-section-head--center {
+  text-align: center;
+}
+
+.ui-section-head--center .ui-eyebrow::before {
+  display: none;
+}
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.ui-btn:focus-visible {
+  outline: 2px solid var(--gold-600);
+  outline-offset: 2px;
+}
+
+.ui-btn--primary {
+  background-color: var(--gold-700);
+  color: #fff;
+}
+
+.ui-btn--primary:hover {
+  background-color: #6f511a;
+}
+
+.ui-btn--dark {
+  background-color: var(--charcoal);
+  color: #fff;
+}
+
+.ui-btn--dark:hover {
+  background-color: #000;
+}
+
+.ui-btn--outline {
+  background-color: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--ink-900);
+}
+
+.ui-btn--outline:hover {
+  border-color: var(--ink-900);
+}
+
+.ui-btn--lg {
+  height: 58px;
+  padding: 0 30px;
+  font-size: 1.0625rem;
+}
+
+.ui-btn--block {
+  width: 100%;
+}
+
+.ui-link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.ui-link-arrow:hover {
+  color: var(--gold-700);
+}
+
+@media (max-width: 1024px) {
+  .ui-section {
+    padding: 80px 0;
+  }
+
+  .ui-title {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ui-container {
+    padding: 0 16px;
+  }
+
+  .ui-section {
+    padding: 64px 0;
+  }
+
+  .ui-section-head {
+    margin-bottom: 36px;
+  }
+
+  .ui-title {
+    font-size: 1.5rem;
+  }
+
+  .ui-desc {
+    font-size: 0.9875rem;
+  }
+
+  .ui-btn {
+    height: 50px;
+    padding: 0 20px;
+  }
+
+  .ui-btn--lg {
+    height: 54px;
+  }
 }

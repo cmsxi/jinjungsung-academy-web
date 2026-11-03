@@ -5,13 +5,14 @@
       <router-view />
     </main>
     <Footer />
+    <QuickCall />
   </div>
 </template>
 
 <script setup>
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
-
+import QuickCall from "./components/QuickCall.vue";
 </script>
 
 <style>
@@ -21,12 +22,6 @@ import Footer from "./components/Footer.vue";
 
 .content {
   min-height: 100vh;
-  padding-top: 80px;
-}
-
-@media (max-width: 768px) {
-  .content {
-    padding-top: 60px;
-  }
+  padding-top: var(--header-height);
 }
 </style>

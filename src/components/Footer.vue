@@ -1,161 +1,189 @@
 <template>
-  <footer>
-    <div class="footer-container">
-      <div class="footer-content">
-        <div class="footer-left">
-          <div class="logo-container">
-            <img src="@/assets/images/logo.png" alt="..." class="footer-logo" />
-          </div>
+  <footer class="site-footer">
+    <div class="ui-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="@/assets/images/logo.png" alt="국제명품감정교육원" class="footer-logo" />
+          <p class="footer-tagline">정확한 감정에서 시작하는 안정적인 창업</p>
         </div>
-        <div class="footer-right">
-          <div class="info-row main-info-row">
-            <p><span>대표자 : </span>문초록</p>
-            <p><span>대표전화 : </span>010-9255-3721</p>
-            <p><span>팩스 : </span>02-2088-0704</p>
-            <p><span>사업자등록번호 : </span>409-82-90952</p>
-            <p><span>이메일 : </span>eoqn0808@naver.com</p>
-          </div>
-          <div class="info-row address-row">
-            <p><span>본사주소 : </span>서울특별시 강남구 강남대로44길 28-3, 1-2층</p>
-          </div>
+
+        <div class="footer-contact">
+          <span class="contact-label">상담 문의</span>
+          <a :href="PHONE_TEL" class="contact-number">{{ PHONE_DISPLAY }}</a>
+          <a
+            :href="KAKAO_CHANNEL_URL"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-kakao"
+          >카카오톡 채널 상담</a>
         </div>
       </div>
-      <hr class="footer-line" />
-      <div class="copyright">
-        <p>© 2025. 진정성. All rights reserved</p>
-      </div>
+
+      <dl class="footer-info">
+        <div class="info-item">
+          <dt>상호</dt>
+          <dd>{{ COMPANY.name }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>대표자</dt>
+          <dd>{{ COMPANY.ceo }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>사업자등록번호</dt>
+          <dd>{{ COMPANY.bizNumber }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>대표전화</dt>
+          <dd><a :href="PHONE_TEL">{{ PHONE_DISPLAY }}</a></dd>
+        </div>
+        <div class="info-item">
+          <dt>팩스</dt>
+          <dd>{{ COMPANY.fax }}</dd>
+        </div>
+        <div class="info-item">
+          <dt>이메일</dt>
+          <dd>{{ COMPANY.email }}</dd>
+        </div>
+        <div class="info-item info-item--wide">
+          <dt>본사주소</dt>
+          <dd>{{ COMPANY.address }}</dd>
+        </div>
+      </dl>
+
+      <p class="copyright">© {{ year }}. {{ COMPANY.copyrightHolder }}. All rights reserved</p>
     </div>
   </footer>
 </template>
 
-<script>
-export default {
-  name: "Footer",
-};
+<script setup>
+import { PHONE_DISPLAY, PHONE_TEL, KAKAO_CHANNEL_URL, COMPANY } from '@/constants/contact.js'
+
+const year = new Date().getFullYear()
 </script>
 
 <style scoped>
-footer {
-  width: 100%;
-  background-color: var(--secondary-color);
-  color: rgba(255, 255, 255, 0.9);
-  padding: 2.5rem 0 2rem;
-  z-index: 1000;
+.site-footer {
+  background-color: var(--charcoal-deep);
+  color: rgba(255, 255, 255, 0.72);
+  padding: 56px 0 40px;
 }
 
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.footer-content {
+.footer-top {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 1.5rem;
-}
-
-.footer-left {
-  margin-bottom: 1.5rem;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-logo {
-  width: 180px;
+  width: 190px;
   height: auto;
+  display: block;
 }
 
-.company-type {
-  font-size: 0.9rem;
-  margin-left: 0.5rem;
-  line-height: 1.2;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.85);
+.footer-tagline {
+  margin-top: 14px;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.footer-right {
-  width: 100%;
+.footer-contact {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
 }
 
-.main-info-row {
+.contact-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.contact-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0;
+}
+
+.contact-number:hover {
+  color: var(--gold-400);
+}
+
+.contact-kakao {
+  font-size: 0.875rem;
+  color: var(--gold-400);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 0.8rem;
+  gap: 10px 28px;
+  padding: 28px 0 24px;
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
-.address-row {
-  margin-bottom: 0.5rem;
+.info-item {
+  display: flex;
+  gap: 8px;
 }
 
-.info-row p {
+.info-item--wide {
+  flex-basis: 100%;
+}
+
+.info-item dt {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.info-item dd {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.78);
 }
 
-.info-row span {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.footer-line {
-  border: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 0.7rem 0 1rem;
+.info-item dd a:hover {
+  color: #fff;
+  text-decoration: underline;
 }
 
 .copyright {
-  text-align: center;
-}
-
-.copyright p {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
-}
-
-@media (max-width: 992px) {
-  .main-info-row {
-    flex-wrap: wrap;
-    gap: 0.8rem 1.5rem;
-  }
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 @media (max-width: 768px) {
-  footer {
-    padding: 2rem 0 1.5rem;
+  .site-footer {
+    padding: 44px 0 32px;
   }
-  
-  .footer-container {
-    padding: 0 1.5rem;
+
+  .footer-top {
+    flex-direction: column;
+    gap: 24px;
   }
-  
-  .logo-container {
-    justify-content: center;
-  }
-  
+
   .footer-logo {
     width: 160px;
   }
-  
-  .main-info-row {
+
+  .footer-contact {
+    justify-items: start;
+  }
+
+  .contact-number {
+    font-size: 1.5rem;
+  }
+
+  .footer-info {
     flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
+    gap: 6px;
   }
-  
-  .address-row {
-    text-align: center;
-  }
-  
-  .info-row p {
-    font-size: 0.85rem;
+
+  .info-item dt {
+    flex: 0 0 104px;
   }
 }
 </style>
