@@ -32,6 +32,8 @@ coverage
 
 .env
 .env.local
+# 서버 접속 정보(IP·계정·비밀번호) - 절대 커밋 금지
+.serverenv
 
 # Local tooling
 .claude/
