@@ -34,6 +34,13 @@
     </div>
   </div>
 
+  <!-- 메인 소개 섹션 (배너와 상담 폼 사이) -->
+  <MainCourses />
+  <MainBusiness />
+  <MainInfo />
+  <MainReviews />
+  <MainCallBand />
+
   <Block backgroundColor="#fdfdfd">
     <div class="page-container section-container">
       <div class="services-content" ref="servicesContent">
@@ -124,6 +131,11 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import Block from "@/components/Block.vue";
+import MainCourses from "@/components/main/MainCourses.vue";
+import MainBusiness from "@/components/main/MainBusiness.vue";
+import MainInfo from "@/components/main/MainInfo.vue";
+import MainReviews from "@/components/main/MainReviews.vue";
+import MainCallBand from "@/components/main/MainCallBand.vue";
 // import SideBar from "@/components/SideBar.vue";
 import { jinjungsungService } from "@/services/jinjungsungService.js";
 import { useSEO } from "@/composables/useSEO.js";
