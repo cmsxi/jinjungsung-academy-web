@@ -29,7 +29,7 @@ const phoneLink = ref('http://pf.kakao.com/_FxjVuG');
 onMounted(() => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (isMobile) {
-    phoneLink.value = 'tel:010-1234-1243';
+    phoneLink.value = 'tel:01099551140';
   }
 });
 

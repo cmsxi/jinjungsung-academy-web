@@ -10,7 +10,7 @@ Disallow: /node_modules/
 Crawl-delay: 1
 
 # 사이트맵 위치
-Sitemap: https://국제명품감정교육원.com/sitemap.xml
+Sitemap: https://luxacademy.kr/sitemap.xml
 
 # 검색엔진별 설정
 User-agent: Googlebot

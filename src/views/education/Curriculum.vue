@@ -1,18 +1,104 @@
 <template>
   <div class="curriculum-page">
     <div class="curriculum-content">
-      <div class="offline-curriculum">
+      <div class="course-switch" role="tablist" aria-label="커리큘럼 선택">
+        <button
+          v-for="course in COURSES"
+          :key="course.id"
+          type="button"
+          role="tab"
+          class="course-switch-btn"
+          :class="{ active: selectedCourse === course.id }"
+          :aria-selected="selectedCourse === course.id"
+          @click="selectedCourse = course.id"
+        >
+          {{ course.label }}
+        </button>
+      </div>
+
+      <!-- 전당포 커리큘럼 (기존 이미지) -->
+      <div v-if="selectedCourse === 'pawnshop'" class="offline-curriculum">
         <div class="curriculum-image">
           <img :src="eduStepImage" alt="오프라인 커리큘럼" />
         </div>
       </div>
+
+      <!-- 명품창업(명품감정) 커리큘럼 -->
+      <div v-else class="offline-curriculum">
+        <div class="luxury-curriculum">
+          <p class="luxury-eyebrow">offline curriculum</p>
+          <h2 class="luxury-title">명품창업(명품감정) 커리큘럼</h2>
+          <table class="luxury-table">
+            <thead>
+              <tr>
+                <th scope="col">과목</th>
+                <th scope="col">강의 내용</th>
+              </tr>
+            </thead>
+            <tbody v-for="module in LUXURY_MODULES" :key="module.title">
+              <tr v-for="(lesson, index) in module.lessons" :key="lesson">
+                <th
+                  v-if="index === 0"
+                  scope="rowgroup"
+                  :rowspan="module.lessons.length"
+                  class="module-title"
+                >{{ module.title }}</th>
+                <td>{{ lesson }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="curriculum-notice-text">※ 명품감정 자격증반은 커리큘럼이 달라질 수 있습니다.</p>
     </div>
   </div>
 </template>
 
 <script setup>
+  import { ref } from 'vue'
+  import { useRoute } from 'vue-router'
   import eduStepImage from '@/assets/images/edu-step.png'
 
+  const COURSES = [
+    { id: 'pawnshop', label: '전당포 커리큘럼' },
+    { id: 'luxury', label: '명품창업(명품감정) 커리큘럼' },
+  ]
+
+  // 기존 오프라인 커리큘럼(edu-step.png)에서 전당포 전용 항목을 뺀 감정 과목 (문대표님 확정본 오면 교체)
+  const LUXURY_MODULES = [
+    {
+      title: '귀금속 감정',
+      lessons: ['귀금속(금, 은, 다이아몬드) 감정 및 실습'],
+    },
+    {
+      title: '명품시계 감정',
+      lessons: [
+        '롤렉스 브랜드 개요(모델별 특징)',
+        '롤렉스 감정 실습(외부감정)',
+        '롤렉스 구성품, 롤렉스 내부감정',
+        '롤렉스 내부감정 및 실습, 롤렉스 시세파악 방법',
+        '까르띠에, IWC, 오데마피게 감정',
+        '내부 무브먼트 감정법',
+      ],
+    },
+    {
+      title: '명품가방 감정',
+      lessons: [
+        '명품가방 감정 및 실습(루이비통, 구찌, 샤넬, 보테가)',
+        '명품가방 감정 및 실습(몽클레어, 프라다, 입생로랑, 고야드)',
+        '명품가방 실습',
+      ],
+    },
+    {
+      title: '기타 고가품 · 시험',
+      lessons: ['기타 고가품 감정법(IT기기, 카메라, 주류 등)', '명품감정 시험', '오답정리 및 수료식'],
+    },
+  ]
+
+  const route = useRoute()
+  // /education/curriculum?course=luxury 로 들어오면 명품창업 커리큘럼을 바로 표시
+  const selectedCourse = ref(COURSES.some((course) => course.id === route.query.course) ? route.query.course : 'pawnshop')
 </script>
 
 <style scoped>
@@ -210,5 +296,134 @@
 .curriculum-image img {
   max-width: 100%;
   height: auto;
+}
+
+/* ── 커리큘럼 선택 버튼 ── */
+.course-switch {
+  display: flex;
+  padding: 30px 9.4% 0;
+}
+
+.course-switch-btn {
+  flex: 1;
+  padding: 14px 10px;
+  border: 1px solid var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  word-break: keep-all;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.course-switch-btn + .course-switch-btn {
+  border-left: none;
+}
+
+.course-switch-btn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* ── 명품창업(명품감정) 커리큘럼: 기존 시간표 이미지와 같은 형식 ── */
+.luxury-curriculum {
+  padding: 88px 9.4% 60px;
+  text-align: left;
+}
+
+.luxury-eyebrow {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f2c200;
+  margin: 0 0 10px;
+}
+
+.luxury-curriculum .luxury-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #111;
+  text-align: left;
+  margin: 0 0 28px;
+}
+
+.luxury-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid #111;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111;
+  word-break: keep-all;
+}
+
+.luxury-table thead th {
+  padding: 15px 10px;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 1px solid #999;
+}
+
+.luxury-table thead th + th {
+  border-left: 1px solid #999;
+}
+
+.luxury-table td,
+.luxury-table .module-title {
+  padding: 15px 28px;
+  border-bottom: 1px solid #999;
+}
+
+.luxury-table .module-title {
+  width: 26%;
+  text-align: center;
+  font-weight: 600;
+  border-right: 1px solid #999;
+}
+
+.curriculum-notice-text {
+  padding: 0 9.4% 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  word-break: keep-all;
+}
+
+@media (max-width: 768px) {
+  .course-switch {
+    padding: 20px 16px 0;
+  }
+
+  .course-switch-btn {
+    font-size: 0.95rem;
+    padding: 12px 8px;
+  }
+
+  .luxury-curriculum {
+    padding: 40px 16px 40px;
+  }
+
+  .luxury-curriculum .luxury-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .luxury-table {
+    font-size: 0.95rem;
+  }
+
+  .luxury-table td,
+  .luxury-table .module-title {
+    padding: 12px 12px;
+  }
+
+  .luxury-table .module-title {
+    width: 32%;
+  }
+
+  .curriculum-notice-text {
+    padding: 0 16px 30px;
+    font-size: 0.95rem;
+  }
 }
 </style> 
