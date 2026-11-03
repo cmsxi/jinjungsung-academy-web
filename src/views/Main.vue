@@ -98,6 +98,8 @@
               />
             </div>
 
+            <PrivacyConsentNotice />
+
             <div class="form-group checkbox-group">
               <label>
                 <input
@@ -136,6 +138,7 @@ import MainBusiness from "@/components/main/MainBusiness.vue";
 import MainInfo from "@/components/main/MainInfo.vue";
 import MainReviews from "@/components/main/MainReviews.vue";
 import MainCallBand from "@/components/main/MainCallBand.vue";
+import PrivacyConsentNotice from "@/components/PrivacyConsentNotice.vue";
 // import SideBar from "@/components/SideBar.vue";
 import { jinjungsungService } from "@/services/jinjungsungService.js";
 import { useSEO } from "@/composables/useSEO.js";

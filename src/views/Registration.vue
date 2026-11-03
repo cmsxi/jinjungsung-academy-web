@@ -55,6 +55,8 @@
                 >
               </div>
 
+              <PrivacyConsentNotice />
+
               <div class="form-group checkbox-group">
                 <label>
                   <input 
@@ -86,6 +88,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import Block from "@/components/Block.vue";
+import PrivacyConsentNotice from "@/components/PrivacyConsentNotice.vue";
 import { jinjungsungService } from '@/services/jinjungsungService.js';
 
 // 상태 관리
