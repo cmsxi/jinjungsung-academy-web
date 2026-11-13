@@ -6,20 +6,17 @@
     </main>
     <component :is="active.footer" v-bind="active.themable ? { theme: footerTheme } : {}" />
 
-    <!-- 시안 공용: 카카오톡 문의 (오른쪽 아래 고정) -->
+    <!-- 카카오톡 문의 (오른쪽 아래 고정) -->
     <KakaoFloat v-if="currentVersion !== 'original'" />
-
-    <!-- 시안 비교용 임시 버튼 (로컬 개발 화면에서만 보임, 왼쪽 아래) -->
-    <VersionSwitcher v-if="switcherEnabled" />
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import VersionSwitcher from "@/versions/VersionSwitcher.vue";
 import KakaoFloat from "@/versions/common/KakaoFloat.vue";
 import { VERSION_MAP } from "@/versions/registry.js";
-import { currentVersion, headerTheme, footerTheme, palette, switcherEnabled } from "@/versions/useVersion.js";
+// 11/13 3차 시안을 실제 사이트로 고정(시안 비교 버튼 삭제) — 값은 useVersion.js
+import { currentVersion, headerTheme, footerTheme, palette } from "@/versions/useVersion.js";
 import "@/versions/shared.css";
 import "@/versions/v3/tokens.css";
 

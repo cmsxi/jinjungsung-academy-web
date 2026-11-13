@@ -73,10 +73,29 @@
         ></textarea>
       </div>
 
-      <label class="agree">
-        <input v-model="form.agree" type="checkbox" :disabled="isSending" />
-        <span>개인정보 수집 및 이용에 동의합니다. <span class="req">(필수)</span></span>
-      </label>
+      <!-- 11/13 개인정보 동의 + 수집 · 이용 안내(개인정보 보호법 제15조 제2항, 원본 폼과 같은 안내 · 이 폼이 받는 항목으로)
+           "안내를 늘어놓지 말고 자세히 보기 버튼으로 따로" → 평소엔 접어 두고 「자세히 보기」를 누르면 바로 아래에 펼친다 -->
+      <div class="agree-block">
+        <div class="agree-row">
+          <label class="agree">
+            <input v-model="form.agree" type="checkbox" :disabled="isSending" />
+            <span>개인정보 수집 및 이용에 동의합니다. <span class="req">(필수)</span></span>
+          </label>
+          <button
+            type="button"
+            class="agree-more"
+            :aria-expanded="showPrivacy"
+            :aria-controls="`${idPrefix}-privacy`"
+            @click="showPrivacy = !showPrivacy"
+          >
+            {{ showPrivacy ? '접기' : '자세히 보기' }}
+            <span class="agree-more-icon" :class="{ 'is-open': showPrivacy }" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div v-show="showPrivacy" :id="`${idPrefix}-privacy`" class="agree-detail">
+          <PrivacyConsentNotice :items="PRIVACY_ITEMS" />
+        </div>
+      </div>
 
       <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
 
@@ -91,10 +110,16 @@
 <script setup>
 import { ref } from 'vue'
 import { jinjungsungService } from '@/services/jinjungsungService.js'
+import PrivacyConsentNotice from '@/components/PrivacyConsentNotice.vue'
 
 defineProps({
   idPrefix: { type: String, default: 'v3-inquiry' },
 })
+
+// 이 폼이 받는 개인정보 항목(보내는 값 그대로: 성함 · 연락처 · 거주지역 + 선택 항목)
+const PRIVACY_ITEMS = ['성함', '연락처', '거주지역', '알게 된 경로(선택)', '문의 내용(선택)']
+// 개인정보 안내 펼침(자세히 보기)
+const showPrivacy = ref(false)
 
 const REFERRAL_OPTIONS = ['네이버 검색', '네이버 블로그·카페', '유튜브', '인스타그램', '지인 소개', '기타']
 
@@ -224,11 +249,112 @@ const submit = async () => {
   border-color: var(--c-text);
 }
 
+/* 개인정보 안내: 3차 시안 규칙(글자 14 · 회색 · 옅은 선)으로 — 흰 상자 · 회색 상자 어느 쪽에 놓여도 어울리게 바탕 없이 */
+/* 동의 줄: 왼쪽 체크 · 오른쪽 「자세히 보기」, 펼치면 바로 아래 안내 */
+.agree-block {
+  margin: 4px 0 22px;
+}
+
+.agree-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.agree-more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--c-sub);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color var(--t-1) var(--ease-soft);
+}
+
+.agree-more:hover,
+.agree-more:focus-visible {
+  color: var(--c-text);
+}
+
+/* 펼침 표시: 아래 꺾쇠 → 펼치면 위로 */
+.agree-more-icon {
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--t-1) var(--ease-soft);
+}
+
+.agree-more-icon.is-open {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+
+.agree-detail {
+  margin-top: 12px;
+}
+
+.inquiry-form :deep(.privacy-notice) {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--c-line);
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-sub);
+}
+
+.inquiry-form :deep(.privacy-title) {
+  margin-bottom: 4px;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.inquiry-form :deep(.privacy-list) {
+  margin: 10px 0;
+  padding: 8px 0;
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.inquiry-form :deep(.privacy-row dt) {
+  flex-basis: 96px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.inquiry-form :deep(.privacy-contact) {
+  color: var(--c-sub);
+}
+
+/* 휴대폰: 안내 항목이 위아래(항목명 위 · 내용 아래)로 바뀌므로 항목명 폭 고정을 푼다 — 안 풀면 폭 값이 높이로 먹어 사이가 벌어진다 */
+@media (max-width: 768px) {
+  .inquiry-form :deep(.privacy-row dt) {
+    flex-basis: auto;
+  }
+
+  .inquiry-form :deep(.privacy-row + .privacy-row) {
+    margin-top: 6px;
+  }
+}
+
 .agree {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin: 4px 0 22px;
+  margin: 0;
   font-size: var(--fs-small);
   line-height: 1.5;
   color: var(--c-text);
