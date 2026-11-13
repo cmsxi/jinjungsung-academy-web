@@ -1,12 +1,38 @@
 import { fileURLToPath, URL } from 'node:url'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import viteSitemap from 'vite-plugin-sitemap'
 
+// ── 개발 서버가 붙을 백엔드 (배포 빌드와 무관) ──
+// 기본: 운영 서버. 로컬 백엔드(운영과 분리된 시험용, cdpp-dev/jinjungsung-local/start-local.ps1)를 쓰려면
+//   API_TARGET=http://127.0.0.1:8091 (+ 로컬에서 올린 사진: LOCAL_UPLOADS_DIR=<백엔드>/uploads/jinjungsung)
+const API_TARGET = process.env.API_TARGET || 'https://luxacademy.kr'
+const IS_LIVE = /luxacademy\.kr/.test(API_TARGET)
+const LOCAL_UPLOADS_DIR = process.env.LOCAL_UPLOADS_DIR ? path.resolve(process.env.LOCAL_UPLOADS_DIR) : ''
+const IMAGE_TYPES = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp' }
+
+// 로컬 백엔드로 시험할 때: 로컬에서 새로 올린 사진은 로컬 폴더에서, 나머지(운영에서 복사한 글의 사진)는 운영 사이트에서
+const localUploadsFirst = () => ({
+  name: 'local-uploads-first',
+  configureServer(server) {
+    if (!LOCAL_UPLOADS_DIR) return
+    server.middlewares.use('/uploads', (req, res, next) => {
+      const name = decodeURIComponent((req.url || '').split('?')[0]).replace(/^\/+/, '')
+      const file = path.resolve(LOCAL_UPLOADS_DIR, name)
+      if (!file.startsWith(LOCAL_UPLOADS_DIR + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) return next()
+      res.setHeader('Content-Type', IMAGE_TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream')
+      fs.createReadStream(file).pipe(res)
+    })
+  },
+})
+
 export default defineConfig({
   plugins: [
     vue(),
+    localUploadsFirst(),
     viteSitemap({
       hostname: 'https://luxacademy.kr',
       routes: [
@@ -52,13 +78,19 @@ export default defineConfig({
     // ⛔ 운영 서버라 방문자 폼(수강신청 문의 = 고객사에 실제 메일, 후기 작성 = 실제 데이터)은 개발 화면에서 막는다(404).
     //   관리자 기능(로그인 · 목록 · 작성/수정/삭제)은 관리자 비밀번호가 있어야만 동작하므로 통과 — 운영 관리자 화면과 똑같이 실제로 반영된다.
     //   방문자 폼까지 꼭 운영 서버에 써 봐야 할 때만 LIVE_WRITE=1 을 붙여 dev 서버를 켠다.
+    //   (로컬 백엔드에 붙었을 때는 막지 않는다 — 로컬 DB 이고 메일 계정도 로컬용이라 실제로 나가지 않는다)
     proxy: {
       '/api': {
-        target: 'https://luxacademy.kr',
+        target: API_TARGET,
         changeOrigin: true,
         secure: true,
+        // 백엔드의 CSRF 방어는 허용 목록에 없는 Origin(여기서는 http://localhost:5191)을 403 으로 막는다.
+        //   개발 서버가 대신 보내는 요청이라 Origin 을 떼고 넘긴다(관리자 기능은 어차피 로그인 토큰이 있어야 동작)
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin'))
+        },
         bypass(req) {
-          if (process.env.LIVE_WRITE === '1') return
+          if (!IS_LIVE || process.env.LIVE_WRITE === '1') return
           const path = req.url.split('?')[0]
           const isPublicForm =
             req.method === 'POST' &&

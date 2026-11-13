@@ -27,12 +27,7 @@ import ReviewDetail from '../views/ReviewDetail.vue'
 import ReviewWrite from '../views/ReviewWrite.vue'
 
 // 관리자
-import AdminStatus from '../views/admin/AdminStatus.vue'
-import AdminStatusDetail from '../views/admin/AdminStatusDetail.vue'
-import AdminStatusWrite from '../views/admin/AdminStatusWrite.vue'
-import AdminMain from '../views/admin/AdminMain.vue'
-import AdminReviews from '../views/admin/AdminReviews.vue'
-import AdminReviewWrite from '../views/admin/AdminReviewWrite.vue'
+import { isLoggedIn } from '../views/admin/adminAuth.js'
 
 import '../assets/styles/global.css';
 
@@ -96,42 +91,28 @@ const routes = [
         name: 'ReviewDetail',
         component: versioned('ReviewDetail', ReviewDetail)
     },
-    // 관리자
+    // 관리자 (11/13 관리자 전용 화면: 왼쪽 메뉴 틀 AdminLayout, 홈페이지 헤더 · 푸터 없음 — App.vue 에서 meta.admin 으로 구분)
+    // 로그인은 비밀번호 → 8시간 토큰(adminAuth.js). 로그인하지 않았으면 /admin/login 으로
+    {
+        path: '/admin/login',
+        name: 'AdminLogin',
+        component: () => import('../views/admin/AdminLogin.vue'),
+        meta: { admin: true, public: true }
+    },
     {
         path: '/admin',
-        name: 'AdminMain',
-        component: AdminMain
-    },
-    {
-        path: '/admin/status',
-        name: 'AdminStatus',
-        component: AdminStatus
-    },
-    {
-        path: '/admin/status/write',
-        name: 'AdminStatusWrite',
-        component: AdminStatusWrite
-    },
-    {
-        path: '/admin/status/:id',
-        name: 'AdminStatusEdit',
-        component: AdminStatusWrite
-    },
-    // 수강후기 관리
-    {
-        path: '/admin/reviews',
-        name: 'AdminReviews',
-        component: AdminReviews
-    },
-    {
-        path: '/admin/reviews/write',
-        name: 'AdminReviewWrite',
-        component: AdminReviewWrite
-    },
-    {
-        path: '/admin/reviews/edit/:id',
-        name: 'AdminReviewEdit',
-        component: AdminReviewWrite
+        component: () => import('../views/admin/AdminLayout.vue'),
+        meta: { admin: true },
+        children: [
+            { path: '', redirect: '/admin/inquiries' },
+            { path: 'inquiries', name: 'AdminInquiries', component: () => import('../views/admin/AdminInquiries.vue') },
+            { path: 'status', name: 'AdminStatus', component: () => import('../views/admin/AdminStatus.vue') },
+            { path: 'status/write', name: 'AdminStatusWrite', component: () => import('../views/admin/AdminStatusForm.vue') },
+            { path: 'status/:id', name: 'AdminStatusEdit', component: () => import('../views/admin/AdminStatusForm.vue') },
+            { path: 'reviews', name: 'AdminReviews', component: () => import('../views/admin/AdminReviews.vue') },
+            { path: 'reviews/write', name: 'AdminReviewWrite', component: () => import('../views/admin/AdminReviewForm.vue') },
+            { path: 'reviews/edit/:id', name: 'AdminReviewEdit', component: () => import('../views/admin/AdminReviewForm.vue') }
+        ]
     }
 ]
 
@@ -145,6 +126,14 @@ const router = createRouter({
         document.documentElement.scrollTop = 0;
         return { top: 0 }
     }
+})
+
+// 관리자 화면은 로그인(유효한 토큰)이 있어야 들어간다
+router.beforeEach((to) => {
+    if (to.matched.some((record) => record.meta.admin) && !to.meta.public && !isLoggedIn()) {
+        return { path: '/admin/login', query: { next: to.fullPath } }
+    }
+    return true
 })
 
 export default router;
