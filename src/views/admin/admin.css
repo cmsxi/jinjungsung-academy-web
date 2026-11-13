@@ -1,0 +1,647 @@
+/*
+  관리자 화면 공용 스타일 (11/13 "AI 가 만든 것 같지 않게, 실제 사람이 쓰는 업무 화면처럼")
+  - 홈페이지 디자인(3차 시안)과 분리: .adm 안에서만 적용
+  - 회색 바탕 + 흰 판 + 얇은 선, 글자 14px, 강조색은 차콜 하나(버튼) — 이모지 · 그라데이션 · 큰 그림자 없음
+*/
+.adm {
+  --adm-bg: #f4f5f7;
+  --adm-panel: #ffffff;
+  --adm-line: #e2e4e8;
+  --adm-line-strong: #c9cdd3;
+  --adm-row-line: #eef0f3;
+  --adm-hover: #f8f9fa;
+  --adm-text: #1f2328;
+  --adm-sub: #656d76;
+  --adm-faint: #8c959f;
+  --adm-primary: #262627;
+  --adm-primary-hover: #000000;
+  --adm-danger: #c62828;
+  --adm-ok-bg: #e9f5ec;
+  --adm-ok: #1e6b34;
+  --adm-off-bg: #f1f2f4;
+
+  min-height: 100vh;
+  background: var(--adm-bg);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--adm-text);
+  letter-spacing: -0.01em;
+}
+
+.adm *,
+.adm *::before,
+.adm *::after {
+  box-sizing: border-box;
+}
+
+/* 기본값은 :where 로 우선순위 0 — 버튼 모양 링크(.adm-btn--primary 흰 글자 등)가 덮어쓸 수 있게 */
+:where(.adm) a {
+  color: inherit;
+}
+
+:where(.adm) button {
+  font: inherit;
+}
+
+/* ── 틀: 왼쪽 메뉴 + 오른쪽 내용 ── */
+.adm-shell {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+}
+
+.adm-side {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid var(--adm-line);
+  background: var(--adm-panel);
+}
+
+.adm-brand {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-brand strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adm-brand span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--adm-faint);
+}
+
+.adm-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.adm-nav a {
+  display: block;
+  padding: 10px 20px 10px 17px;
+  border-left: 3px solid transparent;
+  color: var(--adm-sub);
+  text-decoration: none;
+}
+
+.adm-nav a:hover {
+  background: var(--adm-hover);
+  color: var(--adm-text);
+}
+
+.adm-nav a.is-active {
+  border-left-color: var(--adm-primary);
+  background: var(--adm-hover);
+  font-weight: 700;
+  color: var(--adm-text);
+}
+
+.adm-side-foot {
+  margin-top: auto;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--adm-line);
+  font-size: 13px;
+}
+
+.adm-side-foot a,
+.adm-side-foot button {
+  display: block;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--adm-sub);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.adm-side-foot a:hover,
+.adm-side-foot button:hover {
+  color: var(--adm-text);
+  text-decoration: underline;
+}
+
+.adm-session {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--adm-faint);
+}
+
+.adm-main {
+  min-width: 0;
+  padding: 28px 32px 56px;
+}
+
+/* ── 페이지 머리 ── */
+.adm-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.adm-head h1 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.adm-head p {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--adm-sub);
+}
+
+.adm-crumb {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.adm-crumb a {
+  color: var(--adm-sub);
+  text-decoration: none;
+}
+
+.adm-crumb a:hover {
+  text-decoration: underline;
+}
+
+/* ── 판 ── */
+.adm-card {
+  border: 1px solid var(--adm-line);
+  border-radius: 6px;
+  background: var(--adm-panel);
+}
+
+.adm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-toolbar-label {
+  margin-right: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--adm-sub);
+}
+
+.adm-toolbar .adm-spacer {
+  flex: 1;
+}
+
+.adm-count {
+  padding: 12px 16px 0;
+  font-size: 13px;
+  color: var(--adm-sub);
+}
+
+.adm-count strong {
+  color: var(--adm-text);
+}
+
+/* ── 입력 · 버튼 ── */
+.adm-input,
+.adm-select,
+.adm-textarea {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: 4px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  color: var(--adm-text);
+}
+
+.adm-textarea {
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  padding: 8px 10px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.adm-input:focus,
+.adm-select:focus,
+.adm-textarea:focus {
+  outline: none;
+  border-color: var(--adm-primary);
+  box-shadow: 0 0 0 2px rgba(38, 38, 39, 0.12);
+}
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: 4px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--adm-text);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.adm-btn:hover {
+  background: var(--adm-hover);
+}
+
+.adm-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.adm-btn--primary {
+  border-color: var(--adm-primary);
+  background: var(--adm-primary);
+  color: #ffffff;
+}
+
+.adm-btn--primary:hover {
+  border-color: var(--adm-primary-hover);
+  background: var(--adm-primary-hover);
+}
+
+.adm-btn--danger {
+  color: var(--adm-danger);
+}
+
+.adm-btn--sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.adm-btn.is-on {
+  border-color: var(--adm-primary);
+  background: var(--adm-primary);
+  color: #ffffff;
+}
+
+.adm-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--adm-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* ── 표 ── */
+.adm-table-wrap {
+  overflow-x: auto;
+}
+
+/* 좁은 화면에서는 표를 억지로 줄이지 않고 옆으로 밀어서 본다(.adm-table-wrap 가로 스크롤) */
+.adm-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.adm-table th {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--adm-line);
+  background: #fafbfc;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--adm-sub);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--adm-row-line);
+  vertical-align: middle;
+}
+
+.adm-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.adm-table tbody tr:hover td {
+  background: var(--adm-hover);
+}
+
+.adm-table tr.is-clickable {
+  cursor: pointer;
+}
+
+.adm-table tr.is-selected td {
+  background: #eef1f5;
+}
+
+.adm-table .num {
+  width: 64px;
+  color: var(--adm-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-table .nowrap {
+  white-space: nowrap;
+}
+
+.adm-table .muted {
+  color: var(--adm-faint);
+}
+
+.adm-table .ellipsis {
+  max-width: 280px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.adm-table .actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.adm-table .actions > * + * {
+  margin-left: 4px;
+}
+
+.adm-thumb {
+  display: block;
+  width: 60px;
+  height: 42px;
+  border-radius: 3px;
+  background: var(--adm-off-bg);
+  object-fit: cover;
+}
+
+.adm-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.adm-badge--on {
+  background: var(--adm-ok-bg);
+  color: var(--adm-ok);
+}
+
+.adm-badge--off {
+  background: var(--adm-off-bg);
+  color: var(--adm-sub);
+}
+
+button.adm-badge {
+  cursor: pointer;
+}
+
+button.adm-badge:hover {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* ── 상태 안내 ── */
+.adm-empty {
+  padding: 56px 16px;
+  font-size: 14px;
+  color: var(--adm-sub);
+  text-align: center;
+}
+
+.adm-note {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.adm-note--ok {
+  background: var(--adm-ok-bg);
+  color: var(--adm-ok);
+}
+
+.adm-note--error {
+  background: #fdecea;
+  color: #a31515;
+}
+
+.adm-note--info {
+  background: #eef2f7;
+  color: #33475b;
+}
+
+/* ── 쪽 넘기기 ── */
+.adm-pager {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  border-top: 1px solid var(--adm-line);
+}
+
+.adm-pager button {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: 4px;
+  background: #ffffff;
+  font-size: 13px;
+  color: var(--adm-sub);
+  cursor: pointer;
+}
+
+.adm-pager button:hover:not(:disabled) {
+  background: var(--adm-hover);
+  color: var(--adm-text);
+}
+
+.adm-pager button.is-current {
+  border-color: var(--adm-primary);
+  background: var(--adm-primary);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.adm-pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ── 글 작성 폼 ── */
+.adm-form {
+  display: grid;
+  gap: 18px;
+  max-width: 760px;
+  padding: 24px;
+}
+
+.adm-field > label,
+.adm-field > .adm-field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.adm-field .req {
+  margin-left: 2px;
+  color: var(--adm-danger);
+}
+
+.adm-field .adm-input {
+  width: 100%;
+}
+
+.adm-help {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--adm-faint);
+}
+
+.adm-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adm-form-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.adm-image-preview {
+  display: block;
+  max-width: 320px;
+  max-height: 220px;
+  margin-top: 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: 4px;
+  object-fit: contain;
+  background: var(--adm-off-bg);
+}
+
+/* ── 확인 창 ── */
+.adm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(17, 17, 17, 0.38);
+}
+
+.adm-modal {
+  width: min(400px, 100%);
+  padding: 22px 22px 18px;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.adm-modal h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.adm-modal p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--adm-sub);
+  word-break: keep-all;
+}
+
+.adm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ── 좁은 화면: 왼쪽 메뉴를 위 가로 메뉴로 ── */
+@media (max-width: 900px) {
+  .adm-shell {
+    grid-template-columns: 1fr;
+  }
+
+  /* 첫 줄: 이름(왼쪽) · 홈페이지 보기 · 로그아웃(오른쪽) / 둘째 줄: 메뉴 탭 */
+  .adm-side {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--adm-line);
+  }
+
+  .adm-brand {
+    flex: 1;
+    padding: 12px 16px;
+    border-bottom: 0;
+  }
+
+  .adm-nav {
+    order: 3;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    padding: 0 8px;
+    border-top: 1px solid var(--adm-line);
+  }
+
+  .adm-nav a {
+    padding: 10px 12px;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .adm-nav a.is-active {
+    border-bottom-color: var(--adm-primary);
+    background: none;
+  }
+
+  .adm-side-foot {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 0;
+    padding: 12px 16px;
+    border-top: 0;
+  }
+
+  .adm-session {
+    display: none;
+  }
+
+  .adm-main {
+    padding: 20px 16px 48px;
+  }
+
+  .adm-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
