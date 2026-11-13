@@ -64,17 +64,24 @@
   border-bottom: 1px solid var(--adm-line);
 }
 
-.adm-brand strong {
+/* 로고(879×180) — 메뉴 폭(216)에 맞춰 가로 168px */
+.adm-brand-link {
   display: block;
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
+  width: fit-content;
+}
+
+.adm-logo {
+  display: block;
+  width: 168px;
+  height: auto;
 }
 
 .adm-brand span {
   display: block;
-  margin-top: 2px;
+  margin-top: 8px;
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--adm-faint);
 }
 
@@ -580,8 +587,10 @@ button.adm-badge:hover {
 
 /* ── 좁은 화면: 왼쪽 메뉴를 위 가로 메뉴로 ── */
 @media (max-width: 900px) {
+  /* 위 메뉴는 내용 높이만큼, 남는 높이는 본문이(내용이 짧은 화면에서 메뉴 칸이 늘어나지 않게) */
   .adm-shell {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
 
   /* 첫 줄: 이름(왼쪽) · 홈페이지 보기 · 로그아웃(오른쪽) / 둘째 줄: 메뉴 탭 */
@@ -596,9 +605,20 @@ button.adm-badge:hover {
   }
 
   .adm-brand {
+    display: flex;
     flex: 1;
+    align-items: center;
+    gap: 8px;
     padding: 12px 16px;
     border-bottom: 0;
+  }
+
+  .adm-logo {
+    width: 132px;
+  }
+
+  .adm-brand span {
+    margin-top: 0;
   }
 
   .adm-nav {

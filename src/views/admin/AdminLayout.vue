@@ -2,8 +2,11 @@
   <!-- 관리자 틀: 왼쪽 메뉴 + 오른쪽 내용 (11/13 "왼쪽 메뉴형" 선택). 홈페이지 헤더 · 푸터 없이 관리자 전용 -->
   <div class="adm adm-shell">
     <aside class="adm-side">
+      <!-- 11/13 이름 글자 대신 홈페이지와 같은 로고(금색 엠블럼 + 검정 글자). 누르면 관리자 첫 화면 -->
       <div class="adm-brand">
-        <strong>국제명품감정교육원</strong>
+        <router-link to="/admin/inquiries" class="adm-brand-link" aria-label="관리자 첫 화면">
+          <img :src="logo" alt="국제명품감정교육원" class="adm-logo" />
+        </router-link>
         <span>관리자</span>
       </div>
 
@@ -31,6 +34,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useRoute, useRouter } from 'vue-router'
 import { clearSession, getSession, onUnauthorized } from './adminAuth.js'
+import logo from '@/assets/images/logo-text-black.svg'
 import './admin.css'
 
 const MENU = [
