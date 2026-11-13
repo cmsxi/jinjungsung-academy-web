@@ -277,9 +277,11 @@ const showCourse = (id) => {
 }
 
 // 과정이 바뀌면(창 안 버튼 · 페이지 탭) 열려 있는 창의 표 크기를 다시 맞춘다
+// 주소가 바뀌면 헤더(SiteHeader)가 모바일 메뉴를 닫으며 뒤 페이지 스크롤 잠금을 풀어 버리므로, 창이 열려 있으면 다시 잠근다
 watch(selectedCourse, async () => {
   if (!overview.value) return
   await nextTick()
+  document.body.style.overflow = 'hidden'
   fit()
 })
 onBeforeUnmount(closeOverview)
