@@ -37,6 +37,25 @@
             />
           </div>
 
+          <!-- 11/13 기수(선택): DB 에 숫자로 저장 — 수강후기와 같은 방식 -->
+          <div class="form-row">
+            <label for="cohort">기수</label>
+            <div class="cohort-field">
+              <input
+                id="cohort"
+                v-model="formData.cohort"
+                type="number"
+                inputmode="numeric"
+                min="1"
+                max="99"
+                placeholder="예: 10"
+                :disabled="isSubmitting"
+              />
+              <span class="cohort-unit">기</span>
+            </div>
+            <p class="field-help">몇 기 수업 사진인지 숫자로. 기수와 상관없는 글이면 비워 두세요.</p>
+          </div>
+
           <div class="form-row">
             <label for="content">내용 <span class="required">*</span></label>
             <textarea 
@@ -139,6 +158,7 @@ const postId = ref(null);
 // 폼 데이터
 const formData = ref({
   title: '',
+  cohort: '',
   content: '',
   adminPassword: '',
   image: null
@@ -195,6 +215,7 @@ const loadPost = async () => {
     const post = await jinjungsungService.getPost(postId.value);
     
     formData.value.title = post.title;
+    formData.value.cohort = post.cohort ?? '';
     formData.value.content = post.content;
     
     if (post.image_filename) {
@@ -262,6 +283,8 @@ const submitPost = async () => {
   try {
     const postData = {
       title: formData.value.title,
+      // 기수: 비우면 null(기수 없음 — 수정 시 지움)
+      cohort: formData.value.cohort === '' || formData.value.cohort === null ? null : Number(formData.value.cohort),
       content: formData.value.content,
       adminPassword: formData.value.adminPassword
     };
@@ -393,6 +416,26 @@ onMounted(() => {
   color: #333;
   font-weight: 500;
   font-size: 1.1rem;
+}
+
+.cohort-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-row .cohort-field input {
+  width: 120px;
+}
+
+.cohort-unit {
+  font-weight: 600;
+}
+
+.field-help {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #888;
 }
 
 .required {

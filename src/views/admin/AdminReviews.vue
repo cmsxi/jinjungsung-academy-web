@@ -53,6 +53,7 @@
               <tr>
                 <th>ID</th>
                 <th>작성자</th>
+                <th>기수</th>
                 <th>제목</th>
                 <th>접수일</th>
                 <th>IP</th>
@@ -69,6 +70,7 @@
               >
                 <td>{{ review.id }}</td>
                 <td>{{ review.username }}</td>
+                <td>{{ review.cohort ? `${review.cohort}기` : '—' }}</td>
                 <td class="title-cell">
                   <router-link
                     v-if="review.is_published"

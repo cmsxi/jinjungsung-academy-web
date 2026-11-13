@@ -84,6 +84,8 @@ export const jinjungsungService = {
       formData.append('title', postData.title)
       formData.append('content', postData.content)
       formData.append('admin_password', postData.adminPassword)
+      // 기수(숫자, 비우면 기수 없음). 기수 칸이 있는 관리자 화면이면 항상 보낸다
+      if (postData.cohort !== undefined) formData.append('cohort', postData.cohort === null ? '' : String(postData.cohort))
       
       if (postData.image) {
         formData.append('image', postData.image)
@@ -116,6 +118,8 @@ export const jinjungsungService = {
       formData.append('title', postData.title)
       formData.append('content', postData.content)
       formData.append('admin_password', postData.adminPassword)
+      // 기수(숫자, 비우면 기수 없음). 기수 칸이 있는 관리자 화면이면 항상 보낸다
+      if (postData.cohort !== undefined) formData.append('cohort', postData.cohort === null ? '' : String(postData.cohort))
       
       if (postData.image) {
         formData.append('image', postData.image)
@@ -199,6 +203,8 @@ export const jinjungsungService = {
       formData.append('username', reviewData.username)
       formData.append('title', reviewData.title)
       formData.append('content', reviewData.content)
+      // 기수(선택) — 고른 경우에만 보낸다
+      if (reviewData.cohort) formData.append('cohort', String(reviewData.cohort))
       // honeypot
       formData.append('_botcheck', reviewData.botcheck || '')
 
@@ -267,6 +273,8 @@ export const jinjungsungService = {
       formData.append('title', reviewData.title)
       formData.append('content', reviewData.content)
       formData.append('admin_password', reviewData.adminPassword)
+      // 기수(숫자, 비우면 기수 없음). 기수 칸이 있는 관리자 화면이면 항상 보낸다
+      if (reviewData.cohort !== undefined) formData.append('cohort', reviewData.cohort === null ? '' : String(reviewData.cohort))
 
       if (reviewData.image) {
         formData.append('image', reviewData.image)
@@ -294,6 +302,8 @@ export const jinjungsungService = {
       formData.append('title', reviewData.title)
       formData.append('content', reviewData.content)
       formData.append('admin_password', reviewData.adminPassword)
+      // 기수(숫자, 비우면 기수 없음). 기수 칸이 있는 관리자 화면이면 항상 보낸다
+      if (reviewData.cohort !== undefined) formData.append('cohort', reviewData.cohort === null ? '' : String(reviewData.cohort))
 
       if (reviewData.image) {
         formData.append('image', reviewData.image)
