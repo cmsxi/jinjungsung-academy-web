@@ -6,59 +6,25 @@
     - 어느 커리큘럼인지는 주소의 course 로 정한다: ?course=pawnshop(없거나 모르는 값이면 이것) / ?course=luxury
       이 페이지에 있는 채로 탭을 눌러 course 만 바뀌어도 바로 따라간다
     - 전당포 커리큘럼은 원본에서 이미지(edu-step.png)였던 것을 같은 내용의 표로 옮겼다
-    - 표: 읽기만 하는 정보라 상자 없이, 줄마다 옅은 선(규칙 6), 항목명은 왼쪽 같은 폭(규칙 7)
+    - 11/13 표는 원본 이미지(edu-step.png)의 표 구조로(CurriculumTable.vue) — 원래 디자인이 더 잘 보였다는 요청
+    - 11/13 '한눈에 보기': 전체 화면 창에 표 전체를 화면에 맞춰 한 번에, 창 위쪽 버튼으로 다른 과정 커리큘럼
   -->
   <div class="jj-container">
     <!-- 커리큘럼이 바뀌면 다시 그려지며 부드럽게 나타난다 -->
     <div :key="selectedCourse" class="cur-panel" v-reveal>
-      <!-- 전당포 커리큘럼: 회차 · 교시 · 강의 내용 (원본 edu-step.png 내용 그대로) -->
-      <table v-if="selectedCourse === 'pawnshop'" class="cur-table cur-table--round">
-        <caption class="jj-sr-only">전당포 과정</caption>
-        <colgroup>
-          <col class="col-group" />
-          <col class="col-period" />
-          <col />
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">회차</th>
-            <th scope="col">교시</th>
-            <th scope="col">강의 내용</th>
-          </tr>
-        </thead>
-        <tbody v-for="round in PAWNSHOP_ROUNDS" :key="round.title">
-          <tr v-for="(lesson, index) in round.lessons" :key="lesson">
-            <th v-if="index === 0" scope="rowgroup" :rowspan="round.lessons.length" class="cur-group">
-              {{ round.title }}
-            </th>
-            <td class="cur-period">{{ index + 1 }}교시</td>
-            <td class="cur-text">{{ lesson }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- 표 위 줄: 왼쪽 '오프라인 커리큘럼'(원본 표 제목) · 오른쪽 '한눈에 보기'(11/13 — 전체 화면에 표 전체를 한 번에) -->
+      <div class="cur-bar">
+        <p class="cur-bar-title">
+          오프라인 커리큘럼
+          <span class="cur-bar-meta">{{ barMeta }}</span>
+        </p>
+        <button ref="overviewBtn" type="button" class="v3-btn v3-btn--line v3-btn--sm cur-overview-btn" @click="openOverview">
+          <span class="cur-overview-icon" aria-hidden="true"></span>
+          한눈에 보기
+        </button>
+      </div>
 
-      <!-- 명품창업(명품감정) 커리큘럼: 과목 · 강의 내용 (원본 Curriculum.vue 과목표 그대로) -->
-      <table v-else class="cur-table cur-table--module">
-        <caption class="jj-sr-only">명품창업 과정</caption>
-        <colgroup>
-          <col class="col-module" />
-          <col />
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">과목</th>
-            <th scope="col">강의 내용</th>
-          </tr>
-        </thead>
-        <tbody v-for="module in LUXURY_MODULES" :key="module.title">
-          <tr v-for="(lesson, index) in module.lessons" :key="lesson">
-            <th v-if="index === 0" scope="rowgroup" :rowspan="module.lessons.length" class="cur-group">
-              {{ module.title }}
-            </th>
-            <td class="cur-text">{{ lesson }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <CurriculumTable :course="selectedCourse" :groups="groups" :caption="cta.name" />
     </div>
 
     <p class="cur-notice">※ 명품감정 자격증반은 커리큘럼이 달라질 수 있습니다.</p>
@@ -85,13 +51,57 @@
         </div>
       </div>
     </section>
+
+    <!-- 한눈에 보기: 화면 전체를 덮는 창에 표 전체를 화면에 맞춰 줄여 한 번에
+         11/13 "원래 크기 대신 다른 강의 커리큘럼이 보이는 게" → 위쪽에 전당포 과정 | 명품창업 과정 버튼(창을 닫지 않고 바꿈,
+         뒤 페이지도 같은 과정으로 맞춰 둔다)
+         문서 맨 끝(body)에 붙이므로 3차 시안 색 · 글자 값(.ver-v3 .pal-white)을 이 창에도 준다 -->
+    <Teleport to="body">
+      <div
+        v-if="overview"
+        class="cur-ov ver-v3 pal-white"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="`${cta.name} 커리큘럼 한눈에 보기`"
+      >
+        <div class="cur-ov-bar">
+          <div class="cur-ov-head">
+            <div class="cur-ov-tabs" role="tablist" aria-label="과정 고르기">
+              <button
+                v-for="id in COURSE_IDS"
+                :key="id"
+                type="button"
+                role="tab"
+                class="cur-ov-tab"
+                :class="{ 'is-on': selectedCourse === id }"
+                :aria-selected="selectedCourse === id"
+                @click="showCourse(id)"
+              >
+                {{ CTA[id].name }}
+              </button>
+            </div>
+            <p class="cur-ov-meta">오프라인 커리큘럼 · {{ barMeta }}</p>
+          </div>
+          <button ref="closeBtn" type="button" class="v3-btn v3-btn--sm" @click="closeOverview">닫기</button>
+        </div>
+        <div ref="stage" class="cur-ov-stage">
+          <div class="cur-ov-frame" :style="frameStyle">
+            <div ref="sheet" class="cur-ov-sheet" :style="sheetStyle">
+              <CurriculumTable :course="selectedCourse" :groups="groups" :caption="cta.name" />
+              <p class="cur-notice">※ 명품감정 자격증반은 커리큘럼이 달라질 수 있습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { vReveal } from '../useReveal.js'
+import CurriculumTable from './CurriculumTable.vue'
 import { useGoInquiry } from '@/versions/common/useGoInquiry.js'
 import { PHONE_DISPLAY, PHONE_TEL } from '@/constants/contact.js'
 // 메인 교육과정 카드와 같은 사진(금괴 / 흰 가방)
@@ -167,6 +177,7 @@ const LUXURY_MODULES = [
 ]
 
 const route = useRoute()
+const router = useRouter()
 
 // 주소의 course 로 커리큘럼을 고른다(없거나 모르는 값이면 전당포). computed 라 탭을 눌러 course 만 바뀌어도 따라간다
 const selectedCourse = computed(() => (COURSE_IDS.includes(route.query.course) ? route.query.course : 'pawnshop'))
@@ -195,59 +206,129 @@ const CTA = {
 }
 const cta = computed(() => CTA[selectedCourse.value])
 const goInquiry = useGoInquiry()
+
+// 표 위 줄 설명 — '오프라인 커리큘럼' 옆이라 앞의 '오프라인'은 겹치지 않게 뺀다(4회차 · 16교시)
+const barMeta = computed(() => cta.value.meta.replace(/^오프라인\s*/, ''))
+
+// 표에 넣을 묶음(전당포 = 회차, 명품창업 = 과목)
+const groups = computed(() => (selectedCourse.value === 'luxury' ? LUXURY_MODULES : PAWNSHOP_ROUNDS))
+
+// ── 한눈에 보기 ──
+const overview = ref(false)
+const scale = ref(1)
+const sheetWidth = ref(1100)
+const sheetHeight = ref(0)
+const stage = ref(null)
+const sheet = ref(null)
+const overviewBtn = ref(null)
+const closeBtn = ref(null)
+
+const SHEET_MAX = 1100 // 한눈에 보기 표 폭(넓은 화면에서도 이 이상 키우지 않음)
+
+const sheetStyle = computed(() => ({
+  width: `${sheetWidth.value}px`,
+  transform: `scale(${scale.value})`,
+}))
+// 줄인 만큼 자리도 줄여 아래 · 옆에 빈 스크롤이 생기지 않게
+const frameStyle = computed(() => ({
+  width: `${sheetWidth.value * scale.value}px`,
+  height: sheetHeight.value ? `${sheetHeight.value * scale.value}px` : 'auto',
+}))
+
+const fit = async () => {
+  if (!overview.value || !stage.value) return
+  scale.value = 1
+  const box = stage.value.getBoundingClientRect()
+  const pad = window.innerWidth <= 640 ? 16 : 32
+  sheetWidth.value = Math.min(SHEET_MAX, Math.floor(box.width - pad * 2))
+  await nextTick()
+  const height = sheet.value?.offsetHeight || 0
+  sheetHeight.value = height
+  scale.value = height ? Math.min(1, (box.height - pad * 2) / height) : 1
+}
+
+const onKey = (event) => {
+  if (event.key === 'Escape') closeOverview()
+}
+
+const openOverview = async () => {
+  overview.value = true
+  document.body.style.overflow = 'hidden'
+  window.addEventListener('resize', fit)
+  window.addEventListener('keydown', onKey)
+  await nextTick()
+  await fit()
+  closeBtn.value?.focus()
+}
+
+const closeOverview = () => {
+  if (!overview.value) return
+  overview.value = false
+  document.body.style.overflow = ''
+  window.removeEventListener('resize', fit)
+  window.removeEventListener('keydown', onKey)
+  overviewBtn.value?.focus()
+}
+
+// 창 안에서 다른 과정으로 — 주소의 course 만 바꾸므로 창은 그대로, 뒤 페이지도 같은 과정이 된다
+const showCourse = (id) => {
+  if (id === selectedCourse.value) return
+  router.replace({ query: { ...route.query, course: id } })
+}
+
+// 과정이 바뀌면(창 안 버튼 · 페이지 탭) 열려 있는 창의 표 크기를 다시 맞춘다
+watch(selectedCourse, async () => {
+  if (!overview.value) return
+  await nextTick()
+  fit()
+})
+onBeforeUnmount(closeOverview)
 </script>
 
 <style scoped>
-/* ── 커리큘럼 표 ── */
-.cur-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  word-break: keep-all;
+/* ── 표 위 줄 ── */
+.cur-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-bottom: 16px;
 }
 
-/* 항목명 칸 폭: 두 표의 '강의 내용' 시작 위치가 같도록(회차 + 교시 = 과목) */
-.col-group {
-  width: 180px;
+.cur-bar-title {
+  font-size: var(--fs-item);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
 }
 
-.col-period {
-  width: 140px;
-}
-
-.col-module {
-  width: 320px;
-}
-
-.cur-table th,
-.cur-table td {
-  padding: 18px 24px 18px 0;
-  border-bottom: 1px solid var(--c-line);
+.cur-bar-meta {
+  margin-left: 10px;
   font-size: var(--fs-body);
-  line-height: 1.6;
-  text-align: left;
-  vertical-align: top;
-}
-
-.cur-table thead th {
-  padding-top: 0;
-  padding-bottom: 14px;
-  font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--c-sub);
 }
 
-.cur-group {
-  font-weight: 700;
-  color: var(--c-text);
+.cur-overview-btn {
+  gap: 8px;
 }
 
-.cur-period {
-  color: var(--c-sub);
-}
-
-.cur-text {
-  color: var(--c-text);
+/* 네 귀퉁이 꺾쇠(전체 화면) 표시 */
+.cur-overview-icon {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  background:
+    linear-gradient(currentColor, currentColor) left top / 5px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) left top / 1.5px 5px no-repeat,
+    linear-gradient(currentColor, currentColor) right top / 5px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) right top / 1.5px 5px no-repeat,
+    linear-gradient(currentColor, currentColor) left bottom / 5px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) left bottom / 1.5px 5px no-repeat,
+    linear-gradient(currentColor, currentColor) right bottom / 5px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) right bottom / 1.5px 5px no-repeat;
 }
 
 .cur-notice {
@@ -429,65 +510,116 @@ const goInquiry = useGoInquiry()
   }
 }
 
-@media (max-width: 900px) {
-  .col-group {
-    width: 120px;
-  }
 
-  .col-period {
-    width: 100px;
-  }
 
-  .col-module {
-    width: 220px;
-  }
+/* ── 한눈에 보기(전체 화면 창) ── */
+.cur-ov {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
 }
 
-/* 휴대폰: 표를 세로로 — 회차(과목) 이름을 묶음 제목으로 위에, 그 아래 「교시 : 강의 내용」 한 줄씩 */
-@media (max-width: 560px) {
-  .cur-table,
-  .cur-table tbody {
+.cur-ov-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.cur-ov-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+/* 과정 고르기: 두 칸짜리 버튼, 지금 과정은 검정 */
+.cur-ov-tabs {
+  display: inline-flex;
+  border: 1px solid var(--c-text);
+}
+
+.cur-ov-tab {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  background: #ffffff;
+  font: inherit;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background-color var(--t-1) var(--ease-soft), color var(--t-1) var(--ease-soft);
+}
+
+.cur-ov-tab + .cur-ov-tab {
+  border-left: 1px solid var(--c-text);
+}
+
+.cur-ov-tab.is-on {
+  background: var(--c-text);
+  color: #ffffff;
+}
+
+.cur-ov-tab:not(.is-on):hover {
+  background: var(--c-bg);
+}
+
+.cur-ov-meta {
+  font-size: var(--fs-small);
+  color: var(--c-sub);
+}
+
+.cur-ov-stage {
+  flex: 1;
+  overflow: hidden;
+  padding: 32px;
+}
+
+.cur-ov-frame {
+  margin: 0 auto;
+}
+
+.cur-ov-sheet {
+  transform-origin: top left;
+}
+
+.cur-ov-sheet .cur-notice {
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .cur-bar-meta {
     display: block;
+    margin: 4px 0 0;
   }
 
-  .cur-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+  /* 첫 줄: 과정 버튼 · 닫기 / 둘째 줄: 설명 */
+  .cur-ov-bar {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding: 12px 16px;
   }
 
-  .cur-table tr {
-    display: grid;
+  .cur-ov-head {
+    flex: 1;
+    min-width: 0;
   }
 
-  .cur-table--round tr {
-    grid-template-columns: 56px minmax(0, 1fr);
+  .cur-ov-tab {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
   }
 
-  .cur-table--module tr {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cur-table th,
-  .cur-table td {
-    display: block;
-    padding: 12px 0;
-  }
-
-  .cur-group {
-    grid-column: 1 / -1;
-    padding-top: 28px;
-  }
-
-  .cur-table tbody:first-of-type .cur-group {
-    padding-top: 0;
-  }
-
-  .cur-text {
-    padding-left: 0;
+  .cur-ov-stage {
+    padding: 16px;
   }
 }
 </style>
