@@ -2,7 +2,9 @@
   <!-- 관리자 로그인 — 비밀번호 하나(11/12 결정 유지). 브라우저에는 비밀번호가 아니라 8시간짜리 로그인 토큰만 남는다 -->
   <div class="adm adm-login">
     <form class="adm-login-box" @submit.prevent="submit">
-      <h1>국제명품감정교육원 관리자</h1>
+      <!-- 11/13 홈페이지와 같은 로고 -->
+      <img :src="logo" alt="국제명품감정교육원" class="adm-login-logo" />
+      <h1>관리자 로그인</h1>
 
       <p v-if="expired" class="adm-note adm-note--info">로그인 시간이 지나 다시 로그인해 주세요.</p>
 
@@ -36,6 +38,7 @@ import { useHead } from '@unhead/vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminService } from '@/services/adminService.js'
 import { isLoggedIn, saveSession } from './adminAuth.js'
+import logo from '@/assets/images/logo-text-black.svg'
 import './admin.css'
 
 const route = useRoute()
@@ -101,9 +104,17 @@ onMounted(() => {
   background: var(--adm-panel);
 }
 
+.adm-login-logo {
+  display: block;
+  width: 200px;
+  height: auto;
+}
+
 .adm-login-box h1 {
-  margin-bottom: 20px;
-  font-size: 17px;
+  margin: 18px 0 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--adm-line);
+  font-size: 16px;
   font-weight: 700;
 }
 
