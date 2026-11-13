@@ -46,10 +46,26 @@ export default defineConfig({
   },
   server: {
     host: true,
+    // 개발 화면(npm run dev)만 쓰는 설정 — 배포본에는 영향 없음.
+    // 2026-11-13: 예전 대상 http://211.170.168.146:9000 은 밖에서 접속이 안 돼(시간 초과) 개발 화면이 늘 미리보기 데이터로만 보였다.
+    //   같은 백엔드가 운영 주소 https://luxacademy.kr/api 로는 응답하므로 그쪽으로 잇는다. 사진(/uploads)도 같은 곳에서.
+    // ⛔ 운영 서버라 문의 제출 · 후기 작성 · 관리자 수정은 실제 고객 메일 · 데이터가 된다 → 개발 화면에서는 읽기(GET)만 통과시키고
+    //   쓰기 요청은 막는다(404). 꼭 운영 서버에 써 봐야 할 때만 LIVE_WRITE=1 을 붙여 dev 서버를 켠다.
     proxy: {
       '/api': {
-        target: 'http://211.170.168.146:9000',
-        changeOrigin: true
+        target: 'https://luxacademy.kr',
+        changeOrigin: true,
+        secure: true,
+        bypass(req) {
+          if (req.method === 'GET' || req.method === 'HEAD' || process.env.LIVE_WRITE === '1') return
+          console.warn(`[dev] 운영 서버 쓰기 요청을 막았습니다: ${req.method} ${req.url} (써야 하면 LIVE_WRITE=1)`)
+          return false
+        }
+      },
+      '/uploads': {
+        target: 'https://luxacademy.kr',
+        changeOrigin: true,
+        secure: true
       }
     }
   },
