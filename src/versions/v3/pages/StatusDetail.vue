@@ -31,7 +31,7 @@
         <img :src="imageSrc" :alt="titleText" @error="imageFailed = true" />
       </figure>
 
-      <div v-if="shownPost.content" class="post-content" v-html="formatContent(shownPost.content)"></div>
+      <div v-if="shownPost.content && shownPost.content.trim()" class="post-content" v-html="formatContent(shownPost.content)"></div>
     </BoardPost>
 
     <!-- 게시글을 찾을 수 없는 경우 -->
