@@ -23,42 +23,26 @@ export default {
   },
   data() {
     return {
+      // 11/13 '문의게시판' 탭 삭제(실제로 쓰지 않던 게시판) — 문의는 메인 맨 아래 수강신청 문의 폼으로
       tabs: [
-        { title: '자주묻는질문', id: 'tab-0' },
-        { title: '문의게시판', id: 'tab-1', disabled: true }
+        { title: '자주묻는질문', id: 'tab-0' }
       ],
       currentTab: 'tab-0'
     }
   },
   methods: {
     handleTabChange(tabId) {
-      // 문의게시판 탭이 비활성화되어 있으면 변경하지 않음
-      if (tabId === 'tab-1') return
-      
       this.currentTab = tabId
-      const index = parseInt(tabId.split('-')[1])
-      const routes = ['questions', 'inquiry']
-      this.$router.push(`/faq/${routes[index]}`)
+      this.$router.push('/faq/questions')
     }
   },
   watch: {
-    '$route'(to) {
-      const routeMap = {
-        'questions': 'tab-0',
-        'inquiry': 'tab-1'
-      }
-      const currentRoute = to.path.split('/').pop()
-      this.currentTab = routeMap[currentRoute] || 'tab-0'
+    '$route'() {
+      this.currentTab = 'tab-0'
     }
   },
   created() {
-    // 현재 라우트에 따라 탭 선택
-    const routeMap = {
-      'questions': 'tab-0',
-      'inquiry': 'tab-1'
-    }
-    const currentRoute = this.$route.path.split('/').pop()
-    this.currentTab = routeMap[currentRoute] || 'tab-0'
+    this.currentTab = 'tab-0'
   }
 }
 </script>

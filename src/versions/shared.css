@@ -1,0 +1,45 @@
+/* ------------------------------------------------------------------
+   시안 공통 클래스 (임시 — 시안 확정 후 확정본만 global.css로 옮기고 이 폴더는 삭제)
+   색·두께 등 시안마다 다른 값은 v1/tokens.css, v2/tokens.css 에서
+   .ver-v1 / .ver-v2 로 묶어 정의한다. 원본(.ver-original)에는 영향 없음.
+------------------------------------------------------------------- */
+.jj-container {
+  width: 100%;
+  max-width: calc(var(--jj-container) + var(--jj-gutter) * 2);
+  margin: 0 auto;
+  padding: 0 var(--jj-gutter);
+}
+
+.jj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 54px;
+  padding: 0 30px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.jj-btn:focus-visible,
+.jj-link:focus-visible {
+  outline: 2px solid var(--jj-gold);
+  outline-offset: 3px;
+}
+
+.jj-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
