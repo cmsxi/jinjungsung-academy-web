@@ -38,6 +38,25 @@
             />
           </div>
 
+          <!-- 11/13 기수(선택): DB 에 숫자로 저장 → 홈페이지 목록 · 상세에 'N기 수강생'으로 보인다 -->
+          <div class="form-row">
+            <label for="cohort">기수</label>
+            <div class="cohort-field">
+              <input
+                id="cohort"
+                v-model="formData.cohort"
+                type="number"
+                inputmode="numeric"
+                min="1"
+                max="99"
+                placeholder="예: 8"
+                :disabled="isSubmitting"
+              />
+              <span class="cohort-unit">기</span>
+            </div>
+            <p class="field-help">손글씨 후기지의 「N기 수강생」 숫자. 모르면 비워 두세요.</p>
+          </div>
+
           <div class="form-row">
             <label for="title">제목 <span class="required">*</span></label>
             <input
@@ -150,6 +169,7 @@ const reviewId = ref(null);
 
 const formData = ref({
   username: '관리자',
+  cohort: '',
   title: '',
   content: '',
   adminPassword: '',
@@ -202,6 +222,7 @@ const loadReview = async () => {
     const review = await jinjungsungService.getReview(reviewId.value);
 
     formData.value.username = review.username || '관리자';
+    formData.value.cohort = review.cohort ?? '';
     formData.value.title = review.title;
     formData.value.content = review.content;
 
@@ -263,6 +284,8 @@ const submitReview = async () => {
   try {
     const reviewData = {
       username: formData.value.username,
+      // 기수: 비우면 null(기수 없음 — 수정 시 지움)
+      cohort: formData.value.cohort === '' || formData.value.cohort === null ? null : Number(formData.value.cohort),
       title: formData.value.title,
       content: formData.value.content,
       adminPassword: formData.value.adminPassword
@@ -387,6 +410,26 @@ onMounted(() => {
   color: #333;
   font-weight: 500;
   font-size: 1.1rem;
+}
+
+.cohort-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-row .cohort-field input {
+  width: 120px;
+}
+
+.cohort-unit {
+  font-weight: 600;
+}
+
+.field-help {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #888;
 }
 
 .required {

@@ -41,6 +41,7 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>기수</th>
                 <th>제목</th>
                 <th>작성일</th>
                 <th>이미지</th>
@@ -50,6 +51,7 @@
             <tbody>
               <tr v-for="post in posts" :key="post.id">
                 <td>{{ post.id }}</td>
+                <td>{{ post.cohort ? `${post.cohort}기` : '—' }}</td>
                 <td class="title-cell">
                   <router-link :to="`/education/status/${post.id}`" target="_blank" class="post-title-link">
                     {{ post.title }}
