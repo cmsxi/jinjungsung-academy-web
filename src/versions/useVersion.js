@@ -1,71 +1,15 @@
-// 비교 버튼 상태: 시안 버전 + 헤더 색 + 푸터 색 (임시)
-// - 비교 버튼은 로컬 개발 화면(npm run dev)에서만 보인다.
-//   배포본에서는 주소 끝에 ?preview 를 붙였을 때만 보이고, 그 외에는 항상 '원본'을 보여 준다.
-// - 고른 값은 브라우저(localStorage)에 기억해서 페이지를 옮겨도 유지된다.
-import { ref, watch } from 'vue'
-import { VERSION_MAP, HEADER_THEMES, FOOTER_THEMES, PALETTES } from './registry.js'
+// 사이트 화면 설정 — 11/13 "3차 시안을 실제 사이트로, 시안 비교 버튼은 없앤다"
+// 비교 버튼(VersionSwitcher)으로 고르던 값을 확정값으로 고정한다. 브라우저에 남아 있던 비교용 저장값(jj-preview-*)은 더 이상 읽지 않는다.
+// - 시안: 3차 시안(v3) — 하위 페이지도 registry.js 의 v3 pages 로 그려진다(router 의 versioned())
+// - 헤더: 투명(메인 맨 위에서만 사진 위 투명, 스크롤 · 메뉴 열림 · 하위 페이지는 흰색 — SiteHeader.vue)
+// - 푸터: 차콜 / 색 구성: 연한 회색
+// - 첫 화면: 실제 사진 3장 넘김(photos.js 첫 번째 후보)
+import { ref } from 'vue'
 
-const params = new URLSearchParams(window.location.search)
+export const currentVersion = ref('v3')
+export const headerTheme = ref('transparent')
+export const footerTheme = ref('dark')
+export const palette = ref('white')
 
-export const switcherEnabled = import.meta.env.DEV || params.has('preview')
-
-const read = (key) => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
-const write = (key, value) => {
-  try {
-    localStorage.setItem(key, value)
-  } catch {
-    // 저장이 막힌 브라우저에서는 이번 방문 동안만 유지
-  }
-}
-
-// 저장된 값 → 주소의 값 → 기본값 순으로 고르고, 바뀌면 저장한다
-const persisted = (key, { allowed, fallback, urlParam }) => {
-  const fromUrl = urlParam ? params.get(urlParam) : null
-  const stored = read(key)
-  const initial = [fromUrl, stored].find((value) => value && allowed.includes(value)) || fallback
-  const state = ref(initial)
-  watch(state, (value) => write(key, value))
-  return state
-}
-
-export const currentVersion = switcherEnabled
-  ? persisted('jj-preview-version', { allowed: Object.keys(VERSION_MAP), fallback: 'v3', urlParam: 'v' })
-  : ref('original')
-
-export const headerTheme = persisted('jj-preview-header', {
-  allowed: HEADER_THEMES.map((t) => t.id),
-  fallback: 'light',
-})
-
-
-
-export const footerTheme = persisted('jj-preview-footer', {
-  allowed: FOOTER_THEMES.map((t) => t.id),
-  fallback: 'dark',
-})
-
-export const palette = persisted('jj-preview-palette', {
-  allowed: PALETTES.map((p) => p.id),
-  fallback: 'white',
-})
-
-// 3차 시안 자리별 사진 선택 { slotId: optionId } — 비교 버튼이 있을 때만 쓴다(배포본은 항상 '현재')
-const readPicks = () => {
-  if (!switcherEnabled) return {}
-  try {
-    return JSON.parse(read('jj-preview-photos') || '{}') || {}
-  } catch {
-    return {}
-  }
-}
-
-export const photoPicks = ref(readPicks())
-
-watch(photoPicks, (value) => write('jj-preview-photos', JSON.stringify(value)), { deep: true })
+// 자리별 사진 선택 — 고르지 않음 = 각 자리의 첫 번째 후보(photos.js)
+export const photoPicks = ref({})
